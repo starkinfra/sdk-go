@@ -20,15 +20,15 @@ package pix_director
 //	- status [string]: current PixDirector status. ex: "success"
 
 type PixDirector struct {
-	Name       string
-	TaxId      string
-	Phone      string
-	Email      string
-	Password   string
-	TeamEmail  string
-	TeamPhones []string
-	Id         string
-	Status     string
+	Name       string   `json:"name"`
+	TaxId      string   `json:"taxId"`
+	Phone      string   `json:"phone"`
+	Email      string   `json:"email"`
+	Password   string   `json:"password"`
+	TeamEmail  string   `json:"teamEmail"`
+	TeamPhones []string `json:"teamPhones"`
+	Id         string   `json:"id"`
+	Status     string   `json:"status"`
 }
 
 var resource = map[string]string{"class": PixDirector{}, "name": "PixDirector"}

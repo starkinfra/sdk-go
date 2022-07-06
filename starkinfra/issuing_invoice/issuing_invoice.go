@@ -19,15 +19,15 @@ package issuing_invoice
 //	- created [datetime.datetime]: creation datetime for the IssuingInvoice. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingInvoice struct {
-	Amount               int
-	TaxId                string
-	Name                 string
-	Tags                 []string
-	Id                   string
-	Status               string
-	IssuingTransactionId string
-	Updated              string
-	Created              string
+	Amount               int      `json:"amount"`
+	TaxId                string   `json:"taxId"`
+	Name                 string   `json:"name"`
+	Tags                 []string `json:"tags"`
+	Id                   string   `json:"id"`
+	Status               string   `json:"status"`
+	IssuingTransactionId string   `json:"issuingTransactionId"`
+	Updated              string   `json:"updated"`
+	Created              string   `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingInvoice{}, "name": "IssuingInvoice"}

@@ -41,37 +41,37 @@ package issuing_purchase
 //	- holder_tags [list of strings]: tags of the IssuingHolder responsible for this purchase. ex: ["technology", "john snow"]
 
 type IssuingPurchase struct {
-	Id                     string
-	HolderName             string
-	CardId                 string
-	CardEnding             string
-	Purpose                string
-	Amount                 int
-	Tax                    int
-	IssuerAmount           int
-	IssuerCurrencyCode     string
-	IssuerCurrencySymbol   string
-	MerchantAmount         int
-	MerchantCurrencyCode   string
-	MerchantCurrencySymbol string
-	MerchantCategoryCode   string
-	MerchantCountryCode    string
-	AcquireId              string
-	MerchantId             string
-	MerchantName           string
-	MerchantFee            int
-	WalletId               string
-	MethodCode             string
-	Score                  float64
-	EndToEndId             string
-	Tags                   []string
-	IssuingTransactionIds  string
-	Status                 string
-	Updated                string
-	Created                string
-	IsPartialAllowed       bool
-	CardTags               []string
-	HolderTags             []string
+	Id                     string   `json:"id"`
+	HolderName             string   `json:"holderName"`
+	CardId                 string   `json:"cardId"`
+	CardEnding             string   `json:"cardEnding"`
+	Purpose                string   `json:"purpose"`
+	Amount                 int      `json:"amount"`
+	Tax                    int      `json:"tax"`
+	IssuerAmount           int      `json:"issuerAmount"`
+	IssuerCurrencyCode     string   `json:"issuerCurrencyCode"`
+	IssuerCurrencySymbol   string   `json:"issuerCurrencySymbol"`
+	MerchantAmount         int      `json:"merchantAmount"`
+	MerchantCurrencyCode   string   `json:"merchantCurrencyCode"`
+	MerchantCurrencySymbol string   `json:"merchantCurrencySymbol"`
+	MerchantCategoryCode   string   `json:"merchantCategoryCode"`
+	MerchantCountryCode    string   `json:"merchantCountryCode"`
+	AcquireId              string   `json:"acquireId"`
+	MerchantId             string   `json:"merchantId"`
+	MerchantName           string   `json:"merchantName"`
+	MerchantFee            int      `json:"merchantFee"`
+	WalletId               string   `json:"walletId"`
+	MethodCode             string   `json:"methodCode"`
+	Score                  float64  `json:"score"`
+	EndToEndId             string   `json:"endToEndId"`
+	Tags                   []string `json:"tags"`
+	IssuingTransactionIds  string   `json:"issuingTransactionIds"`
+	Status                 string   `json:"status"`
+	Updated                string   `json:"updated"`
+	Created                string   `json:"created"`
+	IsPartialAllowed       bool     `json:"isPartialAllowed"`
+	CardTags               []string `json:"cardTags"`
+	HolderTags             []string `json:"holderTags"`
 }
 
 var resource = map[string]string{"class": IssuingPurchase{}, "name": "IssuingPurchase"}

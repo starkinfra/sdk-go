@@ -30,21 +30,21 @@ package pix_chargeback
 //	- updated [datetime.datetime]: latest update datetime for the PixChargeback. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixChargeback struct {
-	Amount              int
-	ReferenceId         string
-	Reason              string
-	Description         string
-	Id                  string
-	Analysis            string
-	BacenId             string
-	SenderBankCode      string
-	RecieverBankCode    string
-	RejectionReason     string
-	ReversalReferenceId string
-	Result              string
-	Status              string
-	Created             string
-	Updated             string
+	Amount              int    `json:"amount"`
+	ReferenceId         string `json:"referenceId"`
+	Reason              string `json:"reason"`
+	Description         string `json:"description"`
+	Id                  string `json:"id"`
+	Analysis            string `json:"analysis"`
+	BacenId             string `json:"bacenId"`
+	SenderBankCode      string `json:"senderBankCode"`
+	RecieverBankCode    string `json:"recieverBankCode"`
+	RejectionReason     string `json:"rejectionReason"`
+	ReversalReferenceId string `json:"reversalReferenceId"`
+	Result              string `json:"result"`
+	Status              string `json:"status"`
+	Created             string `json:"created"`
+	Updated             string `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixChargeback{}, "name": "PixChargeback"}

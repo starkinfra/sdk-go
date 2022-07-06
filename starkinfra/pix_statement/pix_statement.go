@@ -22,14 +22,14 @@ package pix_statement
 //	- updated [datetime.datetime]: latest update datetime for the PixStatement. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixStatement struct {
-	After            string
-	Before           string
-	Type             string
-	Id               string
-	Status           string
-	TransactionCount int
-	Created          string
-	Updated          string
+	After            string `json:"after"`
+	Before           string `json:"before"`
+	Type             string `json:"type"`
+	Id               string `json:"id"`
+	Status           string `json:"status"`
+	TransactionCount int    `json:"transactionCount"`
+	Created          string `json:"created"`
+	Updated          string `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixStatement{}, "name": "PixStatement"}

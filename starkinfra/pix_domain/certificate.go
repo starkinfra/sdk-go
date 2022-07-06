@@ -7,7 +7,7 @@ package pix_domain
 //	- content [string]: certificate of the Pix participant in PEM format.
 
 type Certificate struct {
-	Content string
+	Content string `json:"content"`
 }
 
 var resource = map[string]string{"class": Certificate{}, "name": "Certificate"}

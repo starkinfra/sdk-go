@@ -13,13 +13,13 @@ package issuing_transaction
 //	- created [datetime.datetime]: creation datetime for the IssuingTransaction. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingTransaction struct {
-	Id          string
-	Amount      int
-	Balance     int
-	Description string
-	Source      string
-	Tags        []string
-	Created     string
+	Id          string   `json:"id"`
+	Amount      int      `json:"amount"`
+	Balance     int      `json:"balance"`
+	Description string   `json:"description"`
+	Source      string   `json:"source"`
+	Tags        []string `json:"tags"`
+	Created     string   `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingInvoice{}, "name": "IssuingInvoice"}

@@ -29,12 +29,12 @@ var ResourceBySubscription = map[string]string{
 //	- workspace_id [string]: ID of the Workspace that generated this Event. Mostly used when multiple Workspaces have Webhooks registered to the same endpoint. ex: "4545454545454545"
 
 type Event struct {
-	Id           string
-	Log          Log
-	Created      string
-	IsDelivered  bool
-	Subscription string
-	Workspace    string
+	Id           string `json:"id"`
+	Log          Log    `json:"log"`
+	Created      string `json:"created"`
+	IsDelivered  bool   `json:"isDelivered"`
+	Subscription string `json:"subscription"`
+	Workspace    string `json:"workspace"`
 }
 
 func Get() {

@@ -20,15 +20,15 @@ package issuing_withdrawal
 //	- created [datetime.datetime]: creation datetime for the IssuingWithdrawal. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingWithdrawal struct {
-	Amount               int
-	ExternalId           string
-	Description          string
-	Tags                 []string
-	Id                   string
-	TransactionId        string
-	IssuingTransactionId string
-	Updated              string
-	Created              string
+	Amount               int      `json:"amount"`
+	ExternalId           string   `json:"externalId"`
+	Description          string   `json:"description"`
+	Tags                 []string `json:"tags"`
+	Id                   string   `json:"id"`
+	TransactionId        string   `json:"transactionId"`
+	IssuingTransactionId string   `json:"issuingTransactionId"`
+	Updated              string   `json:"updated"`
+	Created              string   `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingWithdrawal{}, "name": "IssuingWithdrawal"}

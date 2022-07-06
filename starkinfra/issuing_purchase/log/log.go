@@ -15,12 +15,12 @@ package log
 //	- created [datetime.datetime]: creation datetime for the log. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Log struct {
-	Id                   string
-	Purchase             IssuingPurchase
-	IssuingTransactionId string
-	Errors               []string
-	Type                 string
-	Created              string
+	Id                   string          `json:"id"`
+	Purchase             IssuingPurchase `json:"purchase"`
+	IssuingTransactionId string          `json:"issuingTransactionId"`
+	Errors               []string        `json:"errors"`
+	Type                 string          `json:"type"`
+	Created              string          `json:"created"`
 }
 
 var resource = map[string]string{"class": Log{}, "name": "IssuingPurchaseLog"}

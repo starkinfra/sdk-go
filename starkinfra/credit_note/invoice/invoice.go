@@ -33,29 +33,29 @@ package invoice
 //	- updated [datetime.datetime]: latest update datetime for the Invoice. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Invoice struct {
-	Amount         int
-	Due            string
-	Expiration     int
-	Tags           []string
-	Description    []Description
-	Id             string
-	Name           string
-	TaxId          string
-	Pdf            string
-	Link           string
-	Fine           float64
-	Interest       float64
-	NominalAmount  int
-	FineAmount     int
-	InterestAmount int
-	DiscountAmount int
-	Discounts      []Discount
-	BrCode         string
-	Status         string
-	Fee            int
-	TransactionIds []string
-	Created        string
-	Updated        string
+	Amount         int           `json:"amount"`
+	Due            string        `json:"due"`
+	Expiration     int           `json:"expiration"`
+	Tags           []string      `json:"tags"`
+	Description    []Description `json:"description"`
+	Id             string        `json:"id"`
+	Name           string        `json:"name"`
+	TaxId          string        `json:"taxId"`
+	Pdf            string        `json:"pdf"`
+	Link           string        `json:"link"`
+	Fine           float64       `json:"fine"`
+	Interest       float64       `json:"interest"`
+	NominalAmount  int           `json:"nominalAmount"`
+	FineAmount     int           `json:"fineAmount"`
+	InterestAmount int           `json:"interestAmount"`
+	DiscountAmount int           `json:"discountAmount"`
+	Discounts      []Discount    `json:"discounts"`
+	BrCode         string        `json:"brCode"`
+	Status         string        `json:"status"`
+	Fee            int           `json:"fee"`
+	TransactionIds []string      `json:"transactionIds"`
+	Created        string        `json:"created"`
+	Updated        string        `json:"updated"`
 }
 
 func ParseDiscounts() {

@@ -33,28 +33,28 @@ package issuing_card
 //	- created [datetime.datetime]: creation datetime for the IssuingCard. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingCard struct {
-	HolderName       string
-	HolderTaxId      string
-	HolderExternalId string
-	DisplayName      string
-	Rules            []IssuingRules
-	BinId            string
-	Tags             []string
-	StreetLine1      string
-	StreetLine2      string
-	District         string
-	City             string
-	StateCode        string
-	ZipCode          string
-	Id               string
-	HolderId         string
-	Type             string
-	Status           string
-	Number           string
-	SecurityCode     string
-	Expiration       string
-	Updated          string
-	Created          string
+	HolderName       string         `json:"holderName"`
+	HolderTaxId      string         `json:"holderTaxId"`
+	HolderExternalId string         `json:"holderExternalId"`
+	DisplayName      string         `json:"displayName"`
+	Rules            []IssuingRules `json:"rules"`
+	BinId            string         `json:"binId"`
+	Tags             []string       `json:"tags"`
+	StreetLine1      string         `json:"streetLine1"`
+	StreetLine2      string         `json:"streetLine2"`
+	District         string         `json:"district"`
+	City             string         `json:"city"`
+	StateCode        string         `json:"stateCode"`
+	ZipCode          string         `json:"zipCode"`
+	Id               string         `json:"id"`
+	HolderId         string         `json:"holderId"`
+	Type             string         `json:"type"`
+	Status           string         `json:"status"`
+	Number           string         `json:"number"`
+	SecurityCode     string         `json:"securityCode"`
+	Expiration       string         `json:"expiration"`
+	Updated          string         `json:"updated"`
+	Created          string         `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingCard{}, "name": "IssuingCard"}

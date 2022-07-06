@@ -14,10 +14,10 @@ package issuing_balance
 //	- updated [string]: latest update datetime for the IssuingBalance. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingBalance struct {
-	Id       string
-	Amount   int
-	Currency string
-	Updated  string
+	Id       string `json:"id"`
+	Amount   int    `json:"amount"`
+	Currency string `json:"currency"`
+	Updated  string `json:"updated"`
 }
 
 var resource = map[string]string{"class": IssuingBalance{}, "name": "IssuingBalance"}

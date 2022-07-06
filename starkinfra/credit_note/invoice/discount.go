@@ -8,8 +8,8 @@ package invoice
 //	- due [datetime.datetime or string]: due datetime for the discount
 
 type Discount struct {
-	Percentage float64
-	Due        string
+	Percentage float64 `json:"percentage"`
+	Due        string  `json:"due"`
 }
 
 var resource = map[string]string{"class": Description{}, "name": "Description"}

@@ -13,12 +13,12 @@ package issuing_bin
 //	- created [datetime.datetime]: creation datetime for the Bin. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingBin struct {
-	Id         string
-	Network    string
-	Settlement string
-	Category   string
-	Client     string
-	Created    string
+	Id         string `json:"id"`
+	Network    string `json:"network"`
+	Settlement string `json:"settlement"`
+	Category   string `json:"category"`
+	Client     string `json:"client"`
+	Created    string `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingBin{}, "name": "IssuingBin"}

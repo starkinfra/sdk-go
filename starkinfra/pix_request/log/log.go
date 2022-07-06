@@ -12,11 +12,11 @@ package log
 //	- created [datetime.datetime]: creation datetime for the log. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Log struct {
-	Id      string
-	Request PixRequest
-	Type    string
-	Errors  []string
-	Created string
+	Id      string     `json:"id"`
+	Request PixRequest `json:"request"`
+	Type    string     `json:"type"`
+	Errors  []string   `json:"errors"`
+	Created string     `json:"created"`
 }
 
 var resource = map[string]string{"class": Log, "name": "PixRequestLog"}

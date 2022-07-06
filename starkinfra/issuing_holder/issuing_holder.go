@@ -19,15 +19,15 @@ package issuing_holder
 //	- created [datetime.datetime]: creation datetime for the IssuingHolder. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type IssuingHolder struct {
-	Name       string
-	TaxId      string
-	ExternalId string
-	Rules      []IssuingRule
-	Tags       []string
-	Id         string
-	Status     string
-	Updated    string
-	Created    string
+	Name       string        `json:"name"`
+	TaxId      string        `json:"taxId"`
+	ExternalId string        `json:"externalId"`
+	Rules      []IssuingRule `json:"rules"`
+	Tags       []string      `json:"tags"`
+	Id         string        `json:"id"`
+	Status     string        `json:"status"`
+	Updated    string        `json:"updated"`
+	Created    string        `json:"created"`
 }
 
 var resource = map[string]string{"class": IssuingHolder{}, "name": "IssuingHolder"}

@@ -1,13 +1,13 @@
 package log
 
 type Log struct {
-	Id      string
-	Claim   PixClaim
-	Type    string
-	Errors  []string
-	Agent   string
-	Reason  string
-	Created string
+	Id      string   `json:"id"`
+	Claim   PixClaim `json:"claim"`
+	Type    string   `json:"type"`
+	Errors  []string `json:"errors"`
+	Agent   string   `json:"agent"`
+	Reason  string   `json:"reason"`
+	Created string   `json:"created"`
 }
 
 var resource = map[string]string{"class": Log{}, "name": "PixClaimLog"}

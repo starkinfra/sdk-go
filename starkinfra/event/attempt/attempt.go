@@ -1,12 +1,12 @@
 package attempt
 
 type Attempt struct {
-	Id        string
-	Code      string
-	Message   string
-	EventId   string
-	WebHookId string
-	Created   string
+	Id        string `json:"id"`
+	Code      string `json:"code"`
+	Message   string `json:"message"`
+	EventId   string `json:"eventId"`
+	WebhookId string `json:"webhookId"`
+	Created   string `json:"created"`
 }
 
 var Resource = map[string]string{"class": Attempt{}, "name": "EventAttempt"}

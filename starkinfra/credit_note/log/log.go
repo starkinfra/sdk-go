@@ -14,11 +14,11 @@ package log
 //	- created [datetime.datetime]: creation datetime for the log. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Log struct {
-	Id      string
-	Note    CreditNote
-	Erros   []string
-	Type    string
-	Created string
+	Id      string     `json:"id"`
+	Note    CreditNote `json:"note"`
+	Errors  []string   `json:"errors"`
+	Type    string     `json:"type"`
+	Created string     `json:"created"`
 }
 
 func get() {

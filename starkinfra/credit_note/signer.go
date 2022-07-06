@@ -9,7 +9,7 @@ package credit_note
 //	- method [string]: delivery method for the contract. ex: "link"
 
 type Signer struct {
-	Name    string
-	Contact string
-	Method  string
+	Name    string `json:"name"`
+	Contact string `json:"contact"`
+	Method  string `json:"method"`
 }

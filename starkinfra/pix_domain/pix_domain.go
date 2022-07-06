@@ -9,8 +9,8 @@ package pix_domain
 //	- name [string]: current active domain (URL) of the Pix participant.
 
 type PixDomain struct {
-	Certificates []Certificate
-	Name         string
+	Certificates []Certificate `json:"certificates"`
+	Name         string        `json:"name"`
 }
 
 var resource = map[string]string{"class": PixDomain{}, "name": "PixDomain"}

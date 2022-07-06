@@ -12,9 +12,9 @@ package webhook
 //	- id [string]: unique id returned when the webhook is created. ex: "5656565656565656"
 
 type Webhook struct {
-	Url          string
-	Subscription []string
-	Id           string
+	Url          string   `json:"url"`
+	Subscription []string `json:"subscription"`
+	Id           string   `json:"id"`
 }
 
 var resource = map[string]string{"class": Webhook{}, "name": "Webhook"}

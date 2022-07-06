@@ -44,36 +44,36 @@ package pix_request
 //	- updated [datetime.datetime]: latest update datetime for the PixRequest. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixRequest struct {
-	Amount                int
-	ExternalId            string
-	SenderName            string
-	SenderTaxId           string
-	SenderBranchCode      string
-	SenderAccountNumber   string
-	SenderAccountType     string
-	ReceiverName          string
-	ReceiverTaxId         string
-	ReceiverBankCode      string
-	ReceiverAccountNumber string
-	ReceiverBranchCode    string
-	ReceiverAccountType   string
-	EndToEndId            string
-	ReceiverKeyId         string
-	Description           string
-	ReconciliationId      string
-	InitiatorTaxId        string
-	CashAmount            int
-	CashierBankCode       string
-	CashierType           string
-	Tags                  []string
-	Method                string
-	Id                    string
-	Fee                   int
-	Status                string
-	Flow                  string
-	SenderBankCode        string
-	Created               string
-	Updated               string
+	Amount                int      `json:"amount"`
+	ExternalId            string   `json:"externalId"`
+	SenderName            string   `json:"senderName"`
+	SenderTaxId           string   `json:"senderTaxId"`
+	SenderBranchCode      string   `json:"senderBranchCode"`
+	SenderAccountNumber   string   `json:"senderAccountNumber"`
+	SenderAccountType     string   `json:"senderAccountType"`
+	ReceiverName          string   `json:"receiverName"`
+	ReceiverTaxId         string   `json:"receiverTaxId"`
+	ReceiverBankCode      string   `json:"receiverBankCode"`
+	ReceiverAccountNumber string   `json:"receiverAccountNumber"`
+	ReceiverBranchCode    string   `json:"receiverBranchCode"`
+	ReceiverAccountType   string   `json:"receiverAccountType"`
+	EndToEndId            string   `json:"endToEndId"`
+	ReceiverKeyId         string   `json:"receiverKeyId"`
+	Description           string   `json:"description"`
+	ReconciliationId      string   `json:"reconciliationId"`
+	InitiatorTaxId        string   `json:"initiatorTaxId"`
+	CashAmount            int      `json:"cashAmount"`
+	CashierBankCode       string   `json:"cashierBankCode"`
+	CashierType           string   `json:"cashierType"`
+	Tags                  []string `json:"tags"`
+	Method                string   `json:"method"`
+	Id                    string   `json:"id"`
+	Fee                   int      `json:"fee"`
+	Status                string   `json:"status"`
+	Flow                  string   `json:"flow"`
+	SenderBankCode        string   `json:"senderBankCode"`
+	Created               string   `json:"created"`
+	Updated               string   `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixRequest{}, "name": "PixRequest"}

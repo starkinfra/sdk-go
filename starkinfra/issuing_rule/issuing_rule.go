@@ -21,17 +21,17 @@ package issuing_rule
 //	- currency_name [string]: currency name. ex: "Brazilian Real"
 
 type IssuingRule struct {
-	Name           string
-	Amount         int
-	Id             string
-	Interval       string
-	CurrencyCode   string
-	Categories     []string
-	Countries      []string
-	Methods        []string
-	CounterAmount  int
-	CurrencySymbol string
-	CurrencyName   string
+	Name           string   `json:"name"`
+	Amount         int      `json:"amount"`
+	Id             string   `json:"id"`
+	Interval       string   `json:"interval"`
+	CurrencyCode   string   `json:"currencyCode"`
+	Categories     []string `json:"categories"`
+	Countries      []string `json:"countries"`
+	Methods        []string `json:"methods"`
+	CounterAmount  int      `json:"counterAmount"`
+	CurrencySymbol string   `json:"currencySymbol"`
+	CurrencyName   string   `json:"currencyName"`
 }
 
 var resource = map[string]string{"class": IssuingRule{}, "name": "IssuingRule"}

@@ -42,33 +42,33 @@ package credit_note
 //	- updated [datetime.datetime]: latest update datetime for the CreditNote. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Creditnote struct {
-	TemplateId     string
-	Name           string
-	TaxId          string
-	NominalAmount  string
-	Scheduled      string
-	Payment        Transfer
-	Invoices       []Invoice
-	Signers        []Signer
-	ExternalId     string
-	StreetLine1    string
-	StreetLine2    string
-	District       string
-	City           string
-	StateCode      string
-	ZipCode        string
-	PaymentType    string
-	RebateAmount   int
-	Tags           []string
-	Amount         int
-	DocumentId     string
-	Status         string
-	TransactionIds []string
-	WorkspaceId    string
-	TaxAmount      int
-	Interest       int
-	Created        string
-	Update         string
+	TemplateId     string    `json:"templateId"`
+	Name           string    `json:"name"`
+	TaxId          string    `json:"taxId"`
+	NominalAmount  string    `json:"nominalAmount"`
+	Scheduled      string    `json:"scheduled"`
+	Payment        Transfer  `json:"payment"`
+	Invoices       []Invoice `json:"invoices"`
+	Signers        []Signer  `json:"signers"`
+	ExternalId     string    `json:"externalId"`
+	StreetLine1    string    `json:"streetLine1"`
+	StreetLine2    string    `json:"streetLine2"`
+	District       string    `json:"district"`
+	City           string    `json:"city"`
+	StateCode      string    `json:"stateCode"`
+	ZipCode        string    `json:"zipCode"`
+	PaymentType    string    `json:"paymentType"`
+	RebateAmount   int       `json:"rebateAmount"`
+	Tags           []string  `json:"tags"`
+	Amount         int       `json:"amount"`
+	DocumentId     string    `json:"documentId"`
+	Status         string    `json:"status"`
+	TransactionIds []string  `json:"transactionIds"`
+	WorkspaceId    string    `json:"workspaceId"`
+	TaxAmount      int       `json:"taxAmount"`
+	Interest       int       `json:"interest"`
+	Created        string    `json:"created"`
+	Update         string    `json:"update"`
 }
 
 func ParseSigners() {

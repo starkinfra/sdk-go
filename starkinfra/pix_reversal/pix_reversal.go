@@ -27,19 +27,19 @@ package pix_reversal
 //	- updated [datetime.datetime]: latest update datetime for the PixReversal. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixReversal struct {
-	Amount     int
-	ExternalId string
-	EndToEndId string
-	Reason     string
-	Tags       []string
-	Id         string
-	ReturnId   string
-	BankCode   string
-	Fee        string
-	Status     string
-	Flow       string
-	Created    string
-	Updated    string
+	Amount     int      `json:"amount"`
+	ExternalId string   `json:"externalId"`
+	EndToEndId string   `json:"endToEndId"`
+	Reason     string   `json:"reason"`
+	Tags       []string `json:"tags"`
+	Id         string   `json:"id"`
+	ReturnId   string   `json:"returnId"`
+	BankCode   string   `json:"bankCode"`
+	Fee        string   `json:"fee"`
+	Status     string   `json:"status"`
+	Flow       string   `json:"flow"`
+	Created    string   `json:"created"`
+	Updated    string   `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixReversal{}, "name": "PixReversal"}

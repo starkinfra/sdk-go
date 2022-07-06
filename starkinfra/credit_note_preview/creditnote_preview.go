@@ -29,20 +29,20 @@ package credit_note_preview
 //	- tax_amount [integer]: tax amount included in the CreditNote. ex: 100
 
 type CreditNotePreview struct {
-	Type            string
-	NominalAmount   int
-	Scheduled       string
-	TaxId           string
-	Invoices        []Invoice
-	NominalInterest float64
-	InitialDue      string
-	Count           int
-	InitialAmount   int
-	Interval        string
-	RebateAmount    int
-	Amount          int
-	Interest        float64
-	TaxAmount       int
+	Type            string    `json:"type"`
+	NominalAmount   int       `json:"nominalAmount"`
+	Scheduled       string    `json:"scheduled"`
+	TaxId           string    `json:"taxId"`
+	Invoices        []Invoice `json:"invoices"`
+	NominalInterest float64   `json:"nominalInterest"`
+	InitialDue      string    `json:"initialDue"`
+	Count           int       `json:"count"`
+	InitialAmount   int       `json:"initialAmount"`
+	Interval        string    `json:"interval"`
+	RebateAmount    int       `json:"rebateAmount"`
+	Amount          int       `json:"amount"`
+	Interest        float64   `json:"interest"`
+	TaxAmount       int       `json:"taxAmount"`
 }
 
 var resource = map[string]any{"class": CreditNotePreview{}, "name": "CreditNotePreview"}

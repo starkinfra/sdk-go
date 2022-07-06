@@ -28,20 +28,20 @@ package pix_infraction
 //	- updated [datetime.datetime]: latest update datetime for the PixInfraction. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixInfraction struct {
-	ReferenceId      string
-	Type             string
-	Description      string
-	Id               string
-	CreditedBankCode string
-	DebitedBankCode  string
-	Agent            string
-	Analysis         string
-	BacenId          string
-	ReportedBy       string
-	Result           string
-	Status           string
-	Created          string
-	Updates          string
+	ReferenceId      string `json:"referenceId"`
+	Type             string `json:"type"`
+	Description      string `json:"description"`
+	Id               string `json:"id"`
+	CreditedBankCode string `json:"creditedBankCode"`
+	DebitedBankCode  string `json:"debitedBankCode"`
+	Agent            string `json:"agent"`
+	Analysis         string `json:"analysis"`
+	BacenId          string `json:"bacenId"`
+	ReportedBy       string `json:"reportedBy"`
+	Result           string `json:"result"`
+	Status           string `json:"status"`
+	Created          string `json:"created"`
+	Updated          string `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixInfraction{}, "name": "PixInfraction"}

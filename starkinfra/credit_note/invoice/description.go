@@ -10,8 +10,8 @@ package invoice
 //	- value [string, default ""]: amount related to the described key. ex: "R$100,00"
 
 type Description struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 var resource = map[string]string{"class": Description{}, "name": "Description"}

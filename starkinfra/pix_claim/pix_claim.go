@@ -27,22 +27,22 @@ package pix_claim
 //	- updated [datetime.datetime]: update datetime for the PixClaim. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixClaim struct {
-	AccountCreated  string
-	AccountNumber   string
-	AccountType     string
-	BranchCode      string
-	Name            string
-	TaxId           string
-	KeyId           string
-	Id              string
-	Status          string
-	Type            string
-	KeyType         string
-	Agente          string
-	BankCode        string
-	ClaimedBankCode string
-	Created         string
-	Updates         string
+	AccountCreated  string `json:"accountCreated"`
+	AccountNumber   string `json:"accountNumber"`
+	AccountType     string `json:"accountType"`
+	BranchCode      string `json:"branchCode"`
+	Name            string `json:"name"`
+	TaxId           string `json:"taxId"`
+	KeyId           string `json:"keyId"`
+	Id              string `json:"id"`
+	Status          string `json:"status"`
+	Type            string `json:"type"`
+	KeyType         string `json:"keyType"`
+	Agent           string `json:"agent"`
+	BankCode        string `json:"bankCode"`
+	ClaimedBankCode string `json:"claimedBankCode"`
+	Created         string `json:"created"`
+	Updated         string `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixClaim{}, "name": "PixClaim"}

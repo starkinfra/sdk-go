@@ -27,21 +27,21 @@ package credit_note
 //	- updated [datetime.datetime]: latest update datetime for the transfer. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type Transfer struct {
-	Name           string
-	TaxId          string
-	BankCode       string
-	BranchCode     string
-	AccountNumber  string
-	AccountType    string
-	Tags           []string
-	Id             string
-	Amount         string
-	ExternalId     string
-	Scheduled      string
-	Description    string
-	Fee            int
-	Status         string
-	TransactionIds []string
-	Created        string
-	Updated        string
+	Name           string   `json:"name"`
+	TaxId          string   `json:"taxId"`
+	BankCode       string   `json:"bankCode"`
+	BranchCode     string   `json:"branchCode"`
+	AccountNumber  string   `json:"accountNumber"`
+	AccountType    string   `json:"accountType"`
+	Tags           []string `json:"tags"`
+	Id             string   `json:"id"`
+	Amount         string   `json:"amount"`
+	ExternalId     string   `json:"externalId"`
+	Scheduled      string   `json:"scheduled"`
+	Description    string   `json:"description"`
+	Fee            int      `json:"fee"`
+	Status         string   `json:"status"`
+	TransactionIds []string `json:"transactionIds"`
+	Created        string   `json:"created"`
+	Updated        string   `json:"updated"`
 }

@@ -13,10 +13,10 @@ package pix_balance
 //	- updated [datetime.datetime]: latest update datetime for the balance. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixBalance struct {
-	Id       string
-	Amount   int
-	Currency string
-	Updated  string
+	Id       string `json:"id"`
+	Amount   int    `json:"amount"`
+	Currency string `json:"currency"`
+	Updated  string `json:"updated"`
 }
 
 var resource = map[string]string{"class": PixBalance{}, "name": "PixBalance"}

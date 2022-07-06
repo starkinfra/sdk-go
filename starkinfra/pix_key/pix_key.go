@@ -29,21 +29,21 @@ package pix_key
 //	- created [datetime.datetime]: creation datetime for the PixKey. ex: datetime.datetime(2020, 3, 10, 10, 30, 0, 0)
 
 type PixKey struct {
-	AccountCreated string
-	AccountNumber  string
-	AccountType    string
-	BranchCode     string
-	Name           string
-	TaxId          string
-	Id             string
-	Tags           []string
-	Owned          string
-	OwnerType      string
-	Status         string
-	BankCode       string
-	BankName       string
-	Type           string
-	Created        string
+	AccountCreated string   `json:"accountCreated"`
+	AccountNumber  string   `json:"accountNumber"`
+	AccountType    string   `json:"accountType"`
+	BranchCode     string   `json:"branchCode"`
+	Name           string   `json:"name"`
+	TaxId          string   `json:"taxId"`
+	Id             string   `json:"id"`
+	Tags           []string `json:"tags"`
+	Owned          string   `json:"owned"`
+	OwnerType      string   `json:"ownerType"`
+	Status         string   `json:"status"`
+	BankCode       string   `json:"bankCode"`
+	BankName       string   `json:"bankName"`
+	Type           string   `json:"type"`
+	Created        string   `json:"created"`
 }
 
 var resource = map[string]string{"class": PixKey{}, "name": "PixKey"}
