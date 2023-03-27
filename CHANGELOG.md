@@ -13,5 +13,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [0.0.1] - 2023-03-27
 ### Added
 - Full Stark Infra API v2 compatibility
