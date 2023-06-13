@@ -8,7 +8,7 @@ package invoice
 //	- Amount [int]: Invoice value in cents. Minimum = 1 (any value will be accepted). ex: 1234 (= R$ 12.34)
 //
 //	Parameters (optional):
-//	- Due [time.Time, default now + 2 days]: Invoice due date in UTC ISO format. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC), for immediate invoices and time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC), for scheduled invoices
+//	- Due [string, default now + 2 days]: Invoice due date in UTC ISO format. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC), for immediate invoices and time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC), for scheduled invoices
 //	- Expiration [int, default 5097600 (59 days)]: Time interval in seconds between due date and expiration date. ex 123456789
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"tony", "stark"}
 //	- Descriptions [slice of invoice.Description structs, default nil]: List Description structs

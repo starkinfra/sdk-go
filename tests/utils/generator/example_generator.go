@@ -42,10 +42,11 @@ func BrcodePreview() []brcodepreview.BrcodePreview {
 	var params = map[string]interface{}{}
 	params["limit"] = 20
 
-	brcodes := staticbrcode.Query(params, nil)
+	brcodes := dynamicbrcode.Query(params, nil)
 	for brcode := range brcodes {
 		preview := brcodepreview.BrcodePreview{
-			Id: brcode.Id,
+			Id:      brcode.Id,
+			PayerId: "012.345.678-90",
 		}
 		previews = append(previews, preview)
 	}
@@ -54,27 +55,26 @@ func BrcodePreview() []brcodepreview.BrcodePreview {
 
 func CreditNote() []creditnote.CreditNote {
 
-	scheduled := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Add(time.Hour * 24 * 2)
+	scheduled := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).AddDate(0, 0, 2)
 	amount := rand.Intn(100000 - 1)
 
 	notes := []creditnote.CreditNote{
 		{
-			TemplateId:    "5707012469948416",
-			Name:          "Jamie Lannister",
-			TaxId:         Cpf(),
-			NominalAmount: amount,
-			Scheduled:     &scheduled,
-			Invoices:      Invoice(amount),
-			Payment:       Payment(),
-			Signers:       Signer(),
-			ExternalId:    ExternalId(),
-			StreetLine1:   "Rua ABC",
-			StreetLine2:   "Ap 123",
-			District:      "Jardim Paulista",
-			City:          "São Paulo",
-			StateCode:     "SP",
-			ZipCode:       "01234-567",
-			PaymentType:   "transfer",
+			TemplateId:  "5707012469948416",
+			Name:        "Jamie Lannister",
+			TaxId:       Cpf(),
+			Scheduled:   &scheduled,
+			Invoices:    Invoice(amount),
+			Payment:     Payment(),
+			Signers:     Signer(),
+			ExternalId:  ExternalId(),
+			StreetLine1: "Rua ABC",
+			StreetLine2: "Ap 123",
+			District:    "Jardim Paulista",
+			City:        "São Paulo",
+			StateCode:   "SP",
+			ZipCode:     "01234-567",
+			PaymentType: "transfer",
 		},
 	}
 	return notes
@@ -94,8 +94,7 @@ func Signer() []creditsigner.CreditSigner {
 
 func Invoice(amount int) []invoice.Invoice {
 
-	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Add(time.Hour * 24 * 10).Format("2006-01-05")
-
+	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).AddDate(0, 0, 10).Format("2006-01-02")
 	invoices := []invoice.Invoice{
 		{
 			Due:    due,
@@ -192,7 +191,7 @@ func CreditHolmes() []creditholmes.CreditHolmes {
 	holmes := []creditholmes.CreditHolmes{
 		{
 			TaxId:      Cpf(),
-			Competence: "2022-09-22",
+			Competence: "2022-09",
 		},
 	}
 	return holmes
@@ -259,7 +258,7 @@ func IssuingCardEmbossing(holder issuingholder.IssuingHolder) []issuingcard.Issu
 			HolderName:       holder.Name,
 			HolderTaxId:      holder.TaxId,
 			HolderExternalId: holder.ExternalId,
-			ProductId:        "52233227",
+			ProductId:        "53810299",
 			Type:             "physical",
 		},
 	}
@@ -271,7 +270,11 @@ func IssuingRestock() []issuingrestock.IssuingRestock {
 	restocks := []issuingrestock.IssuingRestock{
 		{
 			Count:   1000,
-			StockId: "6526579068895232",
+			StockId: "5152058940325888",
+		},
+		{
+			Count:   2000,
+			StockId: "6277958847168512",
 		},
 	}
 	return restocks
@@ -282,9 +285,8 @@ func IssuingEmbossingRequest(cardId string) []issuingembossingrequest.IssuingEmb
 	restocks := []issuingembossingrequest.IssuingEmbossingRequest{
 		{
 			CardId:                 cardId,
-			CardDesignId:           "5648359658356736",
+			KitId:                  "5659002855751680",
 			DisplayName1:           "teste",
-			EnvelopeDesignId:       "5747368922185728",
 			ShippingCity:           "Sao Paulo",
 			ShippingCountryCode:    "BRA",
 			ShippingDistrict:       "Bela Vista",
@@ -294,7 +296,7 @@ func IssuingEmbossingRequest(cardId string) []issuingembossingrequest.IssuingEmb
 			ShippingStreetLine2:    "teste",
 			ShippingTrackingNumber: "teste",
 			ShippingZipCode:        "12345-678",
-			EmbosserId:             "5746980898734080",
+			EmbosserId:             "5634161670881280",
 		},
 	}
 	return restocks
@@ -455,9 +457,11 @@ func StaticBrcode() []staticbrcode.StaticBrcode {
 
 	brcodes := []staticbrcode.StaticBrcode{
 		{
-			Name:  "Tony Stark",
-			KeyId: "+5511989898989",
-			City:  "Rio de Janeiro",
+			Name:            "Tony Stark",
+			KeyId:           "+5511989898989",
+			City:            "Rio de Janeiro",
+			CashierBankCode: "20018183",
+			Description:     "A Static Brcode",
 		},
 	}
 	return brcodes

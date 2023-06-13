@@ -13,6 +13,14 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- IssuingEmbossingKit resource
+- payerId and endToEndId parameter to BrcodePreview resource
+- cashierBankCode and description parameter to StaticBrcode resource
+### Changed
+- nominalAmount and amount parameter to conditionally required to CreditNote resource
+### Removed
+- cardDesignId and envelopeDesignId attributes to IssuingEmbossingRequest resource
 
 ## [0.0.1] - 2023-03-27
 ### Added

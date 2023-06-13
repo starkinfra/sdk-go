@@ -26,6 +26,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Holders](#create-issuingholders): Manage card holders
         - [Cards](#create-issuingcards): Create virtual and/or physical cards
         - [Design](#query-issuingdesigns): View your current card or package designs
+        - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
         - [EmbossingRequest](#create-issuingembossingrequests): Create embossing requests
@@ -951,6 +952,65 @@ func main() {
 
 ```
 
+### Query IssuingEmbossingKits
+
+You can get a list of existing embossing kits given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	IssuingEmbossingKit "github.com/starkinfra/sdk-go/starkinfra/issuingembossingkit"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    kits := IssuingEmbossingKit.Query(params, nil)
+    for kit := range kits {
+        fmt.Println(kit.Id)
+    }
+}
+
+```
+
+### Get an IssuingEmbossingKit
+
+After its creation, information on an embossing kit may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingEmbossingKit "github.com/starkinfra/sdk-go/starkinfra/issuingembossingkit"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    kit, err := IssuingEmbossingKit.Get("5792731695677440", nil, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+
+    fmt.Println(kit.Id)
+}
+
+```
+
 ### Query IssuingStocks
 
 You can get a list of available stocks given some filters.
@@ -998,14 +1058,14 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    design, err := IssuingStock.Get("5792731695677440", nil, nil)
+    stock, err := IssuingStock.Get("5792731695677440", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
             panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
         }
     }
 
-    fmt.Println(design.Id)
+    fmt.Println(stock.Id)
 }
 
 ```
@@ -1091,7 +1151,7 @@ func main() {
         []IssuingRestock.IssuingRestock{
             {
                 Count:   1000,
-                StockId: "6526579068895232",
+                StockId: "5152058940325888",
             },
         }, nil)
     if err.Errors != nil {
@@ -1247,9 +1307,8 @@ func main() {
         []IssuingEmbossingRequest.IssuingEmbossingRequest{
             {
                 CardId:                 "5714424132272128",
-                CardDesignId:           "5648359658356736",
+                KitId:                  "5648359658356736",
                 DisplayName1:           "teste",
-                EnvelopeDesignId:       "5747368922185728",
                 ShippingCity:           "Sao Paulo",
                 ShippingCountryCode:    "BRA",
                 ShippingDistrict:       "Bela Vista",
@@ -1259,7 +1318,7 @@ func main() {
                 ShippingStreetLine2:    "teste",
                 ShippingTrackingNumber: "teste",
                 ShippingZipCode:        "12345-678",
-                EmbosserId:             "5746980898734080",
+                EmbosserId:             "5634161670881280",
             },
         }, nil)
     if err.Errors != nil {
@@ -3895,7 +3954,8 @@ func main() {
     previews, err := BrcodePreview.Create(
         []BrcodePreview.BrcodePreview{
             {
-                Id: "00020126420014br.gov.bcb.pix0120nedstark@hotmail.com52040000530398654075000.005802BR5909Ned Stark6014Rio de Janeiro621605126674869738606304FF71",
+				Id: "00020126420014br.gov.bcb.pix0120nedstark@hotmail.com52040000530398654075000.005802BR5909Ned Stark6014Rio de Janeiro621605126674869738606304FF71", 
+				PayerId: "123.456.78-90",
             },
         }, nil)
     if err.Errors != nil {

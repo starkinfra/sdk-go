@@ -56,7 +56,9 @@ func TestIssuingStockInfoGet(t *testing.T) {
 		stockList = append(stockList, stock)
 	}
 
-	stock, err := IssuingStock.Get(stockList[rand.Intn(len(stockList))].Id, nil, nil)
+	var expand = map[string]interface{}{}
+	expand["expand"] = "balance"
+	stock, err := IssuingStock.Get(stockList[rand.Intn(len(stockList))].Id, expand, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
