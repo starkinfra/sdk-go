@@ -22,7 +22,6 @@ import (
 //	- TemplateId [string]: ID of the contract template on which the credit note will be based. ex: "0123456789101112"
 //	- Name [string]: Credit receiver's full name. ex: "Edward Stark"
 //	- TaxId [string]: Credit receiver's tax ID (CPF or CNPJ). ex: "20.018.183/0001-80"
-//	- NominalAmount [int]: Amount in cents transferred to the credit receiver, before deductions. ex: 11234 (= R$ 112.34)
 //	- Scheduled [time.Time]: Date of transfer execution. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Invoices [slice of Invoice structs]: Slice of Invoice structs to be created and sent to the credit receiver. ex: []string{Invoice(), Invoice()]
 //	- Payment [creditNote.Transfer struct]: Payment entity to be created and sent to the credit receiver. ex: creditnote.Transfer()
@@ -37,6 +36,8 @@ import (
 //
 //	Parameters (conditionally required):
 //	- PaymentType [string]: Payment type, inferred from the payment parameter if it is not a map. ex: "transfer"
+//	- NominalAmount [int]: CreditNote value in cents. The nominalAmount parameter is required when amount is not sent. ex: 1234 (= R$ 12.34)
+//	- Amount [int]: Amount in cents transferred to the credit receiver, before deductions. The amount parameter is required when nominalAmount is not sent. ex: 1234 (= R$ 12.34)
 //
 //	Parameters (optional):
 //	- RebateAmount [int, default 0]: Credit analysis fee deducted from lent amount. ex: 1234 (= R$ 112.34)
@@ -45,7 +46,6 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the CreditNote is created. ex: "5656565656565656"
-//	- Amount [int]: CreditNote value in cents. ex: 1234 (= R$ 12.34)
 //	- DocumentId [string]: ID of the signed document to execute this CreditNote. ex: "4545454545454545"
 //	- Status [string]: Current status of the CreditNote. ex: "canceled", "created", "expired", "failed", "processing", "signed", "success"
 //	- TransactionIds [slice of strings]: Ledger transaction ids linked to this CreditNote. ex: []string{"19827356981273"}
@@ -61,7 +61,6 @@ type CreditNote struct {
 	TemplateId     string                `json:",omitempty"`
 	Name           string                `json:",omitempty"`
 	TaxId          string                `json:",omitempty"`
-	NominalAmount  int                   `json:",omitempty"`
 	Scheduled      *time.Time            `json:",omitempty"`
 	Payment        Transfer              `json:",omitempty"`
 	Invoices       []Invoice.Invoice     `json:",omitempty"`
@@ -73,10 +72,11 @@ type CreditNote struct {
 	City           string                `json:",omitempty"`
 	StateCode      string                `json:",omitempty"`
 	ZipCode        string                `json:",omitempty"`
+	NominalAmount  int                   `json:",omitempty"`
 	PaymentType    string                `json:",omitempty"`
+	Amount         int                   `json:",omitempty"`
 	RebateAmount   int                   `json:",omitempty"`
 	Tags           []string              `json:",omitempty"`
-	Amount         int                   `json:",omitempty"`
 	DocumentId     string                `json:",omitempty"`
 	Status         string                `json:",omitempty"`
 	TransactionIds []string              `json:",omitempty"`

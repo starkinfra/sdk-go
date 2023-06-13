@@ -14,8 +14,7 @@ import (
 //
 //	Parameters (required):
 //	- CardId [string]: Id of the IssuingCard to be embossed. ex "5656565656565656"
-//	- CardDesignId [string]: Card IssuingDesign id. ex "5656565656565656"
-//	- EnvelopeDesignId [string]: Envelope IssuingDesign id. ex "5656565656565656"
+//	- KitId [string]: Card embossing kit id. ex "5656565656565656"
 //	- DisplayName1 [string]: Card displayed name. ex: "ANTHONY STARK"
 //	- ShippingCity [string]: Shipping city. ex: "NEW YORK"
 //	- ShippingCountryCode [string]: Shipping country code. ex: "US"
@@ -43,8 +42,7 @@ import (
 
 type IssuingEmbossingRequest struct {
 	CardId                 string     `json:",omitempty"`
-	CardDesignId           string     `json:",omitempty"`
-	EnvelopeDesignId       string     `json:",omitempty"`
+	KitId                  string     `json:",omitempty"`
 	DisplayName1           string     `json:",omitempty"`
 	ShippingCity           string     `json:",omitempty"`
 	ShippingCountryCode    string     `json:",omitempty"`

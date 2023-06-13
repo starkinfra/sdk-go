@@ -14,6 +14,10 @@ import (
 //
 //	Parameters (required):
 //	- Id [string]: BR Code from a Pix payment. This is also de information directly encoded in a QR Code. ex: "00020126580014br.gov.bcb.pix0136a629532e-7693-4846-852d-1bbff817b5a8520400005303986540510.005802BR5908T'Challa6009Sao Paulo62090505123456304B14A"
+//	- PayerId [string]: Tax id (CPF/CNPJ) of the individual or business requesting the PixKey information. This id is used by the Central Bank to limit request rates. ex: "20.018.183/0001-80"
+//
+// 	Parameters (optional):
+//	- EndToEndId [string, default ""]: central bank's unique transaction ID. ex: "E79457883202101262140HHX553UPqeq"
 //
 //	Attributes (return-only):
 //	- AccountNumber [string]: Payment receiver account number. ex: "1234567"
@@ -39,6 +43,8 @@ import (
 
 type BrcodePreview struct {
 	Id               string     `json:",omitempty"`
+	PayerId          string     `json:",omitempty"`
+	EndToEndId       string     `json:",omitempty"`
 	AccountNumber    string     `json:",omitempty"`
 	AccountType      string     `json:",omitempty"`
 	Amount           int        `json:",omitempty"`
