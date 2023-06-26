@@ -1,6 +1,8 @@
-package tax_id_generator
+package utils
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func EndToEndId(bankCode string) string {
 

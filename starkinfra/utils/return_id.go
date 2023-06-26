@@ -1,4 +1,4 @@
-package tax_id_generator
+package utils
 
 import (
 	"fmt"

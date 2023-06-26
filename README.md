@@ -2062,7 +2062,8 @@ import (
     "fmt"
     "github.com/starkinfra/sdk-go/starkinfra"
     PixRequest "github.com/starkinfra/sdk-go/starkinfra/pixrequest"
-    "github.com/starkinfra/sdk-go/tests/utils"
+	PixRequest "github.com/starkinfra/sdk-go/starkinfra/pixrequest"
+	Utils "github.com/starkinfra/sdk-go/starkinfra/utils"
 )
 
 func main() {
@@ -2085,7 +2086,7 @@ func main() {
                 ReceiverAccountNumber: "876543-2",
                 ReceiverBranchCode:    "1357-9",
                 ReceiverAccountType:   "payment",
-                EndToEndId:            EndToEndId("35547753"),
+                EndToEndId:            Utils.EndToEndId("35547753"),
             },
         }, nil)
     if err.Errors != nil {

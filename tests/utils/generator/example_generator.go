@@ -28,6 +28,7 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/pixreversal"
 	"github.com/starkinfra/sdk-go/starkinfra/pixstatement"
 	"github.com/starkinfra/sdk-go/starkinfra/staticbrcode"
+	Utils "github.com/starkinfra/sdk-go/starkinfra/utils"
 	"github.com/starkinfra/sdk-go/starkinfra/webhook"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	"math/rand"
@@ -421,7 +422,7 @@ func PixRequest() []pixrequest.PixRequest {
 			ReceiverAccountNumber: "876543-2",
 			ReceiverBranchCode:    "1357-9",
 			ReceiverAccountType:   "payment",
-			EndToEndId:            EndToEndId("35547753"),
+			EndToEndId:            Utils.EndToEndId("35547753"),
 		},
 	}
 	return requests
