@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [0.1.1] - 2023-06-26
 ### Changed
 - bacen_id, end_to_end_id and return_id methods to utils package
 
