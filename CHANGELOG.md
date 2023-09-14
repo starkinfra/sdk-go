@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Changed
+- core version
 
 ## [0.1.1] - 2023-06-26
 ### Changed
