@@ -2288,7 +2288,7 @@ package main
 import (
     "fmt"
     "github.com/starkinfra/sdk-go/starkinfra"
-    PixRequest "github.com/starkinfra/sdk-go/starkinfra/pixrequest"
+    PixReversal "github.com/starkinfra/sdk-go/starkinfra/pixreversal"
     "github.com/starkinfra/sdk-go/tests/utils"
 )
 
@@ -2296,33 +2296,23 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    requests, err := PixRequest.Create(
-        []PixRequest.PixRequest{
+	reversals, err := PixReversal.create(
+        []PixReversal.PixReversal{
             {
-                Amount:                12345,
-                ExternalId:            "my_external_id_unique",
-                SenderName:            "Edward Stark",
-                SenderTaxId:           "20.018.183/0001-80",
-                SenderBranchCode:      "1357-9",
-                SenderAccountNumber:   "876543-2",
-                SenderAccountType:     "checking",
-                ReceiverName:          "Edward Stark",
-                ReceiverTaxId:         "01234567890",
-                ReceiverBankCode:      "20018183",
-                ReceiverAccountNumber: "876543-2",
-                ReceiverBranchCode:    "1357-9",
-                ReceiverAccountType:   "payment",
-                EndToEndId:            EndToEndId("35547753"),
+                Amount:     12345,
+                ExternalId: ExternalId(),
+                EndToEndId: "E34052649202204723420u34sDGd19l2",
+                Reason:     "bankError",
             },
-        }, nil)
+	    }, nil)
     if err.Errors != nil {
-        for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-        }
-    }
+	    for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
 
-    for _, request := range requests {
-        fmt.Println(request.Id)
+    for _, reversal := range reversals {
+        fmt.Println(reversal.Id)
     }
 }
 

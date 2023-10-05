@@ -13,8 +13,8 @@ import (
 //	Displays the IssuingPurchase structs created in your Workspace.
 //
 //	Attributes (return-only):
-//	- Id [string]: Unique id returned when IssuingPurchase is created. ex: "5656565656565656"
 //	- HolderName [string]: Card holder name. ex: "Tony Stark"
+// 	- ProductId [string]: Unique card product number (BIN) registered within the card network. ex: "53810200"
 //	- CardId [string]: Unique id returned when IssuingCard is created. ex: "5656565656565656"
 //	- CardEnding [string]: Last 4 digits of the card number. ex: "1234"
 //	- Purpose [string]: Purchase purpose. ex: "purchase"
@@ -27,6 +27,7 @@ import (
 //	- MerchantCurrencyCode [string]: Merchant currency code. ex: "USD"
 //	- MerchantCurrencySymbol [string]: Merchant currency symbol. ex: "$"
 //	- MerchantCategoryCode [string]: Merchant category code. ex: "fastFoodRestaurants"
+//  - MerchantCategoryType [string]: Merchant category type. ex "food"
 //	- MerchantCountryCode [string]: Merchant country code. ex: "USA"
 //	- AcquirerId [string]: Acquirer ID. ex: "5656565656565656"
 //	- MerchantId [string]: Merchant ID. ex: "5656565656565656"
@@ -39,48 +40,59 @@ import (
 //	- Tags [string]: Slice of strings for tagging returned by the sub-issuer during the authorization. ex: []string{"travel", "food"}
 //
 //	Attributes (IssuingPurchase only):
+//	- Id [string]: Unique id returned when IssuingPurchase is created. ex: "5656565656565656"
 //	- IssuingTransactionIds [slice of string]: Ledger transaction ids linked to this Purchase
 //	- Status [string]: Current IssuingCard status. ex: "approved", "canceled", "denied", "confirmed", "voided"
+//  - Description [string]: IssuingPurchase description. ex: "Office Supplies"
+//  - Metadata [map[string]interface{}]: Object used to store additional information about the IssuingPurchase object. ex: { authorizationId: "OjZAqj" }.
+//  - ZipCode [string]: Zip code of the merchant location. ex: "02101234"
 //	- Updated [time.Time]: Latest update datetime for the IssuingPurchase. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: Creation datetime for the IssuingPurchase. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //
 //	Attributes (Authorization Request only):
 //	- IsPartialAllowed [bool]: True i the merchant allows partial purchases. ex: False
 //	- CardTags [slice of strings]: Tags of the IssuingCard responsible for this purchase. ex: []string{"travel", "food"}
+//  - HolderId [string]: Card holder ID. ex: "5656565656565656"
 //	- HolderTags [slice of strings]: Tags of the IssuingHolder responsible for this purchase. ex: []string{"technology", "john snow"]
 
 type IssuingPurchase struct {
-	Id                     string     `json:",omitempty"`
-	HolderName             string     `json:",omitempty"`
-	CardId                 string     `json:",omitempty"`
-	CardEnding             string     `json:",omitempty"`
-	Purpose                string     `json:",omitempty"`
-	Amount                 int        `json:",omitempty"`
-	Tax                    int        `json:",omitempty"`
-	IssuerAmount           int        `json:",omitempty"`
-	IssuerCurrencyCode     string     `json:",omitempty"`
-	IssuerCurrencySymbol   string     `json:",omitempty"`
-	MerchantAmount         int        `json:",omitempty"`
-	MerchantCurrencyCode   string     `json:",omitempty"`
-	MerchantCurrencySymbol string     `json:",omitempty"`
-	MerchantCategoryCode   string     `json:",omitempty"`
-	MerchantCountryCode    string     `json:",omitempty"`
-	AcquireId              string     `json:",omitempty"`
-	MerchantId             string     `json:",omitempty"`
-	MerchantName           string     `json:",omitempty"`
-	MerchantFee            int        `json:",omitempty"`
-	WalletId               string     `json:",omitempty"`
-	MethodCode             string     `json:",omitempty"`
-	Score                  float64    `json:",omitempty"`
-	EndToEndId             string     `json:",omitempty"`
-	Tags                   []string   `json:",omitempty"`
-	IssuingTransactionIds  []string   `json:",omitempty"`
-	Status                 string     `json:",omitempty"`
-	Updated                *time.Time `json:",omitempty"`
-	Created                *time.Time `json:",omitempty"`
-	IsPartialAllowed       bool       `json:",omitempty"`
-	CardTags               []string   `json:",omitempty"`
-	HolderTags             []string   `json:",omitempty"`
+	Id                     string	 			    `json:",omitempty"`
+	HolderName             string	 			    `json:",omitempty"`
+	ProductId			   string					`json:",omitempty"`
+	CardId                 string	 			    `json:",omitempty"`
+	CardEnding			   string					`json:",omitempty"`	 	
+	Purpose                string	 			    `json:",omitempty"`
+	Amount                 int				        `json:",omitempty"`
+	Tax                    int				        `json:",omitempty"`
+	IssuerAmount           int				        `json:",omitempty"`
+	IssuerCurrencyCode     string	 			    `json:",omitempty"`
+	IssuerCurrencySymbol   string	 			    `json:",omitempty"`
+	MerchantAmount         int				        `json:",omitempty"`
+	MerchantCurrencyCode   string	 			    `json:",omitempty"`
+	MerchantCurrencySymbol string	 			    `json:",omitempty"`
+	MerchantCategoryCode   string	 			    `json:",omitempty"`
+	MerchantCategoryType   string	 			    `json:",omitempty"`
+	MerchantCountryCode    string	 			    `json:",omitempty"`
+	AcquireId              string	 			    `json:",omitempty"`
+	MerchantId             string	 			    `json:",omitempty"`
+	MerchantName           string	 			    `json:",omitempty"`
+	MerchantFee            int				        `json:",omitempty"`
+	WalletId               string	 			    `json:",omitempty"`
+	MethodCode             string	 			    `json:",omitempty"`
+	Score                  float64					`json:",omitempty"`
+	EndToEndId             string	 			    `json:",omitempty"`
+	Tags                   []string   				`json:",omitempty"`
+	IssuingTransactionIds  []string   				`json:",omitempty"`
+	Status                 string	 			    `json:",omitempty"`
+	Description 		   string	 			    `json:",omitempty"`
+	Metadata			   map[string]interface{}	`json:",omitempty"`
+	ZipCode				   string					`json:",omitempty"`
+	Updated                *time.Time 				`json:",omitempty"`
+	Created                *time.Time 				`json:",omitempty"`
+	IsPartialAllowed       bool       				`json:",omitempty"`
+	CardTags               []string   				`json:",omitempty"`
+	HolderId			   string	 			    `json:",omitempty"`
+	HolderTags             []string   				`json:",omitempty"`
 }
 
 var object IssuingPurchase
