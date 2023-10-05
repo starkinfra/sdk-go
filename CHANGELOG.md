@@ -13,10 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
-
-## [0.1.2] - 2023-09-14
-### Changed
-- core version
+### Added
+- MerchantCategoryType, Description, ZipCode and HolderId attributes to IssuingPurchase resource
 
 ## [0.1.1] - 2023-06-26
 ### Changed
