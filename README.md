@@ -3870,6 +3870,7 @@ func main() {
     data["reconciliationId"] = invoice.ReconciliationId
     data["amount"] = invoice.Amount
     data["senderName"] = invoice.SenderName
+    data["senderTaxId"] = invoice.SenderTaxId
     data["receiverName"] = invoice.ReceiverName
     data["receiverStreetLine"] = invoice.ReceiverStreetLine
     data["receiverCity"] = invoice.ReceiverCity
