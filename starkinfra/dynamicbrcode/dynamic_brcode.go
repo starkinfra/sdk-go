@@ -177,6 +177,7 @@ func ResponseDue(params map[string]interface{}) interface{} {
 	//		- reconciliationId [string]: Id to be used for conciliation of the resulting Pix transaction. This id must have from to 26 to 35 alphanumeric characters ex: "cd65c78aeb6543eaaa0170f68bd741ee"
 	//		- nominalAmount [int]: Positive int that represents the amount in cents of the resulting Pix transaction. ex: 1234 (= R$ 12.34)
 	//  	- senderName [string]: Sender's full name. ex: "Anthony Edward Stark"
+	//		- senderTaxId [string]: Sender's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "01.001.001/0001-01"
 	//  	- receiverName [string]: Receiver's full name. ex: "Jamie Lannister"
 	//  	- receiverStreetLine [string]: Receiver's main address. ex: "Av. Paulista, 200"
 	//  	- receiverCity [string]: Receiver's address city name. ex: "Sao Paulo"
@@ -184,7 +185,6 @@ func ResponseDue(params map[string]interface{}) interface{} {
 	//  	- receiverZipCode [string]: Receiver's address zip code. ex: "01234-567"
 	//
 	//		Parameters (optional):
-	//		- senderTaxId [string, default nil]: Sender's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "01.001.001/0001-01"
 	//		- receiverTaxId [string, default nil]: Receiver's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "012.345.678-90"
 	//		- fine [float64, default 2.0]: Percentage charged if the sender pays after the due datetime.
 	//		- interest [float64, default 1.0]: Interest percentage charged if the sender pays after the due datetime.
