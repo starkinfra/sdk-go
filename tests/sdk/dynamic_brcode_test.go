@@ -123,11 +123,11 @@ func TestDynamicBrcodeResponseDue(t *testing.T) {
 	due["senderName"] = "Anthony Edward Stark"
 	due["senderTaxId"] = "012.345.678-90"
 	due["receiverName"] = "Jamie Lannister"
+	due["receiverTaxId"] = "20.018.183/0001-8"
 	due["receiverStreetLine"] = "Av. Paulista, 200"
 	due["receiverCity"] = "Sao Paulo"
 	due["receiverStateCode"] = "SP"
 	due["receiverZipCode"] = "01234-567"
-	due["receiverTaxId"] = "20.018.183/0001-8"
 	due["fine"] = 64
 	due["interest"] = 0.8
 	due["discounts"] = []map[string]interface{}{
