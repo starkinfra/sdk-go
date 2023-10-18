@@ -3872,6 +3872,7 @@ func main() {
     data["senderName"] = invoice.SenderName
     data["senderTaxId"] = invoice.SenderTaxId
     data["receiverName"] = invoice.ReceiverName
+    data["receiverTaxId"] = invoice.ReceiverTaxId
     data["receiverStreetLine"] = invoice.ReceiverStreetLine
     data["receiverCity"] = invoice.ReceiverCity
     data["receiverStateCode"] = invoice.ReceiverStateCode

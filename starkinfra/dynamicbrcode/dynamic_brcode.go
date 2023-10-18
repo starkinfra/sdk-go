@@ -179,13 +179,13 @@ func ResponseDue(params map[string]interface{}) interface{} {
 	//  	- senderName [string]: Sender's full name. ex: "Anthony Edward Stark"
 	//		- senderTaxId [string]: Sender's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "01.001.001/0001-01"
 	//  	- receiverName [string]: Receiver's full name. ex: "Jamie Lannister"
+	//		- receiverTaxId [string]: Receiver's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "012.345.678-90"
 	//  	- receiverStreetLine [string]: Receiver's main address. ex: "Av. Paulista, 200"
 	//  	- receiverCity [string]: Receiver's address city name. ex: "Sao Paulo"
 	//  	- receiverStateCode [string]: Receiver's address state code. ex: "SP"
 	//  	- receiverZipCode [string]: Receiver's address zip code. ex: "01234-567"
 	//
 	//		Parameters (optional):
-	//		- receiverTaxId [string, default nil]: Receiver's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "012.345.678-90"
 	//		- fine [float64, default 2.0]: Percentage charged if the sender pays after the due datetime.
 	//		- interest [float64, default 1.0]: Interest percentage charged if the sender pays after the due datetime.
 	//		- discounts [slice of maps, default nil]: Slice of maps with "percentage":float64 and "due":date.datetime or string pairs.
