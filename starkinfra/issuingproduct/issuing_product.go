@@ -30,8 +30,6 @@ type IssuingProduct struct {
 	Created     *time.Time `json:",omitempty"`
 }
 
-var object IssuingProduct
-var objects []IssuingProduct
 var resource = map[string]string{"name": "IssuingProduct"}
 
 func Query(params map[string]interface{}, user user.User) chan IssuingProduct {
@@ -46,16 +44,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingProduct {
 	//
 	//	Return:
 	//	- channel of IssuingBin structs with updated attributes
+	var issuingProduct IssuingProduct
 	products := make(chan IssuingProduct)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingProduct)
 			if err != nil {
 				print(err)
 			}
-			products <- object
+			products <- issuingProduct
 		}
 		close(products)
 	}()
@@ -77,10 +76,11 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingProduct, stri
 	//	Return:
 	//	- slice of IssuingProduct structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingProduct structs
+	var issuingProducts []IssuingProduct
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingProducts)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingProducts, cursor, err
 	}
-	return objects, cursor, err
+	return issuingProducts, cursor, err
 }

@@ -31,8 +31,6 @@ type Log struct {
 	Created *time.Time                                      `json:",omitempty"`
 }
 
-var object Log
-var objects []Log
 var resource = map[string]string{"name": "IssuingEmbossingRequestLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingEmbossingRequest.Log struct that corresponds to the given id.
+	var issuingEmbossingRequestLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingEmbossingRequestLog)
 	if unmarshalError != nil {
-		return object, err
+		return issuingEmbossingRequestLog, err
 	}
-	return object, err
+	return issuingEmbossingRequestLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -64,7 +63,7 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"created", "sending", "sent", "processing", "success", "failed"}
@@ -73,16 +72,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of note.Log structs with updated attributes
+	var issuingEmbossingRequestLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingEmbossingRequestLog)
 			if err != nil {
 				print(err)
 			}
-			logs <- object
+			logs <- issuingEmbossingRequestLog
 		}
 		close(logs)
 	}()
@@ -99,7 +99,7 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- cursor [string, default nil]: Cursor returned on the previous page function call
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"created", "sending", "sent", "processing", "success", "failed"}
@@ -109,10 +109,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of IssuingEmbossingRequest.Log structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingEmbossingRequest.Log structs
+	var issuingEmbossingRequestLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingEmbossingRequestLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingEmbossingRequestLogs, cursor, err
 	}
-	return objects, cursor, err
+	return issuingEmbossingRequestLogs, cursor, err
 }

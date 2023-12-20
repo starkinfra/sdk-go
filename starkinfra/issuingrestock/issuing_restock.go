@@ -36,8 +36,6 @@ type IssuingRestock struct {
 	Created *time.Time `json:",omitempty"`
 }
 
-var object IssuingRestock
-var objects []IssuingRestock
 var resource = map[string]string{"name": "IssuingRestock"}
 
 func Create(restocks []IssuingRestock, user user.User) ([]IssuingRestock, Error.StarkErrors) {
@@ -74,12 +72,13 @@ func Get(id string, user user.User) (IssuingRestock, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingRestock struct that corresponds to the given id.
+	var issuingRestock IssuingRestock
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingRestock)
 	if unmarshalError != nil {
-		return object, err
+		return issuingRestock, err
 	}
-	return object, err
+	return issuingRestock, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingRestock {
@@ -92,24 +91,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingRestock {
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: filter for status of retrieved objects. ex: []string{"created", "processing", "confirmed"}
-	//		- stockIds [slice of strings, default nil]: slice of stockIds to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"card", "corporate"}
+	//		- status [slice of strings, default nil]: filter for status of retrieved structs. ex: []string{"created", "processing", "confirmed"}
+	//		- stockIds [slice of strings, default nil]: slice of stockIds to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"card", "corporate"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- channel of IssuingRestock structs with updated attributes
+	var issuingRestock IssuingRestock
 	restocks := make(chan IssuingRestock)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingRestock)
 			if err != nil {
 				print(err)
 			}
-			restocks <- object
+			restocks <- issuingRestock
 		}
 		close(restocks)
 	}()
@@ -128,19 +128,20 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingRestock, stri
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: filter for status of retrieved objects. ex: []string{"created", "processing", "confirmed"}
-	//		- stockIds [slice of strings, default nil]: slice of stock_ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"card", "corporate"}
+	//		- status [slice of strings, default nil]: filter for status of retrieved structs. ex: []string{"created", "processing", "confirmed"}
+	//		- stockIds [slice of strings, default nil]: slice of stock_ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"card", "corporate"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- slice of IssuingRestock structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingRestock structs
+	var issuingRestocks []IssuingRestock
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingRestocks)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingRestocks, cursor, err
 	}
-	return objects, cursor, err
+	return issuingRestocks, cursor, err
 }

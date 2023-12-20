@@ -28,7 +28,6 @@ type MerchantCategory struct {
 	Number string `json:",omitempty"`
 }
 
-var object MerchantCategory
 var resource = map[string]string{"name": "MerchantCategory"}
 
 func Query(params map[string]interface{}, user user.User) chan MerchantCategory {
@@ -43,16 +42,17 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCategory 
 	//
 	//	Return:
 	//	- channel of MerchantCategory structs with updated attributes
+	var merchantCategory MerchantCategory
 	categories := make(chan MerchantCategory)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &merchantCategory)
 			if err != nil {
 				print(err)
 			}
-			categories <- object
+			categories <- merchantCategory
 		}
 		close(categories)
 	}()

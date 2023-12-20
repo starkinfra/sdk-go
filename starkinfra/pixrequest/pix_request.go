@@ -85,8 +85,6 @@ type PixRequest struct {
 	Updated               *time.Time `json:",omitempty"`
 }
 
-var object PixRequest
-var objects []PixRequest
 var resource = map[string]string{"name": "PixRequest"}
 
 func Create(requests []PixRequest, user user.User) ([]PixRequest, Error.StarkErrors) {
@@ -123,12 +121,13 @@ func Get(id string, user user.User) (PixRequest, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixRequest struct with updated attributes
+	var pixRequest PixRequest
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixRequest)
 	if unmarshalError != nil {
-		return object, err
+		return pixRequest, err
 	}
-	return object, err
+	return pixRequest, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixRequest {
@@ -150,16 +149,17 @@ func Query(params map[string]interface{}, user user.User) chan PixRequest {
 	//
 	//	Return:
 	//	- channel of PixRequest structs with updated attributes
+	var pixRequest PixRequest
 	requests := make(chan PixRequest)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixRequest)
 			if err != nil {
 				print(err)
 			}
-			requests <- object
+			requests <- pixRequest
 		}
 		close(requests)
 	}()
@@ -188,12 +188,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixRequest, string, 
 	//	Return:
 	//	- slice of PixRequest structs with updated attributes
 	//	- cursor to retrieve the next page of PixRequest structs
+	var pixRequests []PixRequest
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixRequests)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixRequests, cursor, err
 	}
-	return objects, cursor, err
+	return pixRequests, cursor, err
 }
 
 func Parse(content string, signature string, user user.User) PixRequest {
@@ -212,11 +213,12 @@ func Parse(content string, signature string, user user.User) PixRequest {
 	//
 	//	Return:
 	//	- parsed PixRequest struct
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &object)
+	var pixRequest PixRequest
+	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &pixRequest)
 	if unmarshalError != nil {
-		return object
+		return pixRequest
 	}
-	return object
+	return pixRequest
 }
 
 func Response(authorization map[string]interface{}) string {

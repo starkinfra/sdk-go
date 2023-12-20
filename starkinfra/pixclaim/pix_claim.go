@@ -59,8 +59,6 @@ type PixClaim struct {
 	Updated         *time.Time `json:",omitempty"`
 }
 
-var object PixClaim
-var objects []PixClaim
 var resource = map[string]string{"name": "PixClaim"}
 
 func Create(claim PixClaim, user user.User) (PixClaim, Error.StarkErrors) {
@@ -98,12 +96,13 @@ func Get(id string, user user.User) (PixClaim, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixClaim struct that corresponds to the given id.
+	var pixClaim PixClaim
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixClaim)
 	if unmarshalError != nil {
-		return object, err
+		return pixClaim, err
 	}
-	return object, err
+	return pixClaim, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixClaim {
@@ -127,16 +126,17 @@ func Query(params map[string]interface{}, user user.User) chan PixClaim {
 	//
 	//	Return:
 	//	- channel of PixClaim structs with updated attributes
+	var pixClaim PixClaim
 	claims := make(chan PixClaim)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixClaim)
 			if err != nil {
 				print(err)
 			}
-			claims <- object
+			claims <- pixClaim
 		}
 		close(claims)
 	}()
@@ -167,12 +167,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixClaim, string, Er
 	//	Return:
 	//	- slice of PixClaim structs with updated attributes
 	//  - Cursor to retrieve the next page of PixClaim structs
+	var pixClaims []PixClaim
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixClaims)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixClaims, cursor, err
 	}
-	return objects, cursor, err
+	return pixClaims, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (PixClaim, Error.StarkErrors) {
@@ -193,10 +194,11 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixCla
 	//
 	//	Return:
 	//	- pixClaim with updated attributes
+	var pixClaim PixClaim
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &pixClaim)
 	if unmarshalError != nil {
-		return object, err
+		return pixClaim, err
 	}
-	return object, err
+	return pixClaim, err
 }

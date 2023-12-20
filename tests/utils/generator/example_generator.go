@@ -3,6 +3,9 @@ package tax_id_generator
 import (
 	"encoding/base64"
 	"fmt"
+	"math/rand"
+	"time"
+
 	"github.com/starkinfra/sdk-go/starkinfra"
 	"github.com/starkinfra/sdk-go/starkinfra/brcodepreview"
 	"github.com/starkinfra/sdk-go/starkinfra/creditholmes"
@@ -22,6 +25,7 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/pixchargeback"
 	"github.com/starkinfra/sdk-go/starkinfra/pixclaim"
 	"github.com/starkinfra/sdk-go/starkinfra/pixdirector"
+	"github.com/starkinfra/sdk-go/starkinfra/pixfraud"
 	"github.com/starkinfra/sdk-go/starkinfra/pixinfraction"
 	"github.com/starkinfra/sdk-go/starkinfra/pixkey"
 	"github.com/starkinfra/sdk-go/starkinfra/pixrequest"
@@ -31,8 +35,6 @@ import (
 	Utils "github.com/starkinfra/sdk-go/starkinfra/utils"
 	"github.com/starkinfra/sdk-go/starkinfra/webhook"
 	"github.com/starkinfra/sdk-go/tests/utils"
-	"math/rand"
-	"time"
 )
 
 func BrcodePreview() []brcodepreview.BrcodePreview {
@@ -62,6 +64,7 @@ func CreditNote() []creditnote.CreditNote {
 	notes := []creditnote.CreditNote{
 		{
 			TemplateId:  "5707012469948416",
+			Amount:      1000,
 			Name:        "Jamie Lannister",
 			TaxId:       Cpf(),
 			Scheduled:   &scheduled,
@@ -381,12 +384,25 @@ func PixInfraction() []pixinfraction.PixInfraction {
 	infractions := []pixinfraction.PixInfraction{
 		{
 			ReferenceId: "E35547753202201201450oo8sDGca066",
-			Type:        "fraud",
+			Type:        "reversal",
+			Method:		 "scam",
 			Description: "testInfractionGolang",
 			Tags:        []string{"tony", "stark"},
 		},
 	}
 	return infractions
+}
+
+func PixFraud() []pixfraud.PixFraud {
+
+	frauds := []pixfraud.PixFraud{
+		{
+			ExternalId: "my_external_id_219",
+			Type:        "scam",
+			TaxId:		 "01234567890",
+		},
+	}
+	return frauds
 }
 
 func PixKey() pixkey.PixKey {

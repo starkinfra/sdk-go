@@ -41,8 +41,6 @@ type Event struct {
 	WorkspaceId  string      `json:",omitempty"`
 }
 
-var object Event
-var objects []Event
 var resource = map[string]string{"name": "Event"}
 
 func Get(id string, user user.User) (Event, Error.StarkErrors) {
@@ -58,12 +56,13 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- event struct that corresponds to the given id.
+	var event Event
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &event)
 	if unmarshalError != nil {
-		return object, err
+		return event, err
 	}
-	return object, err
+	return event, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Event {
@@ -81,16 +80,17 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 	//
 	//	Return:
 	//	- channel of Event structs with updated attributes
+	var event Event
 	events := make(chan Event)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &event)
 			if err != nil {
 				print(err)
 			}
-			events <- object
+			events <- event
 		}
 		close(events)
 	}()
@@ -115,12 +115,13 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	//	Return:
 	//	- slice of Event structs with updated attributes
 	//	- cursor to retrieve the next page of Event structs
+	var events []Event
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &events)
 	if unmarshalError != nil {
-		return ParseEvents(objects), cursor, err
+		return ParseEvents(events), cursor, err
 	}
-	return ParseEvents(objects), cursor, err
+	return ParseEvents(events), cursor, err
 }
 
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
@@ -136,12 +137,13 @@ func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Event struct
+	var event Event
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &event)
 	if unmarshalError != nil {
-		return object, err
+		return event, err
 	}
-	return object, err
+	return event, err
 }
 
 func Update(id string, isDelivered bool, user user.User) (Event, Error.StarkErrors) {
@@ -159,14 +161,15 @@ func Update(id string, isDelivered bool, user user.User) (Event, Error.StarkErro
 	//
 	//	Return:
 	//	- target Event with updated attributes
+	var event Event
 	var patchData map[string]interface{}
 	patchData["isDelivered"] = isDelivered
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &event)
 	if unmarshalError != nil {
-		return object, err
+		return event, err
 	}
-	return object, err
+	return event, err
 }
 
 func Parse(content string, signature string, user user.User) Event {
@@ -185,120 +188,133 @@ func Parse(content string, signature string, user user.User) Event {
 	//
 	//	Return:
 	//	- parsed Event struct
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "event", user)), &object)
+	var event Event
+	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "event", user)), &event)
 	if unmarshalError != nil {
-		return object
+		return event
 	}
-	return object
+	return event
 }
 
 func (e Event) ParseLog() Event {
 	if e.Subscription == "pix-key" {
+		var log PixKeyLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixKeyLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixKeyLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-claim" {
+		var log PixClaimLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixClaimLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixClaimLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-chargeback" {
+		var log PixChargebackLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixChargebackLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixChargebackLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-infraction" {
+		var log PixInfractionLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixInfractionLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixInfractionLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-request.in" {
+		var log PixRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixRequestLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixRequestLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-request.out" {
+		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixRequestLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixRequestLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-reversal.in" {
+		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixReversalLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixReversalLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "pix-reversal.out" {
+		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &PixReversalLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = PixReversalLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "issuing-card" {
+		var log IssuingCardLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &IssuingCardLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = IssuingCardLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "issuing-invoice" {
+		var log IssuingInvoiceLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &IssuingInvoiceLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = IssuingInvoiceLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "issuing-purchase" {
+		var log IssuingPurchaseLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &IssuingPurchaseLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = IssuingPurchaseLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "credit-note" {
+		var log CreditNoteLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		err := json.Unmarshal(marshal, &CreditNoteLog.Object)
+		err := json.Unmarshal(marshal, &log)
 		if err != nil {
 			panic(err)
 		}
-		e.Log = CreditNoteLog.Object
+		e.Log = log
 		return e
 	}
 	return e

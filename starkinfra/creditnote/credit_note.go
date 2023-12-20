@@ -87,8 +87,6 @@ type CreditNote struct {
 	Updated        *time.Time            `json:",omitempty"`
 }
 
-var object CreditNote
-var objects []CreditNote
 var resource = map[string]string{"name": "CreditNote"}
 
 func Create(notes []CreditNote, user user.User) ([]CreditNote, Error.StarkErrors) {
@@ -104,12 +102,13 @@ func Create(notes []CreditNote, user user.User) ([]CreditNote, Error.StarkErrors
 	//
 	//	Return:
 	//	- Slice of CreditNote structs with updated attributes
+	var creditNote []CreditNote
 	create, err := utils.Multi(resource, notes, nil, user)
-	unmarshalError := json.Unmarshal(create, &objects)
+	unmarshalError := json.Unmarshal(create, &creditNote)
 	if unmarshalError != nil {
-		return objects, err
+		return creditNote, err
 	}
-	return objects, err
+	return creditNote, err
 }
 
 func Get(id string, user user.User) (CreditNote, Error.StarkErrors) {
@@ -125,12 +124,13 @@ func Get(id string, user user.User) (CreditNote, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- CreditNote struct that corresponds to the given id.
+	var creditNote CreditNote
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &creditNote)
 	if unmarshalError != nil {
-		return object, err
+		return creditNote, err
 	}
-	return object, err
+	return creditNote, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CreditNote {
@@ -150,16 +150,17 @@ func Query(params map[string]interface{}, user user.User) chan CreditNote {
 	//
 	//	Return:
 	//	- channel of CreditNote structs with updated attributes
+	var creditNote CreditNote
 	notes := make(chan CreditNote)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &creditNote)
 			if err != nil {
 				print(err)
 			}
-			notes <- object
+			notes <- creditNote
 		}
 		close(notes)
 	}()
@@ -186,12 +187,13 @@ func Page(params map[string]interface{}, user user.User) ([]CreditNote, string, 
 	//	Return:
 	//	- slice of CreditNote structs with updated attributes
 	//	- cursor to retrieve the next page of CreditNote structs
+	var creditNotes []CreditNote
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &creditNotes)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return creditNotes, cursor, err
 	}
-	return objects, cursor, err
+	return creditNotes, cursor, err
 }
 
 func Cancel(id string, user user.User) (CreditNote, Error.StarkErrors) {
@@ -207,10 +209,11 @@ func Cancel(id string, user user.User) (CreditNote, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled CreditNote struct
+	var creditNote CreditNote
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &creditNote)
 	if unmarshalError != nil {
-		return object, err
+		return creditNote, err
 	}
-	return object, err
+	return creditNote, err
 }

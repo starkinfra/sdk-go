@@ -27,7 +27,6 @@ type IssuingBalance struct {
 	Updated  *time.Time `json:",omitempty"`
 }
 
-var object IssuingBalance
 var resource = map[string]string{"name": "IssuingBalance"}
 
 func Get(user user.User) IssuingBalance {
@@ -40,16 +39,17 @@ func Get(user user.User) IssuingBalance {
 	//
 	//	Return:
 	//	- IssuingBalance struct with updated attributes
+	var issuingBalance IssuingBalance
 	balance := make(chan IssuingBalance)
 	query := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingBalance)
 			if err != nil {
 				print(err)
 			}
-			balance <- object
+			balance <- issuingBalance
 		}
 		close(balance)
 	}()

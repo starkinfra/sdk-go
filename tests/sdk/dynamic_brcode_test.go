@@ -67,14 +67,13 @@ func TestDynamicBrcodeGet(t *testing.T) {
 	var brcodeList []DynamicBrcode.DynamicBrcode
 	var paramsQuery = map[string]interface{}{}
 	paramsQuery["limit"] = rand.Intn(100)
-	paramsQuery["status"] = "created"
 
 	brcodes := DynamicBrcode.Query(paramsQuery, nil)
 	for brcode := range brcodes {
 		brcodeList = append(brcodeList, brcode)
 	}
 
-	brcode, err := DynamicBrcode.Get(brcodeList[rand.Intn(len(brcodeList))].Id, nil)
+	brcode, err := DynamicBrcode.Get(brcodeList[rand.Intn(len(brcodeList))].Uuid, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))

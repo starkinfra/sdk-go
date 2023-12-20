@@ -29,8 +29,6 @@ type IssuingDesign struct {
 	Created     *time.Time `json:",omitempty"`
 }
 
-var object IssuingDesign
-var objects []IssuingDesign
 var resource = map[string]string{"name": "IssuingDesign"}
 
 func Get(id string, user user.User) (IssuingDesign, Error.StarkErrors) {
@@ -46,12 +44,13 @@ func Get(id string, user user.User) (IssuingDesign, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingDesign struct that corresponds to the given id.
+	var issuingDesign IssuingDesign
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingDesign)
 	if unmarshalError != nil {
-		return object, err
+		return issuingDesign, err
 	}
-	return object, err
+	return issuingDesign, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingDesign {
@@ -61,22 +60,23 @@ func Query(params map[string]interface{}, user user.User) chan IssuingDesign {
 	//
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
-	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
-	//  	- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//  	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- channel of IssuingDesign structs with updated attributes
+	var issuingDesign IssuingDesign
 	designs := make(chan IssuingDesign)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingDesign)
 			if err != nil {
 				print(err)
 			}
-			designs <- object
+			designs <- issuingDesign
 		}
 		close(designs)
 	}()
@@ -92,19 +92,20 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingDesign, strin
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- cursor [string, default nil]: Cursor returned on the previous page function call
-	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- slice of IssuingDesign structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingDesign structs
+	var issuingDesigns []IssuingDesign
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingDesigns)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingDesigns, cursor, err
 	}
-	return objects, cursor, err
+	return issuingDesigns, cursor, err
 }
 
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {

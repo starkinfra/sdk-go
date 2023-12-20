@@ -29,8 +29,6 @@ type IssuingStock struct {
 	Created    *time.Time `json:",omitempty"`
 }
 
-var object IssuingStock
-var objects []IssuingStock
 var resource = map[string]string{"name": "IssuingStock"}
 
 func Get(id string, expand map[string]interface{}, user user.User) (IssuingStock, Error.StarkErrors) {
@@ -47,12 +45,13 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingStock
 	//
 	//	Return:
 	//	- issuingStock struct that corresponds to the given id.
+	var issuingStock IssuingStock
 	get, err := utils.Get(resource, id, expand, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingStock)
 	if unmarshalError != nil {
-		return object, err
+		return issuingStock, err
 	}
-	return object, err
+	return issuingStock, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingStock {
@@ -73,16 +72,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingStock {
 	//
 	//	Return:
 	//	- channel of IssuingStock structs with updated attributes
+	var issuingStock IssuingStock
 	stocks := make(chan IssuingStock)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingStock)
 			if err != nil {
 				print(err)
 			}
-			stocks <- object
+			stocks <- issuingStock
 		}
 		close(stocks)
 	}()
@@ -103,17 +103,18 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingStock, string
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
 	//		- designIds [slice of strings, default nil]: IssuingDesign unique ids. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- embosserIds [slice of strings, default nil]: Embosser unique ids. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved issuingStocks. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- expand [slice of strings, default nil]: fields to expand information. ex: []string{"balance"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- slice of IssuingStock structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingStock structs
+	var issuingStocks []IssuingStock
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingStocks)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingStocks, cursor, err
 	}
-	return objects, cursor, err
+	return issuingStocks, cursor, err
 }

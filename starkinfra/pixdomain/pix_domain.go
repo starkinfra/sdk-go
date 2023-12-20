@@ -20,7 +20,6 @@ type PixDomain struct {
 	Name         string        `json:",omitempty"`
 }
 
-var object PixDomain
 var resource = map[string]string{"name": "PixDomain"}
 
 func Query(user user.User) chan PixDomain {
@@ -33,16 +32,17 @@ func Query(user user.User) chan PixDomain {
 	//
 	//	Return:
 	//	- Channel  of PixDomain structs with updated attributes
+	var pixDomain PixDomain
 	domains := make(chan PixDomain)
 	query := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixDomain)
 			if err != nil {
 				print(err)
 			}
-			domains <- object
+			domains <- pixDomain
 		}
 		close(domains)
 	}()

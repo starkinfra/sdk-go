@@ -42,8 +42,6 @@ type IndividualIdentity struct {
 	TaxId   string     `json:",omitempty"`
 }
 
-var object IndividualIdentity
-var objects []IndividualIdentity
 var resource = map[string]string{"name": "IndividualIdentity"}
 
 func Create(identity []IndividualIdentity, user user.User) ([]IndividualIdentity, Error.StarkErrors) {
@@ -81,12 +79,13 @@ func Get(id string, user user.User) (IndividualIdentity, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- IndividualIdentity struct that corresponds to the given id.
+	var individualIdentity IndividualIdentity
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &individualIdentity)
 	if unmarshalError != nil {
-		return object, err
+		return individualIdentity, err
 	}
-	return object, err
+	return individualIdentity, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IndividualIdentity {
@@ -96,26 +95,27 @@ func Query(params map[string]interface{}, user user.User) chan IndividualIdentit
 	//
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
-	//  	- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
+	//  	- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//  	- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//  	- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//  	- status [slice of strings, default nil]: filter for status of retrieved objects. Options: "created", "canceled", "processing", "failed" and "success"
-	//  	- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"tony", "stark"}
-	//  	- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//  	- status [slice of strings, default nil]: filter for status of retrieved structs. Options: "created", "canceled", "processing", "failed" and "success"
+	//  	- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"tony", "stark"}
+	//  	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- channel of IndividualIdentity structs with updated attributes
+	var individualIdentity IndividualIdentity
 	identities := make(chan IndividualIdentity)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &individualIdentity)
 			if err != nil {
 				print(err)
 			}
-			identities <- object
+			identities <- individualIdentity
 		}
 		close(identities)
 	}()
@@ -131,23 +131,24 @@ func Page(params map[string]interface{}, user user.User) ([]IndividualIdentity, 
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- cursor [string, default nil]: Cursor returned on the previous page function call
-	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: filter for status of retrieved objects. Options: "created", "canceled", "processing", "failed" and "success"
-	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"tony", "stark"}
-	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [slice of strings, default nil]: filter for status of retrieved structs. Options: "created", "canceled", "processing", "failed" and "success"
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"tony", "stark"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- slice of IndividualIdentity structs with updated attributes
 	//	- cursor to retrieve the next page of IndividualIdentity structs
+	var individualIdentities []IndividualIdentity
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &individualIdentities)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return individualIdentities, cursor, err
 	}
-	return objects, cursor, err
+	return individualIdentities, cursor, err
 }
 
 func Update(id string, status string, user user.User) (IndividualIdentity, Error.StarkErrors) {
@@ -164,14 +165,15 @@ func Update(id string, status string, user user.User) (IndividualIdentity, Error
 	//
 	//	Return:
 	//	- target IndividualIdentity with updated attributes
+	var individualIdentity IndividualIdentity
 	patchData := map[string]interface{}{}
 	patchData["status"] = status
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &individualIdentity)
 	if unmarshalError != nil {
-		return object, err
+		return individualIdentity, err
 	}
-	return object, err
+	return individualIdentity, err
 }
 
 func Cancel(id string, user user.User) (IndividualIdentity, Error.StarkErrors) {
@@ -187,10 +189,11 @@ func Cancel(id string, user user.User) (IndividualIdentity, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled IndividualIdentity struct
+	var individualIdentity IndividualIdentity
 	cancel, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(cancel, &object)
+	unmarshalError := json.Unmarshal(cancel, &individualIdentity)
 	if unmarshalError != nil {
-		return object, err
+		return individualIdentity, err
 	}
-	return object, err
+	return individualIdentity, err
 }
