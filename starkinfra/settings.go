@@ -5,7 +5,7 @@ import (
 	"github.com/starkinfra/core-go/starkcore/utils/hosts"
 )
 
-var SdkVersion = "0.1.2"
+var SdkVersion = "0.1.3"
 var Language = "pt-BR"
 var Timeout = 15
 var ApiVersion = "v2"
