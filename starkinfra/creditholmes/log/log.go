@@ -31,8 +31,6 @@ type Log struct {
 	Created *time.Time                `json:",omitempty"`
 }
 
-var object Log
-var objects []Log
 var resource = map[string]string{"name": "CreditHolmesLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- CreditHolmes.Log struct that corresponds to the given id.
+	var creditHolmesLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &creditHolmesLog)
 	if unmarshalError != nil {
-		return object, err
+		return creditHolmesLog, err
 	}
-	return object, err
+	return creditHolmesLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -72,16 +71,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- Channel  of note.Log structs with updated attributes
+	var creditHolmesLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &creditHolmesLog)
 			if err != nil {
 				print(err)
 			}
-			logs <- object
+			logs <- creditHolmesLog
 		}
 		close(logs)
 	}()
@@ -107,10 +107,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- Slice of CreditHolmes.Log structs with updated attributes
 	//	- Cursor to retrieve the next page of CreditHolmes.Log structs
+	var creditHolmesLog []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &creditHolmesLog)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return creditHolmesLog, cursor, err
 	}
-	return objects, cursor, err
+	return creditHolmesLog, cursor, err
 }

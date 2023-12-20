@@ -29,8 +29,6 @@ type Log struct {
 	Created *time.Time                    `json:",omitempty"`
 }
 
-var Object Log
-var objects []Log
 var resource = map[string]string{"name": "IssuingInvoiceLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -46,12 +44,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingInvoice.Log struct with updated attributes
+	var issuingInvoiceLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &issuingInvoiceLog)
 	if unmarshalError != nil {
-		return Object, err
+		return issuingInvoiceLog, err
 	}
-	return Object, err
+	return issuingInvoiceLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -70,16 +69,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of IssuingInvoice.Log structs with updated attributes
+	var issuingInvoiceLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &issuingInvoiceLog)
 			if err != nil {
 				print(err)
 			}
-			logs <- Object
+			logs <- issuingInvoiceLog
 		}
 		close(logs)
 	}()
@@ -105,10 +105,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of IssuingInvoice.Log structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingInvoice.Log structs
+	var issuingInvoiceLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingInvoiceLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingInvoiceLogs, cursor, err
 	}
-	return objects, cursor, err
+	return issuingInvoiceLogs, cursor, err
 }

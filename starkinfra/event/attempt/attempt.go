@@ -30,8 +30,6 @@ type Attempt struct {
 	Created   *time.Time `json:",omitempty"`
 }
 
-var object Attempt
-var objects []Attempt
 var resource = map[string]string{"name": "EventAttempt"}
 
 func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
@@ -47,12 +45,13 @@ func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- event.Attempt struct that corresponds to the given id.
+	var attempt Attempt
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &attempt)
 	if unmarshalError != nil {
-		return object, err
+		return attempt, err
 	}
-	return object, err
+	return attempt, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Attempt {
@@ -71,16 +70,17 @@ func Query(params map[string]interface{}, user user.User) chan Attempt {
 	//
 	//	Return:
 	//	- channel of Event.Attempt structs with updated attributes
+	var attempt Attempt
 	attempts := make(chan Attempt)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &attempt)
 			if err != nil {
 				print(err)
 			}
-			attempts <- object
+			attempts <- attempt
 		}
 		close(attempts)
 	}()
@@ -106,10 +106,11 @@ func Page(params map[string]interface{}, user user.User) ([]Attempt, string, Err
 	//	Return:
 	//	- slice of Event.Attempt structs with updated attributes
 	//	- cursor to retrieve the next page of Event.Attempt structs
+	var attempts []Attempt
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &attempts)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return attempts, cursor, err
 	}
-	return objects, cursor, err
+	return attempts, cursor, err
 }

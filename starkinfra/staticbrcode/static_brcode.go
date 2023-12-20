@@ -50,8 +50,6 @@ type StaticBrcode struct {
 	Created          *time.Time `json:",omitempty"`
 }
 
-var object StaticBrcode
-var objects []StaticBrcode
 var resource = map[string]string{"name": "StaticBrcode"}
 
 func Create(brcodes []StaticBrcode, user user.User) ([]StaticBrcode, Error.StarkErrors) {
@@ -88,12 +86,13 @@ func Get(uuid string, user user.User) (StaticBrcode, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- staticBrcode struct that corresponds to the given uuid.
+	var staticBrcode StaticBrcode
 	get, err := utils.Get(resource, uuid, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &staticBrcode)
 	if unmarshalError != nil {
-		return object, err
+		return staticBrcode, err
 	}
-	return object, err
+	return staticBrcode, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan StaticBrcode {
@@ -112,16 +111,17 @@ func Query(params map[string]interface{}, user user.User) chan StaticBrcode {
 	//
 	//	Return:
 	//	- channel of StaticBrcode structs with updated attributes
+	var staticBrcode StaticBrcode
 	brcodes := make(chan StaticBrcode)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &staticBrcode)
 			if err != nil {
 				print(err)
 			}
-			brcodes <- object
+			brcodes <- staticBrcode
 		}
 		close(brcodes)
 	}()
@@ -147,10 +147,11 @@ func Page(params map[string]interface{}, user user.User) ([]StaticBrcode, string
 	//	Return:
 	//	- slice of StaticBrcode structs with updated attributes
 	//  - cursor to retrieve the next page of StaticBrcode structs
+	var staticBrcodes []StaticBrcode
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &staticBrcodes)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return staticBrcodes, cursor, err
 	}
-	return objects, cursor, err
+	return staticBrcodes, cursor, err
 }

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestCreditHolmesLogLogQuery(t *testing.T) {
+func TestCreditHolmesLogQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
@@ -22,7 +22,7 @@ func TestCreditHolmesLogLogQuery(t *testing.T) {
 	}
 }
 
-func TestCreditHolmesLogLogPage(t *testing.T) {
+func TestCreditHolmesLogPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
@@ -42,7 +42,7 @@ func TestCreditHolmesLogLogPage(t *testing.T) {
 	fmt.Println(cursor)
 }
 
-func TestCreditHolmesLogLogInfoGet(t *testing.T) {
+func TestCreditHolmesLogInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 

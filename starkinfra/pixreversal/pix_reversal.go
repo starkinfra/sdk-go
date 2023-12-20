@@ -49,8 +49,6 @@ type PixReversal struct {
 	Updated    *time.Time `json:",omitempty"`
 }
 
-var object PixReversal
-var objects []PixReversal
 var resource = map[string]string{"name": "PixReversal"}
 
 func Create(reversals []PixReversal, user user.User) ([]PixReversal, Error.StarkErrors) {
@@ -87,12 +85,13 @@ func Get(id string, user user.User) (PixReversal, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixReversal struct that corresponds to the given id.
+	var pixReversal PixReversal
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixReversal)
 	if unmarshalError != nil {
-		return object, err
+		return pixReversal, err
 	}
-	return object, err
+	return pixReversal, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixReversal {
@@ -114,16 +113,17 @@ func Query(params map[string]interface{}, user user.User) chan PixReversal {
 	//
 	//	Return:
 	//	- channel of PixReversal structs with updated attributes
+	var pixReversal PixReversal
 	reversals := make(chan PixReversal)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixReversal)
 			if err != nil {
 				print(err)
 			}
-			reversals <- object
+			reversals <- pixReversal
 		}
 		close(reversals)
 	}()
@@ -152,12 +152,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixReversal, string,
 	//	Return:
 	//	- slice of PixReversal structs with updated attributes
 	//	- cursor to retrieve the next page of PixReversal structs
+	var pixReversals []PixReversal
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixReversals)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixReversals, cursor, err
 	}
-	return objects, cursor, err
+	return pixReversals, cursor, err
 }
 
 func Parse(content string, signature string, user user.User) PixReversal {
@@ -176,11 +177,12 @@ func Parse(content string, signature string, user user.User) PixReversal {
 	//
 	//	Return:
 	//	- parsed PixReversal struct
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &object)
+	var pixReversal PixReversal
+	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &pixReversal)
 	if unmarshalError != nil {
-		return object
+		return pixReversal
 	}
-	return object
+	return pixReversal
 }
 
 func Response(authorization map[string]interface{}) string {

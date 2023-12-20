@@ -45,8 +45,6 @@ type IssuingInvoice struct {
 	Created              *time.Time `json:",omitempty"`
 }
 
-var object IssuingInvoice
-var objects []IssuingInvoice
 var resource = map[string]string{"name": "IssuingInvoice"}
 
 func Create(invoice IssuingInvoice, user user.User) (IssuingInvoice, Error.StarkErrors) {
@@ -83,12 +81,13 @@ func Get(id string, user user.User) (IssuingInvoice, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingInvoice struct that corresponds to the given id.
+	var issuingInvoice IssuingInvoice
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingInvoice)
 	if unmarshalError != nil {
-		return object, err
+		return issuingInvoice, err
 	}
-	return object, err
+	return issuingInvoice, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingInvoice {
@@ -107,16 +106,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingInvoice {
 	//
 	//	Return:
 	//	- channel of IssuingInvoices structs with updated attributes
+	var issuingInvoice IssuingInvoice
 	invoices := make(chan IssuingInvoice)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingInvoice)
 			if err != nil {
 				print(err)
 			}
-			invoices <- object
+			invoices <- issuingInvoice
 		}
 		close(invoices)
 	}()
@@ -142,10 +142,11 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingInvoice, stri
 	//	Return:
 	//	- slice of IssuingInvoices structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingInvoices structs
+	var issuingInvoices []IssuingInvoice
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingInvoices)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingInvoices, cursor, err
 	}
-	return objects, cursor, err
+	return issuingInvoices, cursor, err
 }

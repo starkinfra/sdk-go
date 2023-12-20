@@ -13,7 +13,13 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- PixUser resource
+- PixFraud resource
+- method, fraudType and fraudId parameters to PixInfraction resource
 ### Changed
+- global objects variables
+- type parameter to PixInfraction resource
 - senderTaxId and receiverTaxId parameters to DynamicBrcode resource
 
 ## [0.1.2] - 2023-09-14

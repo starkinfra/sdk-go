@@ -25,7 +25,6 @@ type MerchantCountry struct {
 	ShortCode string `json:",omitempty"`
 }
 
-var object MerchantCountry
 var resource = map[string]string{"name": "MerchantCountry"}
 
 func Query(params map[string]interface{}, user user.User) chan MerchantCountry {
@@ -40,16 +39,17 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCountry {
 	//
 	//	Return:
 	//	- channel of MerchantCountry structs with updated attributes
+	var merchantCountry MerchantCountry
 	countries := make(chan MerchantCountry)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &merchantCountry)
 			if err != nil {
 				print(err)
 			}
-			countries <- object
+			countries <- merchantCountry
 		}
 		close(countries)
 	}()

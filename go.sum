@@ -7,8 +7,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/starkbank/ecdsa-go/v2 v2.0.0 h1:M8G8M+azTlslvMYHk71OiRrxpZHhM/fNLy+n2SEKT1E=
 github.com/starkbank/ecdsa-go/v2 v2.0.0/go.mod h1:NpEPAoZotqZ07mL2DnHm0ADSWZ3ujn6rSXN33oeAkj4=
-github.com/starkinfra/core-go v0.2.0 h1:Ua81ccaM5A/rJmvpN53Bla4s2kxyVIWiFMYy66NKoj0=
-github.com/starkinfra/core-go v0.2.0/go.mod h1:0stc52jillPHnTOhDWsPYdTHkZOPGfpNgpVLId9O8jI=
+github.com/starkinfra/core-go v0.2.1 h1:YqwbjLunZ4N1H1XKMhkZYyYkBxIolihC90nHZpHCuso=
+github.com/starkinfra/core-go v0.2.1/go.mod h1:0stc52jillPHnTOhDWsPYdTHkZOPGfpNgpVLId9O8jI=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=

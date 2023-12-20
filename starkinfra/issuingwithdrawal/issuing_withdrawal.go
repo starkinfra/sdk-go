@@ -40,8 +40,6 @@ type IssuingWithdrawal struct {
 	Created              *time.Time `json:",omitempty"`
 }
 
-var object IssuingWithdrawal
-var objects []IssuingWithdrawal
 var resource = map[string]string{"name": "IssuingWithdrawal"}
 
 func Create(withdrawal IssuingWithdrawal, user user.User) (IssuingWithdrawal, Error.StarkErrors) {
@@ -78,12 +76,13 @@ func Get(id string, user user.User) (IssuingWithdrawal, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingWithdrawal struct that corresponds to the given id.
+	var issuingWithdrawal IssuingWithdrawal
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingWithdrawal)
 	if unmarshalError != nil {
-		return object, err
+		return issuingWithdrawal, err
 	}
-	return object, err
+	return issuingWithdrawal, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingWithdrawal {
@@ -102,16 +101,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingWithdrawal
 	//
 	//	Return:
 	//	- channel of IssuingWithdrawal structs with updated attributes
+	var issuingWithdrawal IssuingWithdrawal
 	withdrawals := make(chan IssuingWithdrawal)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingWithdrawal)
 			if err != nil {
 				print(err)
 			}
-			withdrawals <- object
+			withdrawals <- issuingWithdrawal
 		}
 		close(withdrawals)
 	}()
@@ -137,10 +137,11 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingWithdrawal, s
 	//	Return:
 	//	- slice of IssuingWithdrawal structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingWithdrawal structs
+	var issuingWithdrawals []IssuingWithdrawal
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingWithdrawals)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingWithdrawals, cursor, err
 	}
-	return objects, cursor, err
+	return issuingWithdrawals, cursor, err
 }

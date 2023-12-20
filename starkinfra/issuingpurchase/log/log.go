@@ -32,8 +32,6 @@ type Log struct {
 	Created              string                          `json:",omitempty"`
 }
 
-var Object Log
-var objects []Log
 var resource = map[string]string{"name": "IssuingPurchaseLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -49,12 +47,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingPurchase.Log struct that corresponds to the given id.
+	var issuingPurchaseLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &issuingPurchaseLog)
 	if unmarshalError != nil {
-		return Object, err
+		return issuingPurchaseLog, err
 	}
-	return Object, err
+	return issuingPurchaseLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -74,16 +73,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of IssuingPurchase.Log structs with updated attributes
+	var issuingPurchaseLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &issuingPurchaseLog)
 			if err != nil {
 				print(err)
 			}
-			logs <- Object
+			logs <- issuingPurchaseLog
 		}
 		close(logs)
 	}()
@@ -110,10 +110,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of IssuingPurchase.Log structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingPurchase.Log structs
+	var issuingPurchaseLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingPurchaseLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingPurchaseLogs, cursor, err
 	}
-	return objects, cursor, err
+	return issuingPurchaseLogs, cursor, err
 }

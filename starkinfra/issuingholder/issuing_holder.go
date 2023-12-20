@@ -40,8 +40,6 @@ type IssuingHolder struct {
 	Created    *time.Time                `json:",omitempty"`
 }
 
-var object IssuingHolder
-var objects []IssuingHolder
 var resource = map[string]string{"name": "IssuingHolder"}
 
 func Create(holders []IssuingHolder, expand map[string]interface{}, user user.User) ([]IssuingHolder, Error.StarkErrors) {
@@ -58,12 +56,13 @@ func Create(holders []IssuingHolder, expand map[string]interface{}, user user.Us
 	//
 	//	Return:
 	//	- slice of IssuingHolder structs with updated attributes
+	var issuingHolders []IssuingHolder
 	create, err := utils.Multi(resource, holders, expand, user)
-	unmarshalError := json.Unmarshal(create, &objects)
+	unmarshalError := json.Unmarshal(create, &issuingHolders)
 	if unmarshalError != nil {
-		return objects, err
+		return issuingHolders, err
 	}
-	return objects, err
+	return issuingHolders, err
 }
 
 func Get(id string, expand map[string]interface{}, user user.User) (IssuingHolder, Error.StarkErrors) {
@@ -80,12 +79,13 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingHolde
 	//
 	//	Return:
 	//	- issuingHolder struct that corresponds to the given id.
+	var issuingHolder IssuingHolder
 	get, err := utils.Get(resource, id, expand, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingHolder)
 	if unmarshalError != nil {
-		return object, err
+		return issuingHolder, err
 	}
-	return object, err
+	return issuingHolder, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingHolder {
@@ -106,16 +106,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingHolder {
 	//
 	//	Return:
 	//	- channel of IssuingHolder structs with updated attributes
+	var issuingHolder IssuingHolder
 	holders := make(chan IssuingHolder)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingHolder)
 			if err != nil {
 				print(err)
 			}
-			holders <- object
+			holders <- issuingHolder
 		}
 		close(holders)
 	}()
@@ -143,12 +144,13 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingHolder, strin
 	//	Return:
 	//	- slice of IssuingHolder structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingHolder structs
+	var issuingHolders []IssuingHolder
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingHolders)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingHolders, cursor, err
 	}
-	return objects, cursor, err
+	return issuingHolders, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (IssuingHolder, Error.StarkErrors) {
@@ -170,12 +172,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 	//
 	//	Return:
 	//	- target IssuingHolder with updated attributes
+	var issuingHolder IssuingHolder
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &issuingHolder)
 	if unmarshalError != nil {
-		return object, err
+		return issuingHolder, err
 	}
-	return object, err
+	return issuingHolder, err
 }
 
 func Cancel(id string, user user.User) (IssuingHolder, Error.StarkErrors) {
@@ -191,10 +194,11 @@ func Cancel(id string, user user.User) (IssuingHolder, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled IssuingHolder struct
+	var issuingHolder IssuingHolder
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &issuingHolder)
 	if unmarshalError != nil {
-		return object, err
+		return issuingHolder, err
 	}
-	return object, err
+	return issuingHolder, err
 }

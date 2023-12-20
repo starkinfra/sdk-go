@@ -31,8 +31,6 @@ type Log struct {
 	Created  *time.Time                            `json:",omitempty"`
 }
 
-var object Log
-var objects []Log
 var resource = map[string]string{"name": "IndividualIdentityLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- individualIdentity.Log struct that corresponds to the given id.
+	var individualIdentityLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &individualIdentityLog)
 	if unmarshalError != nil {
-		return object, err
+		return individualIdentityLog, err
 	}
-	return object, err
+	return individualIdentityLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -73,16 +72,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of IndividualIdentity.Log structs with updated attributes
+	var individualIdentityLog Log
 	identities := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &individualIdentityLog)
 			if err != nil {
 				print(err)
 			}
-			identities <- object
+			identities <- individualIdentityLog
 		}
 		close(identities)
 	}()
@@ -109,10 +109,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of IndividualIdentity.Log structs with updated attributes
 	//	- cursor to retrieve the next page of IndividualIdentity.Log structs
+	var individualIdentityLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &individualIdentityLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return individualIdentityLogs, cursor, err
 	}
-	return objects, cursor, err
+	return individualIdentityLogs, cursor, err
 }

@@ -58,8 +58,6 @@ type PixChargeback struct {
 	Updated             *time.Time `json:",omitempty"`
 }
 
-var object PixChargeback
-var objects []PixChargeback
 var resource = map[string]string{"name": "PixChargeback"}
 
 func Create(chargebacks []PixChargeback, user user.User) ([]PixChargeback, Error.StarkErrors) {
@@ -96,12 +94,13 @@ func Get(id string, user user.User) (PixChargeback, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixChargeback struct that corresponds to the given id.
+	var pixChargeback PixChargeback
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixChargeback)
 	if unmarshalError != nil {
-		return object, err
+		return pixChargeback, err
 	}
-	return object, err
+	return pixChargeback, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixChargeback {
@@ -122,16 +121,17 @@ func Query(params map[string]interface{}, user user.User) chan PixChargeback {
 	//
 	//	Return:
 	//	- channel of PixChargeback structs with updated attributes
+	var pixChargeback PixChargeback
 	chargebacks := make(chan PixChargeback)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixChargeback)
 			if err != nil {
 				print(err)
 			}
-			chargebacks <- object
+			chargebacks <- pixChargeback
 		}
 		close(chargebacks)
 	}()
@@ -159,12 +159,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixChargeback, strin
 	//	Return:
 	//	- slice of PixChargeback structs with updated attributes
 	//	- cursor to retrieve the next page of PixChargeback structs
+	var pixChargebacks []PixChargeback
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixChargebacks)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixChargebacks, cursor, err
 	}
-	return objects, cursor, err
+	return pixChargebacks, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (PixChargeback, Error.StarkErrors) {
@@ -188,12 +189,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixCha
 	//
 	//	Return:
 	//	- pixChargeback struct with updated attributes
+	var pixChargeback PixChargeback
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &pixChargeback)
 	if unmarshalError != nil {
-		return object, err
+		return pixChargeback, err
 	}
-	return object, err
+	return pixChargeback, err
 }
 
 func Cancel(id string, user user.User) (PixChargeback, Error.StarkErrors) {
@@ -209,10 +211,11 @@ func Cancel(id string, user user.User) (PixChargeback, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled PixChargeback struct
+	var pixChargeback PixChargeback
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &pixChargeback)
 	if unmarshalError != nil {
-		return object, err
+		return pixChargeback, err
 	}
-	return object, err
+	return pixChargeback, err
 }

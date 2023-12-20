@@ -23,7 +23,6 @@ type CardMethod struct {
 	Number string `json:",omitempty"`
 }
 
-var object CardMethod
 var resource = map[string]string{"name": "CardMethod"}
 
 func Query(params map[string]interface{}, user user.User) chan CardMethod {
@@ -38,16 +37,17 @@ func Query(params map[string]interface{}, user user.User) chan CardMethod {
 	//
 	//	Return:
 	//	- Channel of CardMethod structs with updated attributes
+	var cardMethod CardMethod
 	methods := make(chan CardMethod)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &cardMethod)
 			if err != nil {
 				print(err)
 			}
-			methods <- object
+			methods <- cardMethod
 		}
 		close(methods)
 	}()

@@ -31,8 +31,6 @@ type Log struct {
 	Created  *time.Time                            `json:",omitempty"`
 }
 
-var object Log
-var objects []Log
 var resource = map[string]string{"name": "IndividualDocumentLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- individualDocument.Log struct that corresponds to the given id.
+	var individualDocumentLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &individualDocumentLog)
 	if unmarshalError != nil {
-		return object, err
+		return individualDocumentLog, err
 	}
-	return object, err
+	return individualDocumentLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -72,16 +71,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of IndividualDocument.Log structs with updated attributes
+	var individualDocumentLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &individualDocumentLog)
 			if err != nil {
 				print(err)
 			}
-			logs <- object
+			logs <- individualDocumentLog
 		}
 		close(logs)
 	}()
@@ -107,10 +107,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of IndividualDocument.Log structs with updated attributes
 	//	- cursor to retrieve the next page of IndividualDocument.Log structs
+	var individualDocumentLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &individualDocumentLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return individualDocumentLogs, cursor, err
 	}
-	return objects, cursor, err
+	return individualDocumentLogs, cursor, err
 }

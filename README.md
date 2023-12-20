@@ -45,6 +45,8 @@ This SDK version is compatible with the Stark Infra API v2.
         - [PixClaim](#create-a-pixclaim): Claim a Pix Key
         - [PixDirector](#create-a-pixdirector): Create a Pix Director
         - [PixInfraction](#create-pixinfractions): Create Pix Infraction reports
+        - [PixFraud](#create-a-pixfraud): Create a Pix Fraud 
+        - [PixUser](#get-a-pixuser): Get fraud statistics of a user
         - [PixChargeback](#create-pixchargebacks): Create Pix Chargeback requests
         - [PixDomain](#query-pixdomains): View registered SPI participants certificates
         - [StaticBrcode](#create-staticbrcodes): Create static Pix BR codes
@@ -3136,9 +3138,8 @@ func main() {
         []PixInfraction.PixInfraction{
             {
                 ReferenceId: "E35547753202201201450oo8sDGca066",
-                Type:        "fraud",
-                Description: "testInfractionGolang",
-                Tags:        []string{"tony", "stark"},
+                Type:        "reversal",
+                Method:      "scam",
             },
         }, nil)
     if err.Errors != nil {
@@ -3234,6 +3235,7 @@ func main() {
 
     var patchData = map[string]interface{}{}
     patchData["result"] = "agreed"
+    patchData["fraudType"] = "scam"
     patchData["analysis"] = "Upon investigation fraud was confirmed."
 
     infraction, err := PixInfraction.Update("5181903216836608", patchData, nil)
@@ -3333,6 +3335,164 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+### Create a PixFraud
+
+Pix Frauds can be created by either participant or automatically when a Pix Infraction is accepted.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixFraud "github.com/starkinfra/sdk-go/starkinfra/pixfraud"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    frauds, err := PixFraud.Create(
+        []PixFraud.PixFraud{
+            {
+                ExternalId:  "my_external_id_123",
+                Type:        "mule",
+                TaxId:       "01234567890",
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+
+    for _, fraud := range frauds {
+        fmt.Println(fraud.Id)
+    }
+}
+
+```
+
+### Query Pix Frauds
+
+You can query multiple Pix frauds according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixFraud "github.com/starkinfra/sdk-go/starkinfra/pixfraud"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+
+    frauds := PixFraud.Query(params, nil)
+    for fraud := range frauds {
+        fmt.Println(fraud.Id)
+    }
+}
+
+```
+
+### Get a PixFraud
+
+After its creation, information on a Pix Fraud may be retrieved by its ID.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixFraud "github.com/starkinfra/sdk-go/starkinfra/pixfraud"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    fraud, err := PixFraud.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+
+    fmt.Println(fraud.Id)
+}
+
+```
+
+### Cancel a PixFraud
+
+Cancel a specific Pix Fraud using its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixFraud "github.com/starkinfra/sdk-go/starkinfra/pixfraud"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    fraud, err := PixFraud.Cancel("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+
+    fmt.Println(fraud.Id)
+}
+
+```
+
+### Get a PixUser
+
+You can get a specific fraud statistics of a user with his taxId.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixUser "github.com/starkinfra/sdk-go/starkinfra/pixuser"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    user, err := PixUser.Get("01234567890", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+
+    fmt.Println(user.Id)
 }
 
 ```

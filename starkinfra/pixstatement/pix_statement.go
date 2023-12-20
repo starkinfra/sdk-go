@@ -41,8 +41,6 @@ type PixStatement struct {
 	Updated          *time.Time `json:",omitempty"`
 }
 
-var object PixStatement
-var objects []PixStatement
 var resource = map[string]string{"name": "PixStatement"}
 
 func Create(statement PixStatement, user user.User) (PixStatement, Error.StarkErrors) {
@@ -79,12 +77,13 @@ func Get(id string, user user.User) (PixStatement, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixStatement struct that corresponds to the given id.
+	var pixStatement PixStatement
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixStatement)
 	if unmarshalError != nil {
-		return object, err
+		return pixStatement, err
 	}
-	return object, err
+	return pixStatement, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixStatement {
@@ -100,16 +99,17 @@ func Query(params map[string]interface{}, user user.User) chan PixStatement {
 	//
 	//	Return:
 	//	- channel of PixStatement structs with updated attributes
+	var pixStatement PixStatement
 	statements := make(chan PixStatement)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixStatement)
 			if err != nil {
 				print(err)
 			}
-			statements <- object
+			statements <- pixStatement
 		}
 		close(statements)
 	}()
@@ -148,10 +148,11 @@ func Page(params map[string]interface{}, user user.User) ([]PixStatement, string
 	//	Return:
 	//	- slice of PixStatement structs with updated attributes
 	//	- cursor to retrieve the next page of PixStatement structs
+	var pixStatements []PixStatement
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixStatements)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixStatements, cursor, err
 	}
-	return objects, cursor, err
+	return pixStatements, cursor, err
 }

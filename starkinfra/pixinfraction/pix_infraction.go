@@ -18,14 +18,17 @@ import (
 //
 //	Parameters (required):
 //	- ReferenceId [string]: EndToEndId or return_id of the transaction being reported. ex: "E20018183202201201450u34sDGd19lz"
-//	- Type [string]: Type of infraction report. Options: "fraud", "reversal", "reversalChargeback"
+//	- Type [string]: Type of infraction report. Options: "reversal", "reversalChargeback"
+//	- Method [string]: Method of Pix Infraction. Options: "scam", "unauthorized", "coercion", "invasion", "other", "unknown"
 //
 //	Parameters (optional):
 //	- Description [string, default nil]: Description for any details that can help with the infraction investigation.
-//  - Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
+//	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
+//	- FraudType [string, default nil]: Type of Pix Fraud. Options: "identity", "mule", "scam", "unknown", "other"
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixInfraction is created. ex: "5656565656565656"
+//	- FraudId [string]: Id of the Pix Fraud. ex: "5741774970552320"
 //	- CreditedBankCode [string]: BankCode of the credited Pix participant in the reported transaction. ex: "20018183"
 //	- DebitedBankCode [string]: BankCode of the debited Pix participant in the reported transaction. ex: "20018183"
 //	- Flow [string]: Direction of the PixInfraction flow. Options: "out" if you created the PixInfraction, "in" if you received the PixInfraction.
@@ -39,9 +42,12 @@ import (
 type PixInfraction struct {
 	ReferenceId      string     `json:",omitempty"`
 	Type             string     `json:",omitempty"`
+	Method           string     `json:",omitempty"`
 	Description      string     `json:",omitempty"`
 	Tags             []string   `json:",omitempty"`
+	FraudType        string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
+	FraudId          string     `json:",omitempty"`
 	CreditedBankCode string     `json:",omitempty"`
 	DebitedBankCode  string     `json:",omitempty"`
 	Flow             string     `json:",omitempty"`
@@ -53,8 +59,6 @@ type PixInfraction struct {
 	Updated          *time.Time `json:",omitempty"`
 }
 
-var object PixInfraction
-var objects []PixInfraction
 var resource = map[string]string{"name": "PixInfraction"}
 
 func Create(infractions []PixInfraction, user user.User) ([]PixInfraction, Error.StarkErrors) {
@@ -91,12 +95,13 @@ func Get(id string, user user.User) (PixInfraction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- pixInfraction struct that corresponds to the given id.
+	var pixInfraction PixInfraction
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixInfraction)
 	if unmarshalError != nil {
-		return object, err
+		return pixInfraction, err
 	}
-	return object, err
+	return pixInfraction, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixInfraction {
@@ -111,23 +116,24 @@ func Query(params map[string]interface{}, user user.User) chan PixInfraction {
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
 	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "failed", "delivered", "closed", "canceled"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- type [slice of strings, default nil]: Filter for the type of retrieved PixInfractions. Options: "fraud", "reversal", "reversalChargeback"
+	//		- type [slice of strings, default nil]: Filter for the type of retrieved PixInfractions. Options: "reversal", "reversalChargeback"
 	//  	- flow [string, default nil]: Direction of the PixInfraction flow. Options: "out" if you created the PixInfraction, "in" if you received the PixInfraction.
 	//  	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
 	//	- channel of PixInfraction structs with updated attributes
+	var pixInfraction PixInfraction
 	infractions := make(chan PixInfraction)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixInfraction)
 			if err != nil {
 				print(err)
 			}
-			infractions <- object
+			infractions <- pixInfraction
 		}
 		close(infractions)
 	}()
@@ -148,7 +154,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixInfraction, strin
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
 	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "failed", "delivered", "closed", "canceled"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- type [slice of strings, default nil]: Filter for the type of retrieved PixInfractions. Options: "fraud", "reversal", "reversalChargeback"
+	//		- type [slice of strings, default nil]: Filter for the type of retrieved PixInfractions. Options: "reversal", "reversalChargeback"
 	//  	- flow [string, default nil]: Direction of the PixInfraction flow. Options: "out" if you created the PixInfraction, "in" if you received the PixInfraction.
 	//  	- tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -156,12 +162,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixInfraction, strin
 	//	Return:
 	//	- slice of PixInfraction structs with updated attributes
 	//  - Cursor to retrieve the next page of PixInfraction structs
+	var pixInfractions []PixInfraction
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixInfractions)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixInfractions, cursor, err
 	}
-	return objects, cursor, err
+	return pixInfractions, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (PixInfraction, Error.StarkErrors) {
@@ -174,6 +181,8 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixInf
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//  	Parameters (required):
 	//		- result [string]: Result after the analysis of the PixInfraction. Options: "agreed", "disagreed"
+	//		Parameters (conditionally required):
+	//		- fraudType [string, default nil]: Type of Pix Fraud. Options: "identity", "mule", "scam", "unknown", "other"
 	//		Parameters (optional):
 	//		- analysis [string, default nil]: Analysis that led to the result.
 	//
@@ -182,12 +191,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixInf
 	//
 	//	Return:
 	//	- pixInfraction with updated attributes
+	var pixInfraction PixInfraction
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &pixInfraction)
 	if unmarshalError != nil {
-		return object, err
+		return pixInfraction, err
 	}
-	return object, err
+	return pixInfraction, err
 }
 
 func Cancel(id string, user user.User) (PixInfraction, Error.StarkErrors) {
@@ -203,10 +213,11 @@ func Cancel(id string, user user.User) (PixInfraction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled PixInfraction struct
+	var pixInfraction PixInfraction
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &pixInfraction)
 	if unmarshalError != nil {
-		return object, err
+		return pixInfraction, err
 	}
-	return object, err
+	return pixInfraction, err
 }

@@ -55,8 +55,6 @@ type PixKey struct {
 	Created        *time.Time `json:",omitempty"`
 }
 
-var object PixKey
-var objects []PixKey
 var resource = map[string]string{"name": "PixKey"}
 
 func Create(key PixKey, user user.User) (PixKey, Error.StarkErrors) {
@@ -97,12 +95,13 @@ func Get(id string, query map[string]interface{}, user user.User) (PixKey, Error
 	//
 	//	Return:
 	//	- pixKey struct that corresponds to the given id.
+	var pixKey PixKey
 	get, err := utils.Get(resource, id, query, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &pixKey)
 	if unmarshalError != nil {
-		return object, err
+		return pixKey, err
 	}
-	return object, err
+	return pixKey, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan PixKey {
@@ -123,16 +122,17 @@ func Query(params map[string]interface{}, user user.User) chan PixKey {
 	//
 	//	Return:
 	//	- channel of PixKey structs with updated attributes
+	var pixKey PixKey
 	keys := make(chan PixKey)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixKey)
 			if err != nil {
 				print(err)
 			}
-			keys <- object
+			keys <- pixKey
 		}
 		close(keys)
 	}()
@@ -160,12 +160,13 @@ func Page(params map[string]interface{}, user user.User) ([]PixKey, string, Erro
 	//	Return:
 	//	- slice of PixKey structs with updated attributes
 	//  - Cursor to retrieve the next page of PixKey structs
+	var pixKeys []PixKey
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &pixKeys)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return pixKeys, cursor, err
 	}
-	return objects, cursor, err
+	return pixKeys, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (PixKey, Error.StarkErrors) {
@@ -190,12 +191,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixKey
 	//
 	//	Return:
 	//	- pixKey with updated attributes
+	var pixKey PixKey
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &pixKey)
 	if unmarshalError != nil {
-		return object, err
+		return pixKey, err
 	}
-	return object, err
+	return pixKey, err
 }
 
 func Cancel(id string, user user.User) (PixKey, Error.StarkErrors) {
@@ -211,10 +213,11 @@ func Cancel(id string, user user.User) (PixKey, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled pixKey struct
+	var pixKey PixKey
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &pixKey)
 	if unmarshalError != nil {
-		return object, err
+		return pixKey, err
 	}
-	return object, err
+	return pixKey, err
 }

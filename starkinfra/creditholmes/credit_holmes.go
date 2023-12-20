@@ -43,8 +43,6 @@ type CreditHolmes struct {
 	Updated    *time.Time             `json:",omitempty"`
 }
 
-var object CreditHolmes
-var objects []CreditHolmes
 var resource = map[string]string{"name": "CreditHolmes"}
 
 func Create(holmes []CreditHolmes, user user.User) ([]CreditHolmes, Error.StarkErrors) {
@@ -81,12 +79,13 @@ func Get(id string, user user.User) (CreditHolmes, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- CreditHolmes struct that corresponds to the given id.
+	var creditHolmes CreditHolmes
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &creditHolmes)
 	if unmarshalError != nil {
-		return object, err
+		return creditHolmes, err
 	}
-	return object, err
+	return creditHolmes, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CreditHolmes {
@@ -106,16 +105,17 @@ func Query(params map[string]interface{}, user user.User) chan CreditHolmes {
 	//
 	//	Return:
 	//	- Channel  of CreditHolmes structs with updated attributes
+	var creditHolmes CreditHolmes
 	holmes := make(chan CreditHolmes)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &creditHolmes)
 			if err != nil {
 				print(err)
 			}
-			holmes <- object
+			holmes <- creditHolmes
 		}
 		close(holmes)
 	}()
@@ -142,10 +142,11 @@ func Page(params map[string]interface{}, user user.User) ([]CreditHolmes, string
 	//	Return:
 	//	- Slice of CreditHolmes structs with updated attributes
 	//	- Cursor to retrieve the next page of CreditHolmes structs
+	var creditHolmes []CreditHolmes
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &creditHolmes)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return creditHolmes, cursor, err
 	}
-	return objects, cursor, err
+	return creditHolmes, cursor, err
 }

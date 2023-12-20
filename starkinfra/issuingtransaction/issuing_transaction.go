@@ -31,8 +31,6 @@ type IssuingTransaction struct {
 	Created     *time.Time `json:",omitempty"`
 }
 
-var object IssuingTransaction
-var objects []IssuingTransaction
 var resource = map[string]string{"name": "IssuingTransaction"}
 
 func Get(id string, user user.User) (IssuingTransaction, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (IssuingTransaction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- issuingTransaction struct that corresponds to the given id.
+	var issuingTransaction IssuingTransaction
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &issuingTransaction)
 	if unmarshalError != nil {
-		return object, err
+		return issuingTransaction, err
 	}
-	return object, err
+	return issuingTransaction, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan IssuingTransaction {
@@ -74,16 +73,17 @@ func Query(params map[string]interface{}, user user.User) chan IssuingTransactio
 	//
 	//	Return:
 	//	- channel of IssuingTransaction structs with updated attributes
+	var issuingTransaction IssuingTransaction
 	transactions := make(chan IssuingTransaction)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &issuingTransaction)
 			if err != nil {
 				print(err)
 			}
-			transactions <- object
+			transactions <- issuingTransaction
 		}
 		close(transactions)
 	}()
@@ -111,10 +111,11 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingTransaction, 
 	//	Return:
 	//	- slice of IssuingTransaction structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingPurchase structs
+	var issuingTransactions []IssuingTransaction
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &issuingTransactions)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return issuingTransactions, cursor, err
 	}
-	return objects, cursor, err
+	return issuingTransactions, cursor, err
 }

@@ -27,7 +27,6 @@ type PixBalance struct {
 	Updated  *time.Time `json:",omitempty"`
 }
 
-var object PixBalance
 var resource = map[string]string{"name": "PixBalance"}
 
 func Get(user user.User) PixBalance {
@@ -40,16 +39,17 @@ func Get(user user.User) PixBalance {
 	//
 	//	Return:
 	//	- pixBalance struct with updated attributes
+	var pixBalance PixBalance
 	balance := make(chan PixBalance)
 	query := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &pixBalance)
 			if err != nil {
 				print(err)
 			}
-			balance <- object
+			balance <- pixBalance
 		}
 		close(balance)
 	}()
