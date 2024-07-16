@@ -63,6 +63,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Webhook](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
         - [WebhookEvents](#process-webhook-events): Manage Webhook events
         - [WebhookEventAttempts](#query-failed-webhook-event-delivery-attempts-information): Query failed webhook event deliveries
+    - [Request](#request): Send a custom request to Stark Infra. This can be used to access features that haven't been mapped yet.
 - [Handling errors](#handling-errors)
 - [Help and Feedback](#help-and-feedback)
 
@@ -5386,6 +5387,306 @@ func main() {
     fmt.Println(attempt.Id)
 }
 
+```
+
+# request
+
+This resource allows you to send HTTP requests to StarkBank routes, this allows you to use resources that haven't been mapped yet.
+
+## GET
+
+You can perform a GET request to any StarkInfra route.
+
+It's possible to get a single resource using its id in the path.
+
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+	data := map[string]interface{}{}
+    var path string
+
+	path = "pix-request/5182107395555328"
+	response, err := Request.Get(
+		path,
+		nil,
+		nil,
+	)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+    fmt.Println(data)
+}
+```
+
+You can also get the specific resource log,
+
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+	data := map[string]interface{}{}
+    var path string
+
+	path = "pix-request/log/5182107395555328"
+	response, err := Request.Get(
+		path,
+		nil,
+		nil,
+	)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+    fmt.Println(data)
+}
+```
+
+This same method will be used to list all created items for the requested resource.
+
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+    starkinfra.User = utils.ExampleProject
+
+    var query = map[string]interface{}{}
+	data := map[string]interface{}{}
+    var path string
+
+	query["limit"] = 2
+	path = "pix-request/"
+	response, err := Request.Get(
+		path,
+		query,
+		nil,
+	)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+    fmt.Println(data)
+}
+```
+
+To list logs, you will use the same logic as for getting a single log.
+
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+    starkinfra.User = utils.ExampleProject
+
+    var query = map[string]interface{}{}
+	data := map[string]interface{}{}
+    var path string
+
+	query["limit"] = 2
+	path = "pix-request/log/"
+	response, err := Request.Get(
+		path,
+		query,
+		nil,
+	)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+    fmt.Println(data)
+}
+```
+
+## POST
+
+You can perform a POST request to any StarkInfra route.
+
+This will create an object for each item sent in your request
+
+**Note**: It's not possible to create multiple resources simultaneously. You need to send separate requests if you want to create multiple resources, such as invoices and boletos.
+
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+    starkinfra.User = utils.ExampleProject
+
+	data := map[string]interface{}{}
+    
+	now := time.Now()
+    milliseconds := now.UnixNano() / int64(time.Millisecond)
+    ext_id := strconv.FormatInt(milliseconds, 10)
+
+	body := map[string][]map[string]interface{}{
+        "holders": {
+            {
+				"name": "Jaime Lannister",
+				"externalId": ext_id,
+				"taxId": "012.345.678-90",
+			},
+        },
+    }
+
+	path := "issuing-holder/"
+
+	response, err := Request.Post(
+		path,
+		body,
+		nil,
+		Utils.ExampleProject,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+    fmt.Println(data)
+}
+```
+
+## PATCH
+
+You can perform a PATCH request to any StarkInfra route.
+
+It's possible to update a single item of a StarkInfra resource.
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+    starkinfra.User = utils.ExampleProject
+
+	data := map[string]interface{}{}
+    path = "issuing-holder/5155165527080960"
+
+    body := map[string]interface{}{
+        "tags": []string{"Arya", "stark"},
+    }
+    response, err := Request.Patch(
+        path,
+        body,
+        nil,
+        Utils.ExampleProject,
+    )
+
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+    if unmarshalError != nil {
+        panic(unmarshalError)
+    }
+    fmt.println(data)
+}
+```
+
+## DELETE
+
+You can perform a DELETE request to any StarkInfra route.
+
+It's possible to delete a single item of a StarkInfra resource.
+```golang
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+	Request "github.com/starkinfra/sdk-go/starkinfra/request"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+    starkinfra.User = utils.ExampleProject
+
+	data := map[string]interface{}{}
+    path = "issuing-holder/5155165527080960"
+
+    body := map[string]interface{}{
+        "tags": []string{"Arya", "stark"},
+    }
+    response, err := Request.Delete(
+        path,
+        body,
+        nil,
+        Utils.ExampleProject,
+    )
+
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+        }
+    }
+    unmarshalError := json.Unmarshal(response.Content, &data)
+    if unmarshalError != nil {
+        panic(unmarshalError)
+    }
+    fmt.println(data)
+}      
 ```
 
 # Handling errors
