@@ -14,6 +14,12 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-07-16
+### Changed
+- core version
+### Added
+- request methods
+
 ## [0.1.3] - 2023-12-20
 ### Added
 - PixUser resource
