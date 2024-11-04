@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Fixed
+- bacenId dateTime
 
 ## [0.5.0] - 2024-07-16
 ### Changed

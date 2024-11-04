@@ -15,7 +15,7 @@ func BacenId(bankCode string) string {
 		random := fmt.Sprintf("%v", Chars[rand.Intn(len(Chars))])
 		randomString += random
 	}
-	return fmt.Sprintf("%v%v%v", bankCode, time.Now().Format("200602011504"), randomString)
+	return fmt.Sprintf("%v%v%v", bankCode, time.Now().Format("200601021504"), randomString)
 }
 
 func BankCode(BankCode string) string {
