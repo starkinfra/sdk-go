@@ -3138,9 +3138,11 @@ func main() {
     infractions, err := PixInfraction.Create(
         []PixInfraction.PixInfraction{
             {
-                ReferenceId: "E35547753202201201450oo8sDGca066",
-                Type:        "reversal",
-                Method:      "scam",
+                ReferenceId:   "E35547753202201201450oo8sDGca066",
+                Type:          "reversal",
+                Method:        "scam",
+                OperatorEmail: "fraud@company.com",
+                OperatorPhone: "+5511989898989",
             },
         }, nil)
     if err.Errors != nil {

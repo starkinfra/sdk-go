@@ -175,7 +175,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixKey
 	//	Update a PixKey parameters by passing its id.
 	//
 	//	Parameters (required):
-	//	- id [string]: PixKey id. ex: '5656565656565656'
+	//	- id [string]: PixKey id. Allowed types are: CPF, CNPJ, phone number or email. ex: '5656565656565656'
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//  	Parameters (required):
 	//		- reason [string]: Reason why the PixKey is being patched. Options: "branchTransfer", "reconciliation" or "userRequested".

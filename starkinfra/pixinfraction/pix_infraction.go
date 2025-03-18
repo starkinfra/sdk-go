@@ -25,6 +25,8 @@ import (
 //	- Description [string, default nil]: Description for any details that can help with the infraction investigation.
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
 //	- FraudType [string, default nil]: Type of Pix Fraud. Options: "identity", "mule", "scam", "unknown", "other"
+//  - OperatorEmail [string]: Contact email of the operator responsible for the PixInfraction,
+//  - OperatorPhone [string]: Contact phone number of the operator responsible for the PixInfraction,
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixInfraction is created. ex: "5656565656565656"
@@ -46,6 +48,8 @@ type PixInfraction struct {
 	Description      string     `json:",omitempty"`
 	Tags             []string   `json:",omitempty"`
 	FraudType        string     `json:",omitempty"`
+	OperatorEmail    string     `json:",omitempty"`
+	OperatorPhone    string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
 	FraudId          string     `json:",omitempty"`
 	CreditedBankCode string     `json:",omitempty"`
