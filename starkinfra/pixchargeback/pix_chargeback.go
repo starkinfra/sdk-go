@@ -31,7 +31,7 @@ import (
 //	- Analysis [string]: Analysis that led to the result.
 //	- SenderBankCode [string]: BankCode of the Pix participant that created the PixChargeback. ex: "20018183"
 //  - ReceiverBankCode [string]: BankCode of the Pix participant that received the PixChargeback. ex: "20018183"
-//  - RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "noBalance", "accountClosed", "unableToReverse"
+//  - RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse"
 //  - ReversalReferenceId [string]: ReturnId or endToEndId of the reversal transaction. ex: "D20018183202202030109X3OoBHG74wo"
 //  - Result [string]: Result after the analysis of the PixChargeback by the receiving party. Options: "rejected", "accepted", "partiallyAccepted"
 //  - Flow [string]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
@@ -179,10 +179,9 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixCha
 	//      Parameters (required):
 	//		- result [string]: Result after the analysis of the PixChargeback. Options: "rejected", "accepted", "partiallyAccepted".
 	//		Parameters (conditionally required):
-	//		- rejectionReason [string, default nil]: If the PixChargeback is rejected a reason is required. Options: "noBalance", "accountClosed", "unableToReverse",
-	//		- reversalReferenceId [string, default nil]: ReturnId of the reversal transaction. ex: "D20018183202201201450u34sDGd19lz"
-	//		Parameters (optional):
-	//		- analysis [string, default nil]: Description of the analysis that led to the result.
+	//		- rejectionReason [string, default nil]: If the PixChargeback is rejected a reason is required. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse".
+	//		- reversalReferenceId [string, default nil]: ReturnId of the reversal transaction. ex: "D20018183202201201450u34sDGd19lz".
+	//		- analysis [string, default nil]: Description of the analysis that led to the result. Required if rejection_reason is "invalidRequest".
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

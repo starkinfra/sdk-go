@@ -383,11 +383,13 @@ func PixInfraction() []pixinfraction.PixInfraction {
 
 	infractions := []pixinfraction.PixInfraction{
 		{
-			ReferenceId: "E35547753202201201450oo8sDGca066",
-			Type:        "reversal",
-			Method:		 "scam",
-			Description: "testInfractionGolang",
-			Tags:        []string{"tony", "stark"},
+			ReferenceId:   "E35547753202201201450oo8sDGca066",
+			Type:          "reversal",
+			Method:        "scam",
+			Description:   "testInfractionGolang",
+			Tags:          []string{"tony", "stark"},
+			OperatorEmail: "ned.stark@company.com",
+			OperatorPhone: "+5511999999999",
 		},
 	}
 	return infractions
@@ -398,8 +400,8 @@ func PixFraud() []pixfraud.PixFraud {
 	frauds := []pixfraud.PixFraud{
 		{
 			ExternalId: "my_external_id_219",
-			Type:        "scam",
-			TaxId:		 "01234567890",
+			Type:       "scam",
+			TaxId:      "01234567890",
 		},
 	}
 	return frauds
