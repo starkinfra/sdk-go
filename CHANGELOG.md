@@ -14,10 +14,11 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-03-20
 ### Added
 - operatorEmail and operatorPhone parameters to PixInfraction resource
 
-## [0.5.0] - 2024-07-16
+## [0.2.0] - 2024-07-16
 ### Changed
 - core version
 ### Added
