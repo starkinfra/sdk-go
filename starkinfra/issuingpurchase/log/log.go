@@ -18,6 +18,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 //	- Purchase [IssuingPurchase]: IssuingPurchase entity to which the log refers to.
+//	- Installment [int]: number of the installment that is being confirmed.
 //	- IssuingTransactionId [string]: Transaction ID related to the IssuingCard.
 //	- Errors [slice of strings]: Slice of errors linked to this IssuingPurchase event
 //	- Type [string]: Type of the IssuingPurchase event which triggered the log creation. ex: "approved", "canceled", "confirmed", "denied", "reversed", "voided".
@@ -26,6 +27,7 @@ import (
 type Log struct {
 	Id                   string                          `json:",omitempty"`
 	Purchase             IssuingPurchase.IssuingPurchase `json:",omitempty"`
+	Installment          int                             `json:",omitempty"`
 	IssuingTransactionId string                          `json:",omitempty"`
 	Errors               []string                        `json:",omitempty"`
 	Type                 string                          `json:",omitempty"`

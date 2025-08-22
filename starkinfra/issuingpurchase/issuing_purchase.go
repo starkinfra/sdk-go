@@ -18,6 +18,7 @@ import (
 //	- CardId [string]: Unique id returned when IssuingCard is created. ex: "5656565656565656"
 //	- CardEnding [string]: Last 4 digits of the card number. ex: "1234"
 //	- Purpose [string]: Purchase purpose. ex: "purchase"
+//  - InstallmentCount [int]: quantity of installments to be confirmed. Minimum = 1. ex: 12
 //	- Amount [int]: IssuingPurchase value in cents. Minimum = 0. ex: 1234 (= R$ 12.34)
 //	- Tax [int]: Iof amount taxed for international purchases. ex: 1234 (= R$ 12.34)
 //	- IssuerAmount [int]: Issuer amount. ex: 1234 (= R$ 12.34)
@@ -55,6 +56,7 @@ type IssuingPurchase struct {
 	CardId                 string     `json:",omitempty"`
 	CardEnding             string     `json:",omitempty"`
 	Purpose                string     `json:",omitempty"`
+	InstallmentCount       int        `json:",omitempty"`
 	Amount                 int        `json:",omitempty"`
 	Tax                    int        `json:",omitempty"`
 	IssuerAmount           int        `json:",omitempty"`
