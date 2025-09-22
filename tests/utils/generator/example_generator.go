@@ -441,6 +441,7 @@ func PixRequest() []pixrequest.PixRequest {
 			ReceiverBranchCode:    "1357-9",
 			ReceiverAccountType:   "payment",
 			EndToEndId:            Utils.EndToEndId("35547753"),
+			Priority:              "low",
 		},
 	}
 	return requests
