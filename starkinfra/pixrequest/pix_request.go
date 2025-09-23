@@ -41,7 +41,8 @@ import (
 //	- CashierBankCode [string, default nil]: Cashier's bank code. ex: "00000000"
 //	- CashierType [string, default nil]: Cashier's type. ex: []string{merchant, other, participant]
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for PixRequests. ex: []string{"employees", "monthly"}
-//	- Method [string, default nil]: Execution  method for thr creation of the Pix. ex: "manual", "payerQrcode", "dynamicQrcode".
+//	- Method [string, default nil]: Execution  method for the creation of the Pix. ex: "manual", "payerQrcode", "dynamicQrcode".
+//	- Priority [string, default "high"]: Defines the channel through which the entities will be processed. Options: "low", "high"
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixRequest is created. ex: "5656565656565656"
@@ -76,6 +77,7 @@ type PixRequest struct {
 	CashierType           string     `json:",omitempty"`
 	Tags                  []string   `json:",omitempty"`
 	Method                string     `json:",omitempty"`
+	Priority              string     `json:",omitempty"`
 	Id                    string     `json:",omitempty"`
 	Fee                   int        `json:",omitempty"`
 	Status                string     `json:",omitempty"`

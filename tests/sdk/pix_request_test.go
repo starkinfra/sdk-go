@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
+	"strings"
 )
 
 func TestPixRequestPost(t *testing.T) {
@@ -18,13 +19,12 @@ func TestPixRequestPost(t *testing.T) {
 	requests, err := PixRequest.Create(Example.PixRequest(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, request := range requests {
 		assert.NotNil(t, request.Id)
-		fmt.Println(request.Id)
 	}
 }
 
@@ -38,7 +38,6 @@ func TestPixRequestQuery(t *testing.T) {
 	requests := PixRequest.Query(params, nil)
 	for request := range requests {
 		assert.NotNil(t, request.Id)
-		fmt.Println(request.Tags)
 	}
 }
 
@@ -52,15 +51,15 @@ func TestPixRequestPage(t *testing.T) {
 	requests, cursor, err := PixRequest.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, request := range requests {
 		assert.NotNil(t, request.Id)
-		fmt.Println(request.Id)
 	}
-	fmt.Println(cursor)
+
+	assert.NotNil(t, cursor)
 }
 
 func TestPixRequestInfoGet(t *testing.T) {
@@ -79,12 +78,11 @@ func TestPixRequestInfoGet(t *testing.T) {
 	request, err := PixRequest.Get(requestList[rand.Intn(len(requestList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, request.Id)
-	fmt.Println(request.EndToEndId)
 }
 
 func TestPixRequestParseRight(t *testing.T) {
@@ -117,7 +115,7 @@ func TestPixRequestResponseApproved(t *testing.T) {
 	approved["status"] = "approved"
 
 	response := PixRequest.Response(approved)
-	fmt.Println(response)
+	assert.True(t, strings.Contains(response, "approved"))
 }
 
 func TestPixRequestResponseDenied(t *testing.T) {
@@ -129,5 +127,5 @@ func TestPixRequestResponseDenied(t *testing.T) {
 	denied["reason"] = "taxIdMismatch"
 
 	response := PixRequest.Response(denied)
-	fmt.Println(response)
+	assert.True(t, strings.Contains(response, "denied"))
 }

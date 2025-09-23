@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- Priority parameter to PixRequest resource
 
 ## [0.3.0] - 2025-03-20
 ### Added
