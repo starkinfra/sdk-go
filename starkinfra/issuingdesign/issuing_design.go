@@ -53,7 +53,7 @@ func Get(id string, user user.User) (IssuingDesign, Error.StarkErrors) {
 	return issuingDesign, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingDesign {
+func Query(params map[string]interface{}, user user.User) (chan IssuingDesign, chan Error.StarkErrors) {
 	//	Retrieve IssuingDesigns
 	//
 	//	Receive a channel of IssuingDesign structs previously created in the Stark Infra API
@@ -68,19 +68,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingDesign {
 	//	- channel of IssuingDesign structs with updated attributes
 	var issuingDesign IssuingDesign
 	designs := make(chan IssuingDesign)
-	query := utils.Query(resource, params, user)
+	designsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingDesign)
 			if err != nil {
-				print(err)
+				designsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			designs <- issuingDesign
 		}
+		for err := range errorChannel {
+			designsError <- err
+		}
 		close(designs)
+		close(designsError)
 	}()
-	return designs
+	return designs, designsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingDesign, string, Error.StarkErrors) {

@@ -52,7 +52,7 @@ func Get(id string, user user.User) (IssuingEmbossingKit, Error.StarkErrors) {
 	return issuingEmbossingKit, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingEmbossingKit {
+func Query(params map[string]interface{}, user user.User) (chan IssuingEmbossingKit, chan Error.StarkErrors) {
 	//	Retrieve IssuingEmbossingKits
 	//
 	//	Receive a channel of IssuingEmbossingKit structs previously created in the Stark Infra API
@@ -71,19 +71,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingEmbossingK
 	//	- channel of IssuingEmbossingKit structs with updated attributes
 	var issuingEmbossingKit IssuingEmbossingKit
 	kits := make(chan IssuingEmbossingKit)
-	query := utils.Query(resource, params, user)
+	kitsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingEmbossingKit)
 			if err != nil {
-				print(err)
+				kitsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			kits <- issuingEmbossingKit
 		}
+		for err := range errorChannel {
+			kitsError <- err
+		}
 		close(kits)
+		close(kitsError)
 	}()
-	return kits
+	return kits, kitsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingEmbossingKit, string, Error.StarkErrors) {

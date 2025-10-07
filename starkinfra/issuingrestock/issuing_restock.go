@@ -81,7 +81,7 @@ func Get(id string, user user.User) (IssuingRestock, Error.StarkErrors) {
 	return issuingRestock, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingRestock {
+func Query(params map[string]interface{}, user user.User) (chan IssuingRestock, chan Error.StarkErrors) {
 	//	Retrieve IssuingRestock structs
 	//
 	//	Receive a channel of IssuingRestock structs previously created in the Stark Infra API
@@ -101,19 +101,24 @@ func Query(params map[string]interface{}, user user.User) chan IssuingRestock {
 	//	- channel of IssuingRestock structs with updated attributes
 	var issuingRestock IssuingRestock
 	restocks := make(chan IssuingRestock)
-	query := utils.Query(resource, params, user)
+	logsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingRestock)
 			if err != nil {
-				print(err)
+				logsError <- Error.UnknownError(err.Error())
 			}
 			restocks <- issuingRestock
 		}
+		for err := range errorChannel {
+			logsError <- err
+		}
 		close(restocks)
+		close(logsError)
 	}()
-	return restocks
+	return restocks, logsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingRestock, string, Error.StarkErrors) {

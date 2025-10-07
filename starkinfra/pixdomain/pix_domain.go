@@ -2,6 +2,7 @@ package pixdomain
 
 import (
 	"encoding/json"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 )
@@ -22,7 +23,7 @@ type PixDomain struct {
 
 var resource = map[string]string{"name": "PixDomain"}
 
-func Query(user user.User) chan PixDomain {
+func Query(user user.User) (chan PixDomain, chan Error.StarkErrors) {
 	//	Retrieve PixDomain structs
 	//
 	//	Receive a channel of PixDomain structs of Pix participants able to issue BR Codes
@@ -34,17 +35,23 @@ func Query(user user.User) chan PixDomain {
 	//	- Channel  of PixDomain structs with updated attributes
 	var pixDomain PixDomain
 	domains := make(chan PixDomain)
-	query := utils.Query(resource, nil, user)
+	domainsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixDomain)
 			if err != nil {
-				print(err)
+				domainsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			domains <- pixDomain
 		}
+		for err := range errorChannel {
+			domainsError <- err
+		}
 		close(domains)
+		close(domainsError)
 	}()
-	return domains
+	return domains, domainsError
 }

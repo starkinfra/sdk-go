@@ -132,7 +132,7 @@ func Get(id string, user user.User) (PixRequest, Error.StarkErrors) {
 	return pixRequest, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan PixRequest {
+func Query(params map[string]interface{}, user user.User) (chan PixRequest, chan Error.StarkErrors) {
 	//	Retrieve PixRequests
 	//
 	//	Receive a channel of PixRequest structs previously created in the Stark Infra API
@@ -153,19 +153,25 @@ func Query(params map[string]interface{}, user user.User) chan PixRequest {
 	//	- channel of PixRequest structs with updated attributes
 	var pixRequest PixRequest
 	requests := make(chan PixRequest)
-	query := utils.Query(resource, params, user)
+	requestsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixRequest)
 			if err != nil {
-				print(err)
+				requestsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			requests <- pixRequest
 		}
+		for err := range errorChannel {
+			requestsError <- err
+		}
 		close(requests)
+		close(requestsError)
 	}()
-	return requests
+	return requests, requestsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]PixRequest, string, Error.StarkErrors) {
@@ -199,7 +205,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixRequest, string, 
 	return pixRequests, cursor, err
 }
 
-func Parse(content string, signature string, user user.User) PixRequest {
+func Parse(content string, signature string, user user.User) (PixRequest, Error.StarkErrors) {
 	//	Create single verified PixRequest struct from a content string
 	//
 	//	Create a single PixRequest struct from a content string received from a handler listening at the request url.
@@ -216,11 +222,17 @@ func Parse(content string, signature string, user user.User) PixRequest {
 	//	Return:
 	//	- parsed PixRequest struct
 	var pixRequest PixRequest
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &pixRequest)
-	if unmarshalError != nil {
-		return pixRequest
+
+	parsed, err := utils.ParseAndVerify(content, signature, "", user)
+	if err.Errors != nil {
+		return pixRequest, err
 	}
-	return pixRequest
+
+	unmarshalError := json.Unmarshal([]byte(parsed), &pixRequest)
+	if unmarshalError != nil {
+		return pixRequest, Error.UnknownError(unmarshalError.Error())
+	}
+	return pixRequest, Error.StarkErrors{}
 }
 
 func Response(authorization map[string]interface{}) string {

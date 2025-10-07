@@ -54,7 +54,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingStock
 	return issuingStock, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingStock {
+func Query(params map[string]interface{}, user user.User) (chan IssuingStock, chan Error.StarkErrors) {
 	//	Retrieve IssuingStock structs
 	//
 	//	Receive a channel of IssuingStock structs previously created in the Stark Infra API
@@ -74,19 +74,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingStock {
 	//	- channel of IssuingStock structs with updated attributes
 	var issuingStock IssuingStock
 	stocks := make(chan IssuingStock)
-	query := utils.Query(resource, params, user)
+	stocksError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingStock)
 			if err != nil {
-				print(err)
+				stocksError <- Error.UnknownError(err.Error())
+				continue
 			}
 			stocks <- issuingStock
 		}
+		for err := range errorChannel {
+			stocksError <- err
+		}
 		close(stocks)
+		close(stocksError)
 	}()
-	return stocks
+	return stocks, stocksError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingStock, string, Error.StarkErrors) {

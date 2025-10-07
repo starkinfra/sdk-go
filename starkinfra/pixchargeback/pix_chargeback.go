@@ -103,7 +103,7 @@ func Get(id string, user user.User) (PixChargeback, Error.StarkErrors) {
 	return pixChargeback, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan PixChargeback {
+func Query(params map[string]interface{}, user user.User) (chan PixChargeback, chan Error.StarkErrors) {
 	//	Retrieve PixChargeback structs
 	//
 	//	Receive a channel of PixChargebacks structs previously created in the Stark Infra API
@@ -123,19 +123,25 @@ func Query(params map[string]interface{}, user user.User) chan PixChargeback {
 	//	- channel of PixChargeback structs with updated attributes
 	var pixChargeback PixChargeback
 	chargebacks := make(chan PixChargeback)
-	query := utils.Query(resource, params, user)
+	chargebacksError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixChargeback)
 			if err != nil {
-				print(err)
+				chargebacksError <- Error.UnknownError(err.Error())
+				continue
 			}
 			chargebacks <- pixChargeback
 		}
+		for err := range errorChannel {
+			chargebacksError <- err
+		}
 		close(chargebacks)
+		close(chargebacksError)
 	}()
-	return chargebacks
+	return chargebacks, chargebacksError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]PixChargeback, string, Error.StarkErrors) {

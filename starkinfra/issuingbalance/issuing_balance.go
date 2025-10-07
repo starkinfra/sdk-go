@@ -2,6 +2,7 @@ package issuingbalance
 
 import (
 	"encoding/json"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"time"
@@ -29,7 +30,7 @@ type IssuingBalance struct {
 
 var resource = map[string]string{"name": "IssuingBalance"}
 
-func Get(user user.User) IssuingBalance {
+func Get(user user.User) (IssuingBalance, Error.StarkErrors) {
 	//	Retrieve the IssuingBalance struct
 	//
 	//	Receive the IssuingBalance struct linked to your Workspace in the Stark Infra API
@@ -41,17 +42,23 @@ func Get(user user.User) IssuingBalance {
 	//	- IssuingBalance struct with updated attributes
 	var issuingBalance IssuingBalance
 	balance := make(chan IssuingBalance)
-	query := utils.Query(resource, nil, user)
+	balanceError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingBalance)
 			if err != nil {
-				print(err)
+				balanceError <- Error.UnknownError(err.Error())
+				continue
 			}
 			balance <- issuingBalance
 		}
+		for err := range errorChannel {
+			balanceError <- err
+		}
 		close(balance)
+		close(balanceError)
 	}()
-	return <-balance
+	return <-balance, <-balanceError
 }

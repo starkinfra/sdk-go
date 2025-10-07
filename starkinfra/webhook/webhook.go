@@ -71,7 +71,7 @@ func Get(id string, user user.User) (Webhook, Error.StarkErrors) {
 	return object, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Webhook {
+func Query(params map[string]interface{}, user user.User) (chan Webhook, chan Error.StarkErrors) {
 	//	Retrieve Webhook
 	//
 	//	Receive a channel of Webhook structs previously created in the Stark Infra API
@@ -84,19 +84,25 @@ func Query(params map[string]interface{}, user user.User) chan Webhook {
 	//	Return:
 	//	- channel of Webhook structs with updated attributes
 	webhooks := make(chan Webhook)
-	query := utils.Query(resource, params, user)
+	webhooksError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &object)
 			if err != nil {
-				print(err)
+				webhooksError <- Error.UnknownError(err.Error())
+				continue
 			}
 			webhooks <- object
 		}
+		for err := range errorChannel {
+			webhooksError <- err
+		}
 		close(webhooks)
+		close(webhooksError)
 	}()
-	return webhooks
+	return webhooks, webhooksError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Error.StarkErrors) {

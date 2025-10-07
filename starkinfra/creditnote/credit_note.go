@@ -133,7 +133,7 @@ func Get(id string, user user.User) (CreditNote, Error.StarkErrors) {
 	return creditNote, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CreditNote {
+func Query(params map[string]interface{}, user user.User) (chan CreditNote, chan Error.StarkErrors) {
 	//	Retrieve CreditNote structs
 	//
 	//	Receive a channel of CreditNote structs previously created in the Stark Infra API
@@ -152,19 +152,25 @@ func Query(params map[string]interface{}, user user.User) chan CreditNote {
 	//	- channel of CreditNote structs with updated attributes
 	var creditNote CreditNote
 	notes := make(chan CreditNote)
-	query := utils.Query(resource, params, user)
+	notesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &creditNote)
 			if err != nil {
-				print(err)
+				notesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			notes <- creditNote
 		}
+		for err := range errorChannel {
+			notesError <- err
+		}
 		close(notes)
+		close(notesError)
 	}()
-	return notes
+	return notes, notesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CreditNote, string, Error.StarkErrors) {

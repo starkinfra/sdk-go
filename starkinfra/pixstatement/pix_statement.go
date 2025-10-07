@@ -86,7 +86,7 @@ func Get(id string, user user.User) (PixStatement, Error.StarkErrors) {
 	return pixStatement, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan PixStatement {
+func Query(params map[string]interface{}, user user.User) (chan PixStatement, chan Error.StarkErrors) {
 	//	Retrieve PixStatement structs
 	//
 	//	Receive a channel of PixStatement structs previously created in the Stark Infra API
@@ -101,19 +101,25 @@ func Query(params map[string]interface{}, user user.User) chan PixStatement {
 	//	- channel of PixStatement structs with updated attributes
 	var pixStatement PixStatement
 	statements := make(chan PixStatement)
-	query := utils.Query(resource, params, user)
+	statementsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixStatement)
 			if err != nil {
-				print(err)
+				statementsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			statements <- pixStatement
 		}
+		for err := range errorChannel {
+			statementsError <- err
+		}
 		close(statements)
+		close(statementsError)
 	}()
-	return statements
+	return statements, statementsError
 }
 
 func Csv(id string, user user.User) ([]byte, Error.StarkErrors) {

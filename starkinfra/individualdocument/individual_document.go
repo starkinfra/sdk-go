@@ -87,7 +87,7 @@ func Get(id string, user user.User) (IndividualDocument, Error.StarkErrors) {
 	return individualDocument, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IndividualDocument {
+func Query(params map[string]interface{}, user user.User) (chan IndividualDocument, chan Error.StarkErrors) {
 	//	Retrieve IndividualDocuments
 	//
 	//	Receive a channel of IndividualDocument structs previously created in the Stark Infra API
@@ -106,19 +106,25 @@ func Query(params map[string]interface{}, user user.User) chan IndividualDocumen
 	//	- channel of IndividualDocument structs with updated attributes
 	var individualDocument IndividualDocument
 	documents := make(chan IndividualDocument)
-	query := utils.Query(resource, params, user)
+	documentsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualDocument)
 			if err != nil {
-				print(err)
+				documentsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			documents <- individualDocument
 		}
+		for err := range errorChannel {
+			documentsError <- err
+		}
 		close(documents)
+		close(documentsError)
 	}()
-	return documents
+	return documents, documentsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IndividualDocument, string, Error.StarkErrors) {

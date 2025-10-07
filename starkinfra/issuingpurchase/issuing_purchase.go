@@ -109,7 +109,7 @@ func Get(id string, user user.User) (IssuingPurchase, Error.StarkErrors) {
 	return issuingPurchase, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingPurchase {
+func Query(params map[string]interface{}, user user.User) (chan IssuingPurchase, chan Error.StarkErrors) {
 	//	Retrieve IssuingPurchase structs
 	//
 	//	Receive a channel of IssuingPurchase structs previously created in the Stark Infra API
@@ -130,19 +130,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingPurchase {
 	//	- channel of IssuingPurchase structs with updated attributes
 	var issuingPurchase IssuingPurchase
 	purchases := make(chan IssuingPurchase)
-	query := utils.Query(resource, params, user)
+	purchasesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingPurchase)
 			if err != nil {
-				print(err)
+				purchasesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			purchases <- issuingPurchase
 		}
+		for err := range errorChannel {
+			purchasesError <- err
+		}
 		close(purchases)
+		close(purchasesError)
 	}()
-	return purchases
+	return purchases, purchasesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingPurchase, string, Error.StarkErrors) {
@@ -176,7 +182,7 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingPurchase, str
 	return issuingPurchases, cursor, err
 }
 
-func Parse(content string, signature string, user user.User) IssuingPurchase {
+func Parse(content string, signature string, user user.User) (IssuingPurchase, Error.StarkErrors) {
 	//	Create single verified IssuingPurchase authorization request from a content string
 	//
 	//	Use this method to parse and verify the authenticity of the authorization request received at the informed endpoint.
@@ -195,11 +201,17 @@ func Parse(content string, signature string, user user.User) IssuingPurchase {
 	//	Return:
 	//	- parsed IssuingPurchase struct
 	var issuingPurchase IssuingPurchase
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &issuingPurchase)
-	if unmarshalError != nil {
-		return issuingPurchase
+	parsed, err := utils.ParseAndVerify(content, signature, "", user)
+	if err.Errors != nil {
+		return issuingPurchase, err
 	}
-	return issuingPurchase
+
+	unmarshalError := json.Unmarshal([]byte(parsed), &issuingPurchase)
+	if unmarshalError != nil {
+		return issuingPurchase, Error.UnknownError(unmarshalError.Error())
+	}
+	
+	return issuingPurchase, Error.StarkErrors{}
 }
 
 func Response(authorization map[string]interface{}) string {

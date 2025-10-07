@@ -115,7 +115,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingCard,
 	return object, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingCard {
+func Query(params map[string]interface{}, user user.User) (chan IssuingCard, chan Error.StarkErrors) {
 	//	Retrieve IssuingCard structs
 	//
 	//	Receive a channel of IssuingCards structs previously created in the Stark Infra API
@@ -136,19 +136,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingCard {
 	//	Return:
 	//	- channel of IssuingCard structs with updated attributes
 	cards := make(chan IssuingCard)
-	query := utils.Query(resource, params, user)
+	cardsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &object)
 			if err != nil {
-				print(err)
+				cardsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			cards <- object
 		}
+		for err := range errorChannel {
+			cardsError <- err
+		}
 		close(cards)
+		close(cardsError)
 	}()
-	return cards
+	return cards, cardsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingCard, string, Error.StarkErrors) {

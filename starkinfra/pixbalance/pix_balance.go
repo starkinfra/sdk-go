@@ -2,6 +2,7 @@ package pixbalance
 
 import (
 	"encoding/json"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"time"
@@ -29,7 +30,7 @@ type PixBalance struct {
 
 var resource = map[string]string{"name": "PixBalance"}
 
-func Get(user user.User) PixBalance {
+func Get(user user.User) (PixBalance, Error.StarkErrors) {
 	//	Retrieve the PixBalance struct
 	//
 	//	Receive the Balance struct linked to your Workspace in the Stark Infra API
@@ -41,17 +42,23 @@ func Get(user user.User) PixBalance {
 	//	- pixBalance struct with updated attributes
 	var pixBalance PixBalance
 	balance := make(chan PixBalance)
-	query := utils.Query(resource, nil, user)
+	balanceError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixBalance)
 			if err != nil {
-				print(err)
+				balanceError <- Error.UnknownError(err.Error())
+				continue
 			}
 			balance <- pixBalance
 		}
+		for err := range errorChannel {
+			balanceError <- err
+		}
 		close(balance)
+		close(balanceError)
 	}()
-	return <-balance
+	return <-balance, <-balanceError
 }
