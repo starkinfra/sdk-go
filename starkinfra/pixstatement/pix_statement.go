@@ -21,7 +21,7 @@ import (
 //	Parameters (required):
 //	- After [time.Time]: Transactions that happened at this date are stored in the PixStatement, must be the same as before. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Before [time.Time]: Transactions that happened at this date are stored in the PixStatement, must be the same as after. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
-//	- Type [string]: Types of entities to include in statement. Options: ["interchange", "interchangeTotal", "transaction"}
+//	- Type [string]: Type of entities to include in statement. Options: ["interchange", "interchangeTotal", "transaction"}
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixStatement is created. ex: "5656565656565656"
@@ -33,7 +33,7 @@ import (
 type PixStatement struct {
 	After            *time.Time `json:",omitempty"`
 	Before           *time.Time `json:",omitempty"`
-	Types            string     `json:",omitempty"`
+	Type             string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
 	Status           string     `json:",omitempty"`
 	TransactionCount int        `json:",omitempty"`

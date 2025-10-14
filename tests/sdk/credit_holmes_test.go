@@ -1,13 +1,11 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	CreditHolmes "github.com/starkinfra/sdk-go/starkinfra/creditholmes"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -18,7 +16,7 @@ func TestCreditHolmesPost(t *testing.T) {
 	notes, err := CreditHolmes.Create(Example.CreditHolmes(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -31,32 +29,63 @@ func TestCreditHolmesGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var sherlockList []CreditHolmes.CreditHolmes
+	limit := 5
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
 
-	sherlocks := CreditHolmes.Query(paramsQuery, nil)
-	for sherlock := range sherlocks {
-		sherlockList = append(sherlockList, sherlock)
-	}
+	var sherlockList []CreditHolmes.CreditHolmes
 
-	note, err := CreditHolmes.Get(sherlockList[rand.Intn(len(sherlockList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	sherlocks, errorChannel := CreditHolmes.Query(paramsQuery, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case sherlock, ok := <-sherlocks:
+			if !ok {
+				break loop
+			}
+			sherlockList = append(sherlockList, sherlock)
 		}
 	}
 
-	assert.NotNil(t, note.Id)
+	for _, sherlock := range sherlockList {
+		assert.NotNil(t, sherlock.Id)
+	}
+
+	assert.Equal(t, limit, len(sherlockList))
 }
 
 func TestCreditHolmesQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	notes := CreditHolmes.Query(nil, nil)
-	for note := range notes {
-		assert.NotNil(t, note.Id)
+	limit := 5
+	var paramsQuery = map[string]interface{}{}
+	paramsQuery["limit"] = limit
+
+	notes, errorChannel := CreditHolmes.Query(paramsQuery, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case note, ok := <-notes:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, note.Id)
+		}
 	}
 }
 
@@ -67,15 +96,14 @@ func TestCreditHolmesPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 3
 
-	notes, cursor, err := CreditHolmes.Page(params, nil)
+	notes, _, err := CreditHolmes.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, note := range notes {
 		assert.NotNil(t, note.Id)
 	}
-	fmt.Println(cursor)
 }

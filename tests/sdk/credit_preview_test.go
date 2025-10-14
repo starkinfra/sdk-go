@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	CreditPreview "github.com/starkinfra/sdk-go/starkinfra/creditpreview"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -17,7 +16,7 @@ func TestCreditPreview(t *testing.T) {
 	previews, err := CreditPreview.Create(Example.CreditPreview(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 

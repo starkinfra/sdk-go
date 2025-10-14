@@ -1,13 +1,11 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IssuingWithdrawal "github.com/starkinfra/sdk-go/starkinfra/issuingwithdrawal"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -18,26 +16,37 @@ func TestIssuingWithdrawalPost(t *testing.T) {
 	withdrawal, err := IssuingWithdrawal.Create(Example.IssuingWithdrawal(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, withdrawal.Id)
-	fmt.Println(withdrawal.Id)
-
 }
 
 func TestIssuingWithdrawalQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	withdrawals := IssuingWithdrawal.Query(params, nil)
-	for withdrawal := range withdrawals {
-		assert.NotNil(t, withdrawal.Id)
-		fmt.Println(withdrawal.Id)
+	withdrawals, errorChannel := IssuingWithdrawal.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case withdrawal, ok := <-withdrawals:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, withdrawal.Id)
+		}
 	}
 }
 
@@ -45,44 +54,61 @@ func TestIssuingWithdrawalPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
 	withdrawals, cursor, err := IssuingWithdrawal.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, withdrawal := range withdrawals {
 		assert.NotNil(t, withdrawal.Id)
-		fmt.Println(withdrawal.Id)
 	}
 
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestIssuingWithdrawalGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var withdrawalList []IssuingWithdrawal.IssuingWithdrawal
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var withdrawalList []IssuingWithdrawal.IssuingWithdrawal
 
-	withdrawals := IssuingWithdrawal.Query(paramsQuery, nil)
-	for withdrawal := range withdrawals {
-		withdrawalList = append(withdrawalList, withdrawal)
-	}
-
-	withdrawal, err := IssuingWithdrawal.Get(withdrawalList[rand.Intn(len(withdrawalList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	withdrawals, errorChannel := IssuingWithdrawal.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case withdrawal, ok := <-withdrawals:
+			if !ok {
+				break loop
+			}
+			withdrawalList = append(withdrawalList, withdrawal)
 		}
 	}
 
-	assert.NotNil(t, withdrawal.Id)
-	fmt.Println(withdrawal.Id)
+	for _, withdrawal := range withdrawalList {
+		getWithdrawal, err := IssuingWithdrawal.Get(withdrawal.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getWithdrawal.Id)
+	}
+
+	assert.Equal(t, limit, len(withdrawalList))
 }

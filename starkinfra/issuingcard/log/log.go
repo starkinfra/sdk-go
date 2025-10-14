@@ -77,7 +77,7 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, issuingCardLog)
+			err := json.Unmarshal(contentByte, &issuingCardLog)
 			if err != nil {
 				logsError <- Error.UnknownError(err.Error())
 				continue

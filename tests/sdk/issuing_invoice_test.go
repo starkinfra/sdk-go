@@ -1,13 +1,11 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IssuingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuinginvoice"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -18,25 +16,37 @@ func TestIssuingInvoicePost(t *testing.T) {
 	invoice, err := IssuingInvoice.Create(Example.IssuingInvoice(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, invoice.Id)
-	fmt.Println(invoice.Id)
 }
 
 func TestIssuingInvoiceQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	invoices := IssuingInvoice.Query(params, nil)
-	for invoice := range invoices {
-		assert.NotNil(t, invoice.Id)
-		fmt.Println(invoice.Id)
+	invoices, errorChannel := IssuingInvoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, invoice.Id)
+		}
 	}
 }
 
@@ -44,43 +54,59 @@ func TestIssuingInvoicePage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
 	invoices, cursor, err := IssuingInvoice.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, invoice := range invoices {
 		assert.NotNil(t, invoice.Id)
-		fmt.Println(invoice.Id)
 	}
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestIssuingInvoiceGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var invoiceList []IssuingInvoice.IssuingInvoice
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var invoiceList []IssuingInvoice.IssuingInvoice
 
-	invoices := IssuingInvoice.Query(paramsQuery, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
-	}
-
-	invoice, err := IssuingInvoice.Get(invoiceList[rand.Intn(len(invoiceList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	invoices, errorChannel := IssuingInvoice.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
 		}
 	}
 
-	assert.NotNil(t, invoice.Id)
-	fmt.Println(invoice.Id)
+	for _, invoice := range invoiceList {
+		getInvoice, err := IssuingInvoice.Get(invoice.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getInvoice.Id)
+	}
+	assert.Equal(t, limit, len(invoiceList))
 }

@@ -126,7 +126,7 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	if err.Errors != nil {
 		return nil, "", err
 	}
-	
+
 	unmarshalError := json.Unmarshal(page, &events)
 	if unmarshalError != nil {
 		return nil, "", Error.UnknownError(unmarshalError.Error())
@@ -176,7 +176,7 @@ func Update(id string, isDelivered bool, user user.User) (Event, Error.StarkErro
 	//	Return:
 	//	- target Event with updated attributes
 	var event Event
-	var patchData map[string]interface{}
+	patchData := make(map[string]interface{})
 	patchData["isDelivered"] = isDelivered
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &event)

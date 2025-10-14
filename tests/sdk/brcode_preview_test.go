@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	BrcodePreview "github.com/starkinfra/sdk-go/starkinfra/brcodepreview"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -17,7 +16,7 @@ func TestSuccess(t *testing.T) {
 	previews, err := BrcodePreview.Create(Example.BrcodePreview(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 

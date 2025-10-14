@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IndividualIdentity "github.com/starkinfra/sdk-go/starkinfra/individualidentity"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -18,13 +17,12 @@ func TestIndividualIdentityPost(t *testing.T) {
 	identities, err := IndividualIdentity.Create(Example.IndividualIdentity(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, identity := range identities {
 		assert.NotNil(t, identity.Id)
-		fmt.Println(identity.Id)
 	}
 }
 
@@ -32,38 +30,67 @@ func TestIndividualIdentityGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var identityList []IndividualIdentity.IndividualIdentity
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = 10
+	paramsQuery["limit"] = limit
+	
+	var identityList []IndividualIdentity.IndividualIdentity
 
-	identities := IndividualIdentity.Query(paramsQuery, nil)
-	for identity := range identities {
-		fmt.Println(identity)
-		identityList = append(identityList, identity)
-	}
-
-	identity, err := IndividualIdentity.Get(identityList[rand.Intn(len(identityList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	identities, errorChannel := IndividualIdentity.Query(paramsQuery, nil)
+	
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case identity, ok := <-identities:
+			if !ok {
+				break loop
+			}
+			identityList = append(identityList, identity)
 		}
 	}
 
-	fmt.Println(identity.Id)
-	assert.NotNil(t, identity.Id)
+	for _, identity := range identityList {
+		getIdentity, err := IndividualIdentity.Get(identity.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getIdentity.Id)
+	}
+	assert.Equal(t, limit, len(identityList))
 }
 
 func TestIndividualIdentityQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 10
+	params["limit"] = limit
 
-	identities := IndividualIdentity.Query(params, nil)
-	for identity := range identities {
-		fmt.Println(identity)
-		assert.NotNil(t, identity.Id)
+	identities, errorChannel := IndividualIdentity.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case identity, ok := <-identities:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, identity.Id)
+		}
 	}
 }
 
@@ -77,19 +104,18 @@ func TestIndividualIdentityPage(t *testing.T) {
 	identities, cursor, err := IndividualIdentity.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, identity := range identities {
 		assert.NotNil(t, identity.Id)
-		fmt.Println(identity.Id)
 	}
 
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
-func TestIndividualIdentityUpdated(t *testing.T) {
+func TestIndividualIdentityUpdate(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
@@ -98,45 +124,72 @@ func TestIndividualIdentityUpdated(t *testing.T) {
 	paramsQuery["limit"] = rand.Intn(100)
 	paramsQuery["status"] = "created"
 
-	identities := IndividualIdentity.Query(paramsQuery, nil)
-	for identity := range identities {
-		identityList = append(identityList, identity)
+	identities, errorChannel := IndividualIdentity.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case identity, ok := <-identities:
+			if !ok {
+				break loop
+			}
+			identityList = append(identityList, identity)
+		}
 	}
 
-	fmt.Println(identityList[rand.Intn(len(identityList))].Id)
 
-	identity, err := IndividualIdentity.Update(identityList[rand.Intn(len(identityList))].Id, "processing", nil)
+	identity, err := IndividualIdentity.Update(identityList[0].Id, "processing", nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, identity.Id)
-	fmt.Println(identity.Id)
+	assert.Equal(t, "processing", identity.Status)
 }
 
 func TestIndividualIdentityCancel(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var identityList []IndividualIdentity.IndividualIdentity
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
 	paramsQuery["status"] = "created"
 
-	identities := IndividualIdentity.Query(paramsQuery, nil)
-	for identity := range identities {
-		identityList = append(identityList, identity)
+	var identityList []IndividualIdentity.IndividualIdentity
+
+	identities, errorChannel := IndividualIdentity.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case identity, ok := <-identities:
+			if !ok {
+				break loop
+			}
+			identityList = append(identityList, identity)
+		}
 	}
 
-	identity, err := IndividualIdentity.Cancel(identityList[rand.Intn(len(identityList))].Id, nil)
+	identity, err := IndividualIdentity.Cancel(identityList[0].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, identity.Id)
-	fmt.Println(identity.Id)
+	assert.Equal(t, "canceled", identity.Status)
 }

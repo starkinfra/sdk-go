@@ -1,13 +1,11 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	PixClaim "github.com/starkinfra/sdk-go/starkinfra/pixclaim"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -18,26 +16,37 @@ func TestPixClaimPost(t *testing.T) {
 	claim, err := PixClaim.Create(Example.PixClaim(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, claim.Id)
-	fmt.Println(claim.Id)
-	fmt.Println(claim.Status)
 }
 
 func TestPixClaimQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	claims := PixClaim.Query(params, nil)
-	for claim := range claims {
-		assert.NotNil(t, claim.Id)
-		fmt.Println(claim.Id)
+	claims, errorChannel := PixClaim.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case claim, ok := <-claims:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, claim.Id)
+		}
 	}
 }
 
@@ -51,66 +60,96 @@ func TestPixClaimPage(t *testing.T) {
 	claims, cursor, err := PixClaim.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, claim := range claims {
 		assert.NotNil(t, claim.Id)
-		fmt.Println(claim.Id)
-		fmt.Println(claim.Status)
 	}
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestPixClaimGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var claimList []PixClaim.PixClaim
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var claimList []PixClaim.PixClaim
 
-	claims := PixClaim.Query(paramsQuery, nil)
-	for claim := range claims {
-		claimList = append(claimList, claim)
-	}
-
-	claim, err := PixClaim.Get(claimList[rand.Intn(len(claimList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	claims, errorChannel := PixClaim.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case claim, ok := <-claims:
+			if !ok {
+				break loop
+			}
+			claimList = append(claimList, claim)
 		}
 	}
 
-	assert.NotNil(t, claim.Id)
-	fmt.Println(claim.Id)
+	for _, claim := range claimList {
+		getClaim, err := PixClaim.Get(claim.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getClaim.Id)
+	}
+
+	assert.Equal(t, limit, len(claimList))
 }
 
 func TestPixClaimInfoPatch(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var claimList []PixClaim.PixClaim
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
-
-	claims := PixClaim.Query(paramsQuery, nil)
-	for claim := range claims {
-		claimList = append(claimList, claim)
+	paramsQuery["limit"] = limit
+	paramsQuery["status"] = "delivered"
+	
+	var claimList []PixClaim.PixClaim
+	
+	claims, errorChannel := PixClaim.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case claim, ok := <-claims:
+			if !ok {
+				break loop
+			}
+			claimList = append(claimList, claim)
+		}
 	}
 
 	var patchData = map[string]interface{}{}
 	patchData["status"] = "canceled"
 	patchData["reason"] = "userRequested"
 
-	claim, err := PixClaim.Update(claimList[rand.Intn(len(claimList))].Id, patchData, nil)
+	claim, err := PixClaim.Update(claimList[0].Id, patchData, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, claim.Id)
-	fmt.Println(claim.Id)
 }

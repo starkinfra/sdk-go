@@ -1,12 +1,10 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IssuingDesign "github.com/starkinfra/sdk-go/starkinfra/issuingdesign"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -14,10 +12,22 @@ func TestIssuingDesignQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	designs := IssuingDesign.Query(nil, nil)
-	for design := range designs {
-		assert.NotNil(t, design.Id)
-		fmt.Println(design.Id)
+	designs, errorChannel := IssuingDesign.Query(nil, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case design, ok := <-designs:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, design.Id)
+		}
 	}
 }
 
@@ -25,64 +35,96 @@ func TestIssuingDesignPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 3
 	var params = map[string]interface{}{}
-	params["limit"] = 3
+	params["limit"] = limit
 
 	designs, cursor, err := IssuingDesign.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, design := range designs {
 		assert.NotNil(t, design.Id)
-		fmt.Println(design.Id)
 	}
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestIssuingDesignInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var designList []IssuingDesign.IssuingDesign
+	limit := 2
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var designList []IssuingDesign.IssuingDesign
 
-	designs := IssuingDesign.Query(paramsQuery, nil)
-	for design := range designs {
-		designList = append(designList, design)
-	}
-
-	design, err := IssuingDesign.Get(designList[rand.Intn(len(designList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	designs, errorChannel := IssuingDesign.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case design, ok := <-designs:
+			if !ok {
+				break loop
+			}
+			designList = append(designList, design)
 		}
 	}
 
-	assert.NotNil(t, design.Id)
-	fmt.Println(design.Id)
+	for _, design := range designList {
+		getDesign, err := IssuingDesign.Get(design.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getDesign.Id)
+	}
+	assert.Equal(t, limit, len(designList))
 }
 
 func TestIssuingDesignPdf(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var designList []IssuingDesign.IssuingDesign
+	limit := 2
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var designList []IssuingDesign.IssuingDesign
 
-	designs := IssuingDesign.Query(paramsQuery, nil)
-	for design := range designs {
-		designList = append(designList, design)
+	designs, errorChannel := IssuingDesign.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case design, ok := <-designs:
+			if !ok {
+				break loop
+			}
+			designList = append(designList, design)
+		}
 	}
+	
 
-	design, err := IssuingDesign.Pdf(designList[rand.Intn(len(designList))].Id, nil)
+	design, err := IssuingDesign.Pdf(designList[0].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, design)

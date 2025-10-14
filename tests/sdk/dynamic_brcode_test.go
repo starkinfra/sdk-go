@@ -1,13 +1,11 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	DynamicBrcode "github.com/starkinfra/sdk-go/starkinfra/dynamicbrcode"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -18,7 +16,7 @@ func TestDynamicBrcodePost(t *testing.T) {
 	brcodes, err := DynamicBrcode.Create(Example.DynamicBrcode(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -31,13 +29,30 @@ func TestDynamicBrcodeQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 20
 	var params = map[string]interface{}{}
-	params["limit"] = 200
+	params["limit"] = limit
 
-	brcodes := DynamicBrcode.Query(params, nil)
-	for brcode := range brcodes {
-		assert.NotNil(t, brcode.Id)
+	var brcodeList []DynamicBrcode.DynamicBrcode
+
+	brcodes, errorChannel := DynamicBrcode.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
+	assert.Equal(t, limit, len(brcodeList))
 }
 
 func TestDynamicBrcodePage(t *testing.T) {
@@ -47,41 +62,56 @@ func TestDynamicBrcodePage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 1
 
-	brcodes, cursor, err := DynamicBrcode.Page(params, nil)
+	brcodes, _, err := DynamicBrcode.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, brcode := range brcodes {
 		assert.NotNil(t, brcode.Id)
 	}
-	fmt.Println(cursor)
 }
 
-func TestDynamicBrcodeGet(t *testing.T) {
+func TestDynamicBrcodeQueryAndGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var brcodeList []DynamicBrcode.DynamicBrcode
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
 
-	brcodes := DynamicBrcode.Query(paramsQuery, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
-	}
+	var brcodeList []DynamicBrcode.DynamicBrcode
 
-	brcode, err := DynamicBrcode.Get(brcodeList[rand.Intn(len(brcodeList))].Uuid, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	brcodes, errorChannel := DynamicBrcode.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
 		}
 	}
 
-	assert.NotNil(t, brcode.Id)
-	fmt.Println(brcode.Id)
+	for _, brcode := range brcodeList {
+		getBrcode, err := DynamicBrcode.Get(brcode.Uuid, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getBrcode.Id)
+	}
+	assert.Equal(t, limit, len(brcodeList))
 }
 
 func TestDynamicBrcodeParseRight(t *testing.T) {
@@ -91,8 +121,12 @@ func TestDynamicBrcodeParseRight(t *testing.T) {
 	uuid := "21f174ab942843eb90837a5c3135dfd6"
 	validSignature := "MEYCIQC+Ks0M54DPLEbHIi0JrMiWbBFMRETe/U2vy3gTiid3rAIhANMmOaxT03nx2bsdo+vg6EMhWGzdphh90uBH9PY2gJdd"
 
-	verified := DynamicBrcode.Verify(uuid, validSignature, nil)
-	fmt.Println(verified)
+	_, err := DynamicBrcode.Verify(uuid, validSignature, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 }
 
 func TestDynamicBrcodeParseWrong(t *testing.T) {
@@ -102,8 +136,10 @@ func TestDynamicBrcodeParseWrong(t *testing.T) {
 	uuid := "21f174ab942843eb90837a5c3135dfd6"
 	invalidSignature := "MEUCIQDOpo1j+V40DNZK2URL2786UQK/8mDXon9ayEd8U0/l7AIgYXtIZJBTs8zCRR3vmted6Ehz/qfw1GRut/eYyvf1yOk="
 
-	verified := DynamicBrcode.Verify(uuid, invalidSignature, nil)
-	fmt.Println(verified)
+	_, err := DynamicBrcode.Verify(uuid, invalidSignature, nil)
+	if err.Errors == nil {
+		t.Errorf("expected error, got nil")
+	}
 }
 
 func TestDynamicBrcodeResponseDue(t *testing.T) {
@@ -142,7 +178,7 @@ func TestDynamicBrcodeResponseDue(t *testing.T) {
 	due["description"] = "Response Due Golang Test"
 
 	response := DynamicBrcode.ResponseDue(due)
-	fmt.Println(response)
+	assert.NotNil(t, response)
 }
 
 func TestDynamicBrcodeResponseInstant(t *testing.T) {
@@ -158,5 +194,5 @@ func TestDynamicBrcodeResponseInstant(t *testing.T) {
 	instant["amount"] = 100
 
 	response := DynamicBrcode.ResponseInstant(instant)
-	fmt.Println(response)
+	assert.NotNil(t, response)
 }

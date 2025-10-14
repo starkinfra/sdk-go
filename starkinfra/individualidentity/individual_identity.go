@@ -2,7 +2,6 @@ package individualidentity
 
 import (
 	"encoding/json"
-	"fmt"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
@@ -58,7 +57,6 @@ func Create(identity []IndividualIdentity, user user.User) ([]IndividualIdentity
 	//	Return:
 	//	- slice of IndividualIdentity struct with updated attributes
 	create, err := utils.Multi(resource, identity, nil, user)
-	fmt.Println(string(create))
 	unmarshalError := json.Unmarshal(create, &identity)
 	if unmarshalError != nil {
 		return identity, err
