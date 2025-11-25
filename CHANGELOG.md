@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [1.0.0] - 2025-11-25
 ### Changed
 - Query methods to return an error channel
 - Parse methods to return an error
