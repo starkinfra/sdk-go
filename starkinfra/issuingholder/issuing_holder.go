@@ -88,7 +88,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingHolde
 	return issuingHolder, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingHolder {
+func Query(params map[string]interface{}, user user.User) (chan IssuingHolder, chan Error.StarkErrors) {
 	//	Retrieve IssuingHolders
 	//
 	//	Receive a channel of IssuingHolder structs previously created in the Stark Infra API
@@ -108,19 +108,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingHolder {
 	//	- channel of IssuingHolder structs with updated attributes
 	var issuingHolder IssuingHolder
 	holders := make(chan IssuingHolder)
-	query := utils.Query(resource, params, user)
+	holdersError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingHolder)
 			if err != nil {
-				print(err)
+				holdersError <- Error.UnknownError(err.Error())
+				continue
 			}
 			holders <- issuingHolder
 		}
+		for err := range errorChannel {
+			holdersError <- err
+		}
 		close(holders)
+		close(holdersError)
 	}()
-	return holders
+	return holders, holdersError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingHolder, string, Error.StarkErrors) {

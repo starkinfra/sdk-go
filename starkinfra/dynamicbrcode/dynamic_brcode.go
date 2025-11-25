@@ -97,7 +97,7 @@ func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
 	return dynamicBrcode, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
+func Query(params map[string]interface{}, user user.User) (chan DynamicBrcode, chan Error.StarkErrors) {
 	//	Retrieve DynamicBrcode structs
 	//
 	//	Receive a channel of DynamicBrcode structs previously created in the Stark Infra API
@@ -116,19 +116,25 @@ func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
 	//	- channel of DynamicBrcode structs with updated attributes
 	var dynamicBrcode DynamicBrcode
 	brcodes := make(chan DynamicBrcode)
-	query := utils.Query(resource, params, user)
+	brcodesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &dynamicBrcode)
 			if err != nil {
-				print(err)
+				brcodesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			brcodes <- dynamicBrcode
 		}
+		for err := range errorChannel {
+			brcodesError <- err
+		}
 		close(brcodes)
+		close(brcodesError)
 	}()
-	return brcodes
+	return brcodes, brcodesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]DynamicBrcode, string, Error.StarkErrors) {
@@ -232,7 +238,7 @@ func ResponseInstant(params map[string]interface{}) string {
 	return string(instant)
 }
 
-func Verify(uuid string, signature string, user user.User) string {
+func Verify(uuid string, signature string, user user.User) (string, Error.StarkErrors) {
 	//	Verify a DynamicBrcode Read
 	//
 	//	When a DynamicBrcode is read by your user, a GET request will be made to your registered URL to

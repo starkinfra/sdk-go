@@ -85,7 +85,7 @@ func Get(id string, user user.User) (IssuingWithdrawal, Error.StarkErrors) {
 	return issuingWithdrawal, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IssuingWithdrawal {
+func Query(params map[string]interface{}, user user.User) (chan IssuingWithdrawal, chan Error.StarkErrors) {
 	//	Retrieve IssuingWithdrawal structs
 	//
 	//	Receive a channel of IssuingWithdrawal structs previously created in the Stark Infra API
@@ -103,19 +103,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingWithdrawal
 	//	- channel of IssuingWithdrawal structs with updated attributes
 	var issuingWithdrawal IssuingWithdrawal
 	withdrawals := make(chan IssuingWithdrawal)
-	query := utils.Query(resource, params, user)
+	withdrawalsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingWithdrawal)
 			if err != nil {
-				print(err)
+				withdrawalsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			withdrawals <- issuingWithdrawal
 		}
+		for err := range errorChannel {
+			withdrawalsError <- err
+		}
 		close(withdrawals)
+		close(withdrawalsError)
 	}()
-	return withdrawals
+	return withdrawals, withdrawalsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingWithdrawal, string, Error.StarkErrors) {

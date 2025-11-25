@@ -2,6 +2,7 @@ package merchantcountry
 
 import (
 	"encoding/json"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 )
@@ -27,7 +28,7 @@ type MerchantCountry struct {
 
 var resource = map[string]string{"name": "MerchantCountry"}
 
-func Query(params map[string]interface{}, user user.User) chan MerchantCountry {
+func Query(params map[string]interface{}, user user.User) (chan MerchantCountry, chan Error.StarkErrors) {
 	//	Retrieve MerchantCountry structs
 	//
 	//	Receive a channel of MerchantCountry structs available in the Stark Infra API
@@ -41,17 +42,23 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCountry {
 	//	- channel of MerchantCountry structs with updated attributes
 	var merchantCountry MerchantCountry
 	countries := make(chan MerchantCountry)
-	query := utils.Query(resource, params, user)
+	countriesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantCountry)
 			if err != nil {
-				print(err)
+				countriesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			countries <- merchantCountry
 		}
+		for err := range errorChannel {
+			countriesError <- err
+		}
 		close(countries)
+		close(countriesError)
 	}()
-	return countries
+	return countries, countriesError
 }

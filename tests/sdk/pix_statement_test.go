@@ -7,8 +7,7 @@ import (
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"math/rand"
+	"os"
 	"testing"
 )
 
@@ -19,25 +18,37 @@ func TestPixStatementPost(t *testing.T) {
 	statement, err := PixStatement.Create(Example.PixStatement(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, statement.Id)
-	fmt.Println(statement.Id)
 }
 
 func TestPixStatementQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	statements := PixStatement.Query(params, nil)
-	for statement := range statements {
-		assert.NotNil(t, statement.Id)
-		fmt.Println(statement.Id)
+	statements, errorChannel := PixStatement.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case statement, ok := <-statements:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, statement.Id)
+		}
 	}
 }
 
@@ -45,71 +56,103 @@ func TestPixStatementPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
 	statements, cursor, err := PixStatement.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, statement := range statements {
 		assert.NotNil(t, statement.Id)
-		fmt.Println(statement.Id)
 	}
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestPixStatementInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var statementList []PixStatement.PixStatement
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var statementList []PixStatement.PixStatement
 
-	statements := PixStatement.Query(paramsQuery, nil)
-	for statement := range statements {
-		statementList = append(statementList, statement)
-	}
-
-	statement, err := PixStatement.Get(statementList[rand.Intn(len(statementList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	statements, errorChannel := PixStatement.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case statement, ok := <-statements:
+			if !ok {
+				break loop
+			}
+			statementList = append(statementList, statement)
 		}
 	}
 
-	assert.NotNil(t, statement.Id)
-	fmt.Println(statement.Id)
+	for _, statement := range statementList {
+		getStatement, err := PixStatement.Get(statement.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getStatement.Id)
+	}
+
+	assert.Equal(t, limit, len(statementList))
 }
 
 func TestPixStatementCsv(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var statementList []PixStatement.PixStatement
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var statementList []PixStatement.PixStatement
 
-	statements := PixStatement.Query(paramsQuery, nil)
-	for statement := range statements {
-		statementList = append(statementList, statement)
-	}
-
-	csv, err := PixStatement.Csv(statementList[rand.Intn(len(statementList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	statements, errorChannel := PixStatement.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case statement, ok := <-statements:
+			if !ok {
+				break loop
+			}
+			statementList = append(statementList, statement)
 		}
 	}
 
-	filename := fmt.Sprintf("%v%v.csv", "statement", statementList[(rand.Intn(len(statementList)))].Id)
-	errFile := ioutil.WriteFile(filename, csv, 0666)
+	csv, err := PixStatement.Csv(statementList[0].Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	filename := fmt.Sprintf("%v%v.csv", "statement", statementList[0].Id)
+	errFile := os.WriteFile(filename, csv, 0666)
 	if errFile != nil {
-		fmt.Print(errFile)
+		t.Errorf("error: %s", errFile.Error())
 	}
 	assert.NotNil(t, csv)
 }

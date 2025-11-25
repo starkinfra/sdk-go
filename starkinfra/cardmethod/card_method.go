@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 )
 
 //	CardMethod struct
@@ -25,7 +26,7 @@ type CardMethod struct {
 
 var resource = map[string]string{"name": "CardMethod"}
 
-func Query(params map[string]interface{}, user user.User) chan CardMethod {
+func Query(params map[string]interface{}, user user.User) (chan CardMethod, chan Error.StarkErrors) {
 	//	Retrieve CardMethod structs
 	//
 	//	Receive a channel of CardMethod structs available in the Stark Infra API
@@ -39,17 +40,23 @@ func Query(params map[string]interface{}, user user.User) chan CardMethod {
 	//	- Channel of CardMethod structs with updated attributes
 	var cardMethod CardMethod
 	methods := make(chan CardMethod)
-	query := utils.Query(resource, params, user)
+	methodsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &cardMethod)
 			if err != nil {
-				print(err)
+				methodsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			methods <- cardMethod
 		}
+		for err := range errorChannel {
+			methodsError <- err
+		}
 		close(methods)
+		close(methodsError)
 	}()
-	return methods
+	return methods, methodsError
 }

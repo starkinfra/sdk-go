@@ -2,7 +2,6 @@ package individualidentity
 
 import (
 	"encoding/json"
-	"fmt"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
@@ -58,7 +57,6 @@ func Create(identity []IndividualIdentity, user user.User) ([]IndividualIdentity
 	//	Return:
 	//	- slice of IndividualIdentity struct with updated attributes
 	create, err := utils.Multi(resource, identity, nil, user)
-	fmt.Println(string(create))
 	unmarshalError := json.Unmarshal(create, &identity)
 	if unmarshalError != nil {
 		return identity, err
@@ -88,7 +86,7 @@ func Get(id string, user user.User) (IndividualIdentity, Error.StarkErrors) {
 	return individualIdentity, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan IndividualIdentity {
+func Query(params map[string]interface{}, user user.User) (chan IndividualIdentity, chan Error.StarkErrors) {
 	//	Retrieve IndividualIdentitys
 	//
 	//	Receive a channel of IndividualIdentity structs previously created in the Stark Infra API
@@ -107,19 +105,24 @@ func Query(params map[string]interface{}, user user.User) chan IndividualIdentit
 	//	- channel of IndividualIdentity structs with updated attributes
 	var individualIdentity IndividualIdentity
 	identities := make(chan IndividualIdentity)
-	query := utils.Query(resource, params, user)
+	identitiesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualIdentity)
 			if err != nil {
-				print(err)
+				identitiesError <- Error.UnknownError(err.Error())
 			}
 			identities <- individualIdentity
 		}
+		for err := range errorChannel {
+			identitiesError <- err
+		}
 		close(identities)
+		close(identitiesError)
 	}()
-	return identities
+	return identities, identitiesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IndividualIdentity, string, Error.StarkErrors) {

@@ -95,7 +95,7 @@ func Get(uuid string, user user.User) (StaticBrcode, Error.StarkErrors) {
 	return staticBrcode, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan StaticBrcode {
+func Query(params map[string]interface{}, user user.User) (chan StaticBrcode, chan Error.StarkErrors) {
 	//	Retrieve StaticBrcode structs
 	//
 	//	Receive a channel of StaticBrcode structs previously created in the Stark Infra API
@@ -113,19 +113,25 @@ func Query(params map[string]interface{}, user user.User) chan StaticBrcode {
 	//	- channel of StaticBrcode structs with updated attributes
 	var staticBrcode StaticBrcode
 	brcodes := make(chan StaticBrcode)
-	query := utils.Query(resource, params, user)
+	brcodesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &staticBrcode)
 			if err != nil {
-				print(err)
+				brcodesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			brcodes <- staticBrcode
 		}
+		for err := range errorChannel {
+			brcodesError <- err
+		}
 		close(brcodes)
+		close(brcodesError)
 	}()
-	return brcodes
+	return brcodes, brcodesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]StaticBrcode, string, Error.StarkErrors) {

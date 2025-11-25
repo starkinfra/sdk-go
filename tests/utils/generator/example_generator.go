@@ -41,18 +41,36 @@ func BrcodePreview() []brcodepreview.BrcodePreview {
 
 	starkinfra.User = utils.ExampleProject
 
-	var previews []brcodepreview.BrcodePreview
+	limit := 20
 	var params = map[string]interface{}{}
-	params["limit"] = 20
+	params["limit"] = limit
 
-	brcodes := dynamicbrcode.Query(params, nil)
-	for brcode := range brcodes {
-		preview := brcodepreview.BrcodePreview{
-			Id:      brcode.Id,
-			PayerId: "012.345.678-90",
+	var previews []brcodepreview.BrcodePreview
+
+	brcodes, errorChannel := dynamicbrcode.Query(params, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Println(e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			preview := brcodepreview.BrcodePreview{
+				Id:      brcode.Id,
+				PayerId: "012.345.678-90",
+			}
+			previews = append(previews, preview)
+		
 		}
-		previews = append(previews, preview)
 	}
+
 	return previews
 }
 
@@ -63,7 +81,7 @@ func CreditNote() []creditnote.CreditNote {
 
 	notes := []creditnote.CreditNote{
 		{
-			TemplateId:  "5707012469948416",
+			TemplateId:  "5706627130851328",
 			Amount:      1000,
 			Name:        "Jamie Lannister",
 			TaxId:       Cpf(),
@@ -298,7 +316,7 @@ func IssuingEmbossingRequest(cardId string) []issuingembossingrequest.IssuingEmb
 			ShippingStateCode:      "SP",
 			ShippingStreetLine1:    "teste",
 			ShippingStreetLine2:    "teste",
-			ShippingTrackingNumber: "teste",
+			ShippingTrackingNumber: "5656565656565656",
 			ShippingZipCode:        "12345-678",
 			EmbosserId:             "5634161670881280",
 		},
@@ -369,7 +387,7 @@ func PixDirector() pixdirector.PixDirector {
 
 	director := pixdirector.PixDirector{
 		Name:       "Edward Stark",
-		TaxId:      "03.300.300/0001-00",
+		TaxId:      "422.791.690-96",
 		Phone:      "+5511999999999",
 		Email:      "ned.stark@company.com",
 		Password:   "12345678",
@@ -468,7 +486,7 @@ func PixStatement() pixstatement.PixStatement {
 	statement := pixstatement.PixStatement{
 		After:  &after,
 		Before: &before,
-		Types:  "interchange",
+		Type:  "interchange",
 	}
 	return statement
 }

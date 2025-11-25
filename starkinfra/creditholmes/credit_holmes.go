@@ -88,7 +88,7 @@ func Get(id string, user user.User) (CreditHolmes, Error.StarkErrors) {
 	return creditHolmes, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CreditHolmes {
+func Query(params map[string]interface{}, user user.User) (chan CreditHolmes, chan Error.StarkErrors) {
 	//	Retrieve CreditHolmes
 	//
 	//	Receive a channel of CreditHolmes structs previously created in the Stark Infra API
@@ -107,19 +107,25 @@ func Query(params map[string]interface{}, user user.User) chan CreditHolmes {
 	//	- Channel  of CreditHolmes structs with updated attributes
 	var creditHolmes CreditHolmes
 	holmes := make(chan CreditHolmes)
-	query := utils.Query(resource, params, user)
+	holmesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &creditHolmes)
 			if err != nil {
-				print(err)
+				holmesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			holmes <- creditHolmes
 		}
+		for err := range errorChannel {
+			holmesError <- err
+		}
 		close(holmes)
+		close(holmesError)
 	}()
-	return holmes
+	return holmes, holmesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CreditHolmes, string, Error.StarkErrors) {

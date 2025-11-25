@@ -54,7 +54,7 @@ func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
 	return attempt, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Attempt {
+func Query(params map[string]interface{}, user user.User) (chan Attempt, chan Error.StarkErrors) {
 	//	Retrieve event.Attempt structs
 	//
 	//	Receive a channel of Event.Attempt structs previously created in the Stark Infra API
@@ -72,19 +72,25 @@ func Query(params map[string]interface{}, user user.User) chan Attempt {
 	//	- channel of Event.Attempt structs with updated attributes
 	var attempt Attempt
 	attempts := make(chan Attempt)
-	query := utils.Query(resource, params, user)
+	attemptsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &attempt)
 			if err != nil {
-				print(err)
+				attemptsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			attempts <- attempt
 		}
+		for err := range errorChannel {
+			attemptsError <- err
+		}
 		close(attempts)
+		close(attemptsError)
 	}()
-	return attempts
+	return attempts, attemptsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Attempt, string, Error.StarkErrors) {

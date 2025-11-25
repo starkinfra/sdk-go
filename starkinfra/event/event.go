@@ -65,7 +65,7 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	return event, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Event {
+func Query(params map[string]interface{}, user user.User) (chan Event, chan Error.StarkErrors) {
 	//	Retrieve notification Events
 	//
 	//	Receive a channel of notification Event structs previously created in the Stark Infra API
@@ -82,19 +82,25 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 	//	- channel of Event structs with updated attributes
 	var event Event
 	events := make(chan Event)
-	query := utils.Query(resource, params, user)
+	eventsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &event)
 			if err != nil {
-				print(err)
+				eventsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			events <- event
 		}
+		for err := range errorChannel {
+			eventsError <- err
+		}
 		close(events)
+		close(eventsError)
 	}()
-	return events
+	return events, eventsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Event, string, Error.StarkErrors) {
@@ -117,11 +123,19 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	//	- cursor to retrieve the next page of Event structs
 	var events []Event
 	page, cursor, err := utils.Page(resource, params, user)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+
 	unmarshalError := json.Unmarshal(page, &events)
 	if unmarshalError != nil {
-		return ParseEvents(events), cursor, err
+		return nil, "", Error.UnknownError(unmarshalError.Error())
 	}
-	return ParseEvents(events), cursor, err
+	parsedEvents, err := ParseEvents(events)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+	return parsedEvents, cursor, err
 }
 
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
@@ -162,7 +176,7 @@ func Update(id string, isDelivered bool, user user.User) (Event, Error.StarkErro
 	//	Return:
 	//	- target Event with updated attributes
 	var event Event
-	var patchData map[string]interface{}
+	patchData := make(map[string]interface{})
 	patchData["isDelivered"] = isDelivered
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &event)
@@ -172,7 +186,7 @@ func Update(id string, isDelivered bool, user user.User) (Event, Error.StarkErro
 	return event, err
 }
 
-func Parse(content string, signature string, user user.User) Event {
+func Parse(content string, signature string, user user.User) (Event, Error.StarkErrors) {
 	//	Create single notification Event from a content string
 	//
 	//	Create a single Event struct received from Event listening at subscribed user endpoint.
@@ -189,140 +203,148 @@ func Parse(content string, signature string, user user.User) Event {
 	//	Return:
 	//	- parsed Event struct
 	var event Event
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "event", user)), &event)
-	if unmarshalError != nil {
-		return event
+	parsed, err := utils.ParseAndVerify(content, signature, "event", user)
+	if err.Errors != nil {
+		return event, err
 	}
-	return event
+	unmarshalError := json.Unmarshal([]byte(parsed), &event)
+	if unmarshalError != nil {
+		return event, Error.UnknownError(unmarshalError.Error())
+	}
+	return event, Error.StarkErrors{}
 }
 
-func (e Event) ParseLog() Event {
+func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	if e.Subscription == "pix-key" {
 		var log PixKeyLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-claim" {
 		var log PixClaimLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-chargeback" {
 		var log PixChargebackLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-infraction" {
 		var log PixInfractionLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-request.in" {
 		var log PixRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-request.out" {
 		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-reversal.in" {
 		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-reversal.out" {
 		var log PixReversalLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "issuing-card" {
 		var log IssuingCardLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "issuing-invoice" {
 		var log IssuingInvoiceLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "issuing-purchase" {
 		var log IssuingPurchaseLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "credit-note" {
 		var log CreditNoteLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
-			panic(err)
+			return e, Error.UnknownError(err.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
-	return e
+	return e, Error.StarkErrors{}
 }
 
-func ParseEvents(events []Event) []Event {
+func ParseEvents(events []Event) ([]Event, Error.StarkErrors) {
+	var err Error.StarkErrors
 	for i := 0; i < len(events); i++ {
-		events[i] = events[i].ParseLog()
+		events[i], err = events[i].ParseLog()
+		if err.Errors != nil {
+			return nil, err
+		}
 	}
-	return events
+	return events, Error.StarkErrors{}
 }

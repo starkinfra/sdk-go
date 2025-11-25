@@ -1,12 +1,10 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	CreditNoteLog "github.com/starkinfra/sdk-go/starkinfra/creditnote/log"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -14,10 +12,27 @@ func TestCreditNoteLogQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 3
 	var params = map[string]interface{}{}
-	params["limit"] = 3
+	params["limit"] = limit
 
-	logs := CreditNoteLog.Query(params, nil)
+	logs, errorChannel := CreditNoteLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, log.Id)
+		}
+	}
 	for log := range logs {
 		assert.NotNil(t, log.Id)
 	}
@@ -30,38 +45,55 @@ func TestCreditNoteLogPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 3
 
-	logs, cursor, err := CreditNoteLog.Page(params, nil)
+	logs, _, err := CreditNoteLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, log := range logs {
 		assert.NotNil(t, log.Id)
 	}
-	fmt.Println(cursor)
 }
 
 func TestCreditNoteLogInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var noteList []CreditNoteLog.Log
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
 
-	notes := CreditNoteLog.Query(paramsQuery, nil)
-	for note := range notes {
-		noteList = append(noteList, note)
-	}
+	var noteList []CreditNoteLog.Log
 
-	log, err := CreditNoteLog.Get(noteList[rand.Intn(len(noteList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	notes, errorChannel := CreditNoteLog.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case note, ok := <-notes:
+			if !ok {
+				break loop
+			}
+			noteList = append(noteList, note)
 		}
 	}
 
-	assert.NotNil(t, log.Id)
+	for _, note := range noteList {
+		getNote, err := CreditNoteLog.Get(note.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getNote.Id)
+	}
+
+	assert.Equal(t, limit, len(noteList))
 }

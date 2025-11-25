@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	CreditHolmesLog "github.com/starkinfra/sdk-go/starkinfra/creditholmes/log"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -13,13 +12,31 @@ func TestCreditHolmesLogQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 20
 	var params = map[string]interface{}{}
-	params["limit"] = 20
+	params["limit"] = limit
 
-	logs := CreditHolmesLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
+	var logsList []CreditHolmesLog.Log
+
+	logs, errorChannel := CreditHolmesLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, log.Id)
+			logsList = append(logsList, log)
+		}
 	}
+	assert.Equal(t, limit, len(logsList))
 }
 
 func TestCreditHolmesLogPage(t *testing.T) {
@@ -29,37 +46,49 @@ func TestCreditHolmesLogPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 3
 
-	logs, cursor, err := CreditHolmesLog.Page(params, nil)
+	logs, _, err := CreditHolmesLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, log := range logs {
 		assert.NotNil(t, log.Id)
 	}
-	fmt.Println(cursor)
 }
 
 func TestCreditHolmesLogInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var logList []CreditHolmesLog.Log
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
+	paramsQuery["limit"] = limit
 
-	logs := CreditHolmesLog.Query(paramsQuery, nil)
-	for log := range logs {
-		logList = append(logList, log)
-	}
+	var logList []CreditHolmesLog.Log
 
-	log, err := CreditHolmesLog.Get(logList[0].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	logs, errorChannel := CreditHolmesLog.Query(paramsQuery, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
 		}
 	}
+	for _, log := range logList {
+		assert.NotNil(t, log.Id)
+	}
 
-	assert.NotNil(t, log.Id)
+	assert.Equal(t, limit, len(logList))
 }

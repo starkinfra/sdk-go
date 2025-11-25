@@ -94,7 +94,7 @@ func Get(id string, user user.User) (PixReversal, Error.StarkErrors) {
 	return pixReversal, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan PixReversal {
+func Query(params map[string]interface{}, user user.User) (chan PixReversal, chan Error.StarkErrors) {
 	//	Retrieve PixReversals
 	//
 	//	Receive a channel of PixReversal structs previously created in the Stark Infra API
@@ -115,19 +115,25 @@ func Query(params map[string]interface{}, user user.User) chan PixReversal {
 	//	- channel of PixReversal structs with updated attributes
 	var pixReversal PixReversal
 	reversals := make(chan PixReversal)
-	query := utils.Query(resource, params, user)
+	reversalsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixReversal)
 			if err != nil {
-				print(err)
+				reversalsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			reversals <- pixReversal
 		}
+		for err := range errorChannel {
+			reversalsError <- err
+		}
 		close(reversals)
+		close(reversalsError)
 	}()
-	return reversals
+	return reversals, reversalsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]PixReversal, string, Error.StarkErrors) {
@@ -161,7 +167,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixReversal, string,
 	return pixReversals, cursor, err
 }
 
-func Parse(content string, signature string, user user.User) PixReversal {
+func Parse(content string, signature string, user user.User) (PixReversal, Error.StarkErrors) {
 	//	Create single verified PixReversal struct from a content string
 	//
 	//	Create a single PixReversal struct from a content string received from a handler listening at the reversal url.
@@ -178,11 +184,18 @@ func Parse(content string, signature string, user user.User) PixReversal {
 	//	Return:
 	//	- parsed PixReversal struct
 	var pixReversal PixReversal
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &pixReversal)
-	if unmarshalError != nil {
-		return pixReversal
+
+	parsed, err := utils.ParseAndVerify(content, signature, "", user)
+	if err.Errors != nil {
+		return pixReversal, err
 	}
-	return pixReversal
+	
+	unmarshalError := json.Unmarshal([]byte(parsed), &pixReversal)
+	if unmarshalError != nil {
+		return pixReversal, Error.UnknownError(unmarshalError.Error())
+	}
+
+	return pixReversal, Error.StarkErrors{}
 }
 
 func Response(authorization map[string]interface{}) string {

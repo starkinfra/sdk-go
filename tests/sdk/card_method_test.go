@@ -12,8 +12,26 @@ func TestCardMethodQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	methods := CardMethod.Query(nil, nil)
-	for method := range methods {
+	var methodsList []CardMethod.CardMethod
+
+	methods, errorChannel := CardMethod.Query(nil, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case method, ok := <-methods:
+			if !ok {
+				break loop
+			}
+			methodsList = append(methodsList, method)
+		}
+	}
+	for _, method := range methodsList {
 		assert.NotNil(t, method.Code)
 	}
 }

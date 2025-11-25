@@ -2,21 +2,21 @@ package sdk
 
 import (
 	"github.com/starkinfra/sdk-go/starkinfra"
-	PixInfractionLog "github.com/starkinfra/sdk-go/starkinfra/pixinfraction/log"
+	IndividualDocumentLog "github.com/starkinfra/sdk-go/starkinfra/individualdocument/log"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestPixInfractionLogQuery(t *testing.T) {
+func TestIndividualDocumentLogQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
 	limit := 10
-	var params = map[string]interface{}{}
-	params["limit"] = limit
+	var paramsQuery = map[string]interface{}{}
+	paramsQuery["limit"] = limit
 
-	logs, errorChannel := PixInfractionLog.Query(params, nil)
+	logs, errorChannel := IndividualDocumentLog.Query(paramsQuery, nil)
 	loop:
 	for {
 		select {
@@ -35,15 +35,14 @@ func TestPixInfractionLogQuery(t *testing.T) {
 	}
 }
 
-func TestPixInfractionLogPage(t *testing.T) {
+func TestIndividualDocumentLogPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = limit
+	params["limit"] = 3
 
-	logs, cursor, err := PixInfractionLog.Page(params, nil)
+	logs, cursor, err := IndividualDocumentLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)
@@ -53,10 +52,11 @@ func TestPixInfractionLogPage(t *testing.T) {
 	for _, log := range logs {
 		assert.NotNil(t, log.Id)
 	}
+
 	assert.NotNil(t, cursor)
 }
 
-func TestPixInfractionLogGet(t *testing.T) {
+func TestIndividualDocumentLogInfoGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
@@ -64,9 +64,9 @@ func TestPixInfractionLogGet(t *testing.T) {
 	var paramsQuery = map[string]interface{}{}
 	paramsQuery["limit"] = limit
 	
-	var logList []PixInfractionLog.Log
+	var documentList []IndividualDocumentLog.Log
 
-	logs, errorChannel := PixInfractionLog.Query(paramsQuery, nil)
+	documents, errorChannel := IndividualDocumentLog.Query(paramsQuery, nil)
 	loop:
 	for {
 		select {
@@ -76,23 +76,22 @@ func TestPixInfractionLogGet(t *testing.T) {
 					t.Errorf("code: %s, message: %s", e.Code, e.Message)
 				}
 			}
-		case log, ok := <-logs:
+		case document, ok := <-documents:
 			if !ok {
 				break loop
 			}
-			logList = append(logList, log)
+			documentList = append(documentList, document)
 		}
 	}
 
-	for _, log := range logList {
-		getLog, err := PixInfractionLog.Get(log.Id, nil)
+	for _, document := range documentList {
+		getDocument, err := IndividualDocumentLog.Get(document.Id, nil)
 		if err.Errors != nil {
 			for _, e := range err.Errors {
 				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
-		assert.NotNil(t, getLog.Id)
+		assert.NotNil(t, getDocument.Id)
 	}
-
-	assert.Equal(t, limit, len(logList))
+	assert.Equal(t, limit, len(documentList))
 }

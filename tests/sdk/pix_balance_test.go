@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	PixBalance "github.com/starkinfra/sdk-go/starkinfra/pixbalance"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -13,7 +12,11 @@ func TestPixBalanceGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	balance := PixBalance.Get(nil)
+	balance, err := PixBalance.Get(nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 	assert.NotNil(t, balance.Id)
-	fmt.Println(balance.Id)
 }

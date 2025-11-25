@@ -32,7 +32,7 @@ type IssuingProduct struct {
 
 var resource = map[string]string{"name": "IssuingProduct"}
 
-func Query(params map[string]interface{}, user user.User) chan IssuingProduct {
+func Query(params map[string]interface{}, user user.User) (chan IssuingProduct, chan Error.StarkErrors) {
 	//	Retrieve IssuingProduct structs
 	//
 	//	Receive a channel of IssuingProduct structs previously registered in the Stark Infra API
@@ -46,19 +46,25 @@ func Query(params map[string]interface{}, user user.User) chan IssuingProduct {
 	//	- channel of IssuingBin structs with updated attributes
 	var issuingProduct IssuingProduct
 	products := make(chan IssuingProduct)
-	query := utils.Query(resource, params, user)
+	productsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingProduct)
 			if err != nil {
-				print(err)
+				productsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			products <- issuingProduct
 		}
+		for err := range errorChannel {
+			productsError <- err
+		}
 		close(products)
+		close(productsError)
 	}()
-	return products
+	return products, productsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]IssuingProduct, string, Error.StarkErrors) {

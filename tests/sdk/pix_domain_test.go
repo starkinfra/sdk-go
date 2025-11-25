@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	PixDomain "github.com/starkinfra/sdk-go/starkinfra/pixdomain"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -13,9 +12,21 @@ func TestPixDomainQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	domains := PixDomain.Query(nil)
-	for domain := range domains {
-		assert.NotNil(t, domain.Name)
-		fmt.Println(domain.Name)
+	domains, errorChannel := PixDomain.Query(nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case domain, ok := <-domains:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, domain.Name)
+		}
 	}
 }

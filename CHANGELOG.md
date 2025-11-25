@@ -13,6 +13,11 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Changed
+- Query methods to return an error channel
+- Parse methods to return an error
+### Removed
+- panics from the code
 
 ## [0.4.0] - 2025-09-23
 ### Added

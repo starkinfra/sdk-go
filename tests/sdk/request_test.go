@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	Request "github.com/starkinfra/sdk-go/starkinfra/request"
 	Utils "github.com/starkinfra/sdk-go/tests/utils"
@@ -30,27 +29,27 @@ func TestRequestGet(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("error: %s", unmarshalError.Error())
 	}
 	requestData, ok1 := data["requests"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, request := range requestData{
 		requestMap, ok2 := request.(map[string]interface{})
         if !ok2 {
-            fmt.Println("Erro ao converter item de list 'requests' para map[string]interface{}")
+            t.Errorf("Erro ao converter item de list 'requests' para map[string]interface{}")
             continue
         }
         id, ok3 := requestMap["id"].(string)
         if !ok3 {
-            fmt.Println("Erro ao converter list 'id' para string")
+            t.Errorf("Erro ao converter list 'id' para string")
             continue
         }
 		path = "pix-request/" + id
@@ -65,21 +64,21 @@ func TestRequestGet(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("error: %s", unmarshalError.Error())
 		}
 		requestData, ok4 := data["request"].(map[string]interface{})
         if !ok4 {
-            fmt.Println("Erro ao converter 'id' para string")
+            t.Errorf("Erro ao converter 'id' para string")
             continue
         }
 		getId, ok5 := requestData["id"].(string)
 		if !ok5 {
-            fmt.Println("Erro ao converter 'id' para string")
+            t.Errorf("Erro ao converter 'id' para string")
             continue
         }
 		assert.Equal(t, id, getId)
@@ -115,27 +114,27 @@ func TestRequestPostAndDelete(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("error: %s", unmarshalError.Error())
 	}
 	holdersData, ok1 := data["holders"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, holder := range holdersData{
 		holderMap, ok2 := holder.(map[string]interface{})
         if !ok2 {
-            fmt.Println("Erro ao converter item de list 'invoices' para map[string]interface{}")
+            t.Errorf("Erro ao converter item de list 'invoices' para map[string]interface{}")
             continue
         }
         id, ok3 := holderMap["id"].(string)
         if !ok3 {
-            fmt.Println("Erro ao converter list 'id' para string")
+            t.Errorf("Erro ao converter list 'id' para string")
             continue
         }
 		path = "issuing-holder/" + id
@@ -149,12 +148,12 @@ func TestRequestPostAndDelete(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("error: %s", unmarshalError.Error())
 		}
 		assert.NotNil(t, data)
 	}
@@ -178,16 +177,16 @@ func TestRequestPatch(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("error: %s", unmarshalError.Error())
 	}
 	holdersData, ok1 := data["holders"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, invoice := range holdersData{
@@ -214,12 +213,12 @@ func TestRequestPatch(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("error: %s", unmarshalError.Error())
 		}
 		holderData, _ := data["holder"].(map[string]interface{})
 		tags, _ := holderData["tags"]

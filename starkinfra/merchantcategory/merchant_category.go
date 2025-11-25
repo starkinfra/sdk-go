@@ -2,6 +2,7 @@ package merchantcategory
 
 import (
 	"encoding/json"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 )
@@ -30,7 +31,7 @@ type MerchantCategory struct {
 
 var resource = map[string]string{"name": "MerchantCategory"}
 
-func Query(params map[string]interface{}, user user.User) chan MerchantCategory {
+func Query(params map[string]interface{}, user user.User) (chan MerchantCategory, chan Error.StarkErrors) {
 	//	Retrieve MerchantCategory structs
 	//
 	//	Receive a channel of MerchantCategory structs available in the Stark Infra API
@@ -44,17 +45,23 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCategory 
 	//	- channel of MerchantCategory structs with updated attributes
 	var merchantCategory MerchantCategory
 	categories := make(chan MerchantCategory)
-	query := utils.Query(resource, params, user)
+	categoriesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantCategory)
 			if err != nil {
-				print(err)
+				categoriesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			categories <- merchantCategory
 		}
+		for err := range errorChannel {
+			categoriesError <- err
+		}
 		close(categories)
+		close(categoriesError)
 	}()
-	return categories
+	return categories, categoriesError
 }

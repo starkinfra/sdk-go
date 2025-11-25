@@ -308,7 +308,9 @@ Almost all SDK resources provide a `query` and a `page` function.
   the end of the current batch.
   If you are not worried about data volume or processing time, this is the way to go.
 
-- In this function, in particular, when an error is encountered a `panic()` is raised with the code and error's message
+- In this function, in particular, we return a second `channel` for error handling. This error channel will receive any
+  errors that occur during the query process, including API errors, network issues, or data parsing problems. You should
+  monitor this channel alongside the main data channel to handle errors appropriately.
 
 ```golang
 package main
@@ -327,10 +329,23 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 200
 
-    requests := PixRequest.Query(params, nil)
-    for request := range requests {
-        fmt.Println(request)
-    }
+    requests, errorChannel := PixRequest.Query(params, nil)
+    loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case request, ok := <-requests:
+			if !ok {
+				break loop
+			}
+			fmt.Println(request)
+		}
+	}
 }
 ```
 
@@ -360,7 +375,7 @@ func main() {
         requests, cursor, err := PixRequest.Page(params, nil)
         if err.Errors != nil {
             for _, e := range err.Errors {
-                panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
             }
         }
         for _, request := range requests {
@@ -415,9 +430,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 10
 
-    products := IssuingProduct.Query(params, nil)
-    for product := range products {
-        fmt.Println(product)
+    products, errorChannel := IssuingProduct.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case product, ok := <-products:
+            if !ok {
+                break loop
+            }
+            fmt.Println(product)
+        }
     }
 }
 
@@ -487,7 +515,7 @@ func main() {
         }, nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -521,9 +549,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 10
 
-    holders := IssuingHolder.Query(params, nil)
-    for holder := range holders {
-        fmt.Println(holder)
+    holders, errorChannel := IssuingHolder.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case holder, ok := <-holders:
+            if !ok {
+                break loop
+            }
+            fmt.Println(holder)
+        }
     }
 }
 
@@ -550,7 +591,7 @@ func main() {
     holder, err := IssuingHolder.Cancel("5705125167366144", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -580,7 +621,7 @@ func main() {
     holder, err := IssuingHolder.Get("5705125167366144", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -610,9 +651,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 10
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -639,7 +693,7 @@ func main() {
     log, err := Log.Get("5155165527080960", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -704,7 +758,7 @@ func main() {
         }, nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -736,10 +790,23 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 10
 
-    cards := IssuingCard.Query(params, nil)
-    for card := range cards {
-        fmt.Println(card.Id)
-    }
+    cards, errorChannel := IssuingCard.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case card, ok := <-cards:
+			if !ok {
+				break loop
+			}
+			fmt.Println(card)
+		}
+	}
 }
 
 ```
@@ -765,7 +832,7 @@ func main() {
     card, err := IssuingCard.Get("5155165527080960", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -798,7 +865,7 @@ func main() {
     card, err := IssuingCard.Update("5761721251659776", patchData, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -828,7 +895,7 @@ func main() {
     card, err := IssuingCard.Cancel("5632230982418432", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -858,9 +925,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 150
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -887,7 +967,7 @@ func main() {
     log, err := Log.Get("5155165527080960", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -917,9 +997,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    designs := IssuingDesign.Query(params, nil)
-    for design := range designs {
-        fmt.Println(design.Id)
+    designs, errorChannel := IssuingDesign.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case design, ok := <-designs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(design)
+        }
     }
 }
 
@@ -946,7 +1039,7 @@ func main() {
     design, err := IssuingDesign.Get("5747368922185728", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -976,9 +1069,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    kits := IssuingEmbossingKit.Query(params, nil)
-    for kit := range kits {
-        fmt.Println(kit.Id)
+    kits, errorChannel := IssuingEmbossingKit.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case kit, ok := <-kits:
+            if !ok {
+                break loop
+            }
+            fmt.Println(kit)
+        }
     }
 }
 
@@ -1005,7 +1111,7 @@ func main() {
     kit, err := IssuingEmbossingKit.Get("5792731695677440", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1035,9 +1141,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    stocks := IssuingStock.Query(params, nil)
-    for stock := range stocks {
-        fmt.Println(stock.Id)
+    stocks, errorChannel := IssuingStock.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case stock, ok := <-stocks:
+            if !ok {
+                break loop
+            }
+            fmt.Println(stock)
+        }
     }
 }
 
@@ -1064,7 +1183,7 @@ func main() {
     stock, err := IssuingStock.Get("5792731695677440", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1094,9 +1213,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 150
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -1123,7 +1255,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1159,7 +1291,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1191,9 +1323,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 150
 
-    restocks := IssuingRestock.Query(params, nil)
-    for restock := range restocks {
-        fmt.Println(restock.Id)
+    restocks, errorChannel := IssuingRestock.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case restock, ok := <-restocks:
+            if !ok {
+                break loop
+            }
+            fmt.Println(restock)
+        }
     }
 }
 
@@ -1220,7 +1365,7 @@ func main() {
     restock, err := IssuingRestock.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1250,9 +1395,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 1
 
-    restocks := Log.Query(params, nil)
-    for restock := range restocks {
-        fmt.Println(restock.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -1279,7 +1437,7 @@ func main() {
     log, err := Log.Get("5645672351006720", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1326,7 +1484,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1358,9 +1516,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    requests := IssuingEmbossingRequest.Query(params, nil)
-    for request := range requests {
-        fmt.Println(request.Id)
+    requests, errorChannel := IssuingEmbossingRequest.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case request, ok := <-requests:
+            if !ok {
+                break loop
+            }
+            fmt.Println(request)
+        }
     }
 }
 
@@ -1387,7 +1558,7 @@ func main() {
     request, err := IssuingEmbossingRequest.Get("5478251505909760", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1417,9 +1588,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -1446,7 +1630,7 @@ func main() {
     log, err := Log.Get("6398869424308224", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1476,12 +1660,17 @@ func main() {
 
     request := listen() // this is the method you made to get the events posted to your webhook endpoint
 
-    authorization := issuingpurchase.Parse(
+    authorization, err := issuingpurchase.Parse(
         request.Data,
         request.Headers["Digital-Signature"],
         "",
         nil,
     )
+    if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 
     var approved = map[string]interface{}{}
     approved["status"] = "approved"
@@ -1531,9 +1720,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    purchases := IssuingPurchase.Query(params, nil)
-    for purchase := range purchases {
-        fmt.Println(purchase.Id)
+    purchases, errorChannel := IssuingPurchase.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case purchase, ok := <-purchases:
+            if !ok {
+                break loop
+            }
+            fmt.Println(purchase)
+        }
     }
 }
 
@@ -1560,7 +1762,7 @@ func main() {
     purchase, err := IssuingPurchase.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1590,9 +1792,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -1619,7 +1834,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1655,7 +1870,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1688,7 +1903,7 @@ func main() {
     invoice, err := IssuingInvoice.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1718,9 +1933,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    invoices := IssuingInvoice.Query(params, nil)
-    for invoice := range invoices {
-        fmt.Println(invoice.Id)
+    invoices, errorChannel := IssuingInvoice.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case invoice, ok := <-invoices:
+            if !ok {
+                break loop
+            }
+            fmt.Println(invoice)
+        }
     }
 }
 
@@ -1747,9 +1975,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -1776,7 +2017,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1812,7 +2053,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1844,7 +2085,7 @@ func main() {
     withdrawal, err := IssuingWithdrawal.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1874,9 +2115,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    withdrawals := IssuingWithdrawal.Query(params, nil)
-    for withdrawal := range withdrawals {
-        fmt.Println(withdrawal.Id)
+    withdrawals, errorChannel := IssuingWithdrawal.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case withdrawal, ok := <-withdrawals:
+            if !ok {
+                break loop
+            }
+            fmt.Println(withdrawal)
+        }
     }
 }
 
@@ -1930,9 +2184,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    transactions := IssuingTransaction.Query(params, nil)
-    for transaction := range transactions {
-        fmt.Println(transaction.Id)
+    transactions, errorChannel := IssuingTransaction.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case transaction, ok := <-transactions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(transaction)
+        }
     }
 }
 
@@ -1959,7 +2226,7 @@ func main() {
     transaction, err := IssuingTransaction.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -1990,9 +2257,22 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    categories := MerchantCategory.Query(nil, nil)
-    for category := range categories {
-        fmt.Println(category.Code)
+    categories, errorChannel := MerchantCategory.Query(nil, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case category, ok := <-categories:
+            if !ok {
+                break loop
+            }
+            fmt.Println(category)
+        }
     }
 }
 
@@ -2017,9 +2297,22 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    countries := MerchantCountry.Query(nil, nil)
-    for country := range countries {
-        fmt.Println(country.Code)
+    countries, errorChannel := MerchantCountry.Query(nil, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case country, ok := <-countries:
+            if !ok {
+                break loop
+            }
+            fmt.Println(country)
+        }
     }
 }
 
@@ -2044,9 +2337,22 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    methods := CardMethod.Query(nil, nil)
-    for method := range methods {
-        fmt.Println(method.Code)
+    methods, errorChannel := CardMethod.Query(nil, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case method, ok := <-methods:
+            if !ok {
+                break loop
+            }
+            fmt.Println(method)
+        }
     }
 }
 
@@ -2094,7 +2400,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2128,9 +2434,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    requests := PixRequest.Query(params, nil)
-    for request := range requests {
-        fmt.Println(request.Id)
+    requests, errorChannel := PixRequest.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case request, ok := <-requests:
+            if !ok {
+                break loop
+            }
+            fmt.Println(request)
+        }
     }
 }
 
@@ -2158,7 +2477,7 @@ func main() {
     request, err := PixRequest.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2189,12 +2508,17 @@ func main() {
 
     request := listen() // this is the method you made to get the events posted to your webhook endpoint
 
-    pixRequest := pixrequest.Parse(
+    pixRequest, err := pixrequest.Parse(
         request.Data,
         request.Headers["Digital-Signature"],
         "",
         nil,
     )
+    if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 
     fmt.Println(pixRequest)
 
@@ -2243,9 +2567,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -2272,7 +2609,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2320,7 +2657,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2352,9 +2689,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    reversals := PixReversal.Query(params, nil)
-    for reversal := range reversals {
-        fmt.Println(reversal.Id)
+    reversals, errorChannel := PixReversal.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case reversal, ok := <-reversals:
+            if !ok {
+                break loop
+            }
+            fmt.Println(reversal)
+        }
     }
 }
 
@@ -2382,7 +2732,7 @@ func main() {
     reversal, err := PixReversal.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2413,12 +2763,17 @@ func main() {
 
     request := listen() // this is the method you made to get the events posted to your webhook endpoint
 
-    reversal := pixreversal.Parse(
+    reversal, err := pixreversal.Parse(
         request.Data,
         request.Headers["Digital-Signature"],
         "",
         nil,
     )
+    if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 
     fmt.Println(reversal)
 
@@ -2467,9 +2822,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -2496,7 +2864,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2557,7 +2925,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2587,9 +2955,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    statements := PixStatement.Query(params, nil)
-    for statement := range statements {
-        fmt.Println(statement.Id)
+    statements, errorChannel := PixStatement.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case statement, ok := <-statements:
+            if !ok {
+                break loop
+            }
+            fmt.Println(statement)
+        }
     }
 }
 
@@ -2616,7 +2997,7 @@ func main() {
     statement, err := PixStatement.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2647,7 +3028,7 @@ func main() {
     csv, err := PixStatement.Csv("5155165527080960", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2690,7 +3071,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2720,9 +3101,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    keys := PixKey.Query(params, nil)
-    for key := range keys {
-        fmt.Println(key.Id)
+    keys, errorChannel := PixKey.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case key, ok := <-keys:
+            if !ok {
+                break loop
+            }
+            fmt.Println(key)
+        }
     }
 }
 
@@ -2751,7 +3145,7 @@ func main() {
     key, err := PixKey.Get("5792731695677440", nil, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2785,7 +3179,7 @@ func main() {
     key, err := PixKey.Update("+5582764344485", patchData, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2815,7 +3209,7 @@ func main() {
     key, err := PixKey.Cancel("+5517731549401", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2845,9 +3239,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -2874,7 +3281,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2913,7 +3320,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -2943,9 +3350,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    claims := PixClaim.Query(params, nil)
-    for claim := range claims {
-        fmt.Println(claim.Id)
+    claims, errorChannel := PixClaim.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case claim, ok := <-claims:
+            if !ok {
+                break loop
+            }
+            fmt.Println(claim)
+        }
     }
 }
 
@@ -2972,7 +3392,7 @@ func main() {
     claim, err := PixClaim.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3009,7 +3429,7 @@ func main() {
     claim, err := PixClaim.Update("6608972270272512", patchData, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3039,9 +3459,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -3068,7 +3501,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3107,7 +3540,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3147,7 +3580,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3179,9 +3612,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    infractions := PixInfraction.Query(params, nil)
-    for infraction := range infractions {
-        fmt.Println(infraction.Id)
+    infractions, errorChannel := PixInfraction.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case infraction, ok := <-infractions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(infraction)
+        }
     }
 }
 
@@ -3208,7 +3654,7 @@ func main() {
     infraction, err := PixInfraction.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3244,7 +3690,7 @@ func main() {
     infraction, err := PixInfraction.Update("5181903216836608", patchData, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3274,7 +3720,7 @@ func main() {
     infraction, err := PixInfraction.Cancel("4772078074986496", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3304,9 +3750,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -3333,7 +3792,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3370,7 +3829,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3402,9 +3861,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 10
 
-    frauds := PixFraud.Query(params, nil)
-    for fraud := range frauds {
-        fmt.Println(fraud.Id)
+    frauds, errorChannel := PixFraud.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case fraud, ok := <-frauds:
+            if !ok {
+                break loop
+            }
+            fmt.Println(fraud)
+        }
     }
 }
 
@@ -3431,7 +3903,7 @@ func main() {
     fraud, err := PixFraud.Get("5155165527080960", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3461,7 +3933,7 @@ func main() {
     fraud, err := PixFraud.Cancel("5155165527080960", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3491,7 +3963,7 @@ func main() {
     user, err := PixUser.Get("01234567890", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3529,7 +4001,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3561,9 +4033,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    chargebacks := PixChargeback.Query(params, nil)
-    for chargeback := range chargebacks {
-        fmt.Println(chargeback.Id)
+    chargebacks, errorChannel := PixChargeback.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case chargeback, ok := <-chargebacks:
+            if !ok {
+                break loop
+            }
+            fmt.Println(chargeback)
+        }
     }
 }
 
@@ -3590,7 +4075,7 @@ func main() {
     chargeback, err := PixChargeback.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3625,7 +4110,7 @@ func main() {
     chargeback, err := PixChargeback.Update("4848592950919168", patchData, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3655,7 +4140,7 @@ func main() {
     chargeback, err := PixChargeback.Cancel("4848592950919168", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3685,9 +4170,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -3714,7 +4212,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3742,9 +4240,22 @@ func main() {
 
     starkinfra.User = utils.ExampleProject
 
-    domains := PixDomain.Query(nil)
-    for domain := range domains {
-        fmt.Println(domain.Name)
+    domains, errorChannel := PixDomain.Query(nil, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case domain, ok := <-domains:
+            if !ok {
+                break loop
+            }
+            fmt.Println(domain)
+        }
     }
 }
 
@@ -3780,7 +4291,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3812,9 +4323,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    brcodes := StaticBrcode.Query(params, nil)
-    for brcode := range brcodes {
-        fmt.Println(brcode.Id)
+    brcodes, errorChannel := StaticBrcode.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case brcode, ok := <-brcodes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(brcode)
+        }
     }
 }
 
@@ -3841,7 +4365,7 @@ func main() {
     brcode, err := StaticBrcode.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3885,7 +4409,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -3917,9 +4441,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    brcodes := DynamicBrcode.Query(params, nil)
-    for brcode := range brcodes {
-        fmt.Println(brcode.Id)
+    brcodes, errorChannel := DynamicBrcode.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case brcode, ok := <-brcodes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(brcode)
+        }
     }
 }
 
@@ -3946,7 +4483,7 @@ func main() {
     brcode, err := DynamicBrcode.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4126,7 +4663,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4221,7 +4758,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4255,9 +4792,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    notes := CreditNote.Query(params, nil)
-    for note := range notes {
-        fmt.Println(note.Id)
+    notes, errorChannel := CreditNote.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case note, ok := <-notes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(note)
+        }
     }
 }
 
@@ -4284,7 +4834,7 @@ func main() {
     note, err := CreditNote.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4314,7 +4864,7 @@ func main() {
     note, err := CreditNote.Cancel("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4344,9 +4894,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -4373,7 +4936,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4459,7 +5022,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4504,7 +5067,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4536,9 +5099,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    holmes := CreditHolmes.Query(params, nil)
-    for sherlock := range holmes {
-        fmt.Println(sherlock.Id)
+    holmes, errorChannel := CreditHolmes.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case sherlock, ok := <-holmes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(sherlock)
+        }
     }
 }
 
@@ -4565,7 +5141,7 @@ func main() {
     holmes, err := CreditHolmes.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4595,9 +5171,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -4624,7 +5213,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4674,7 +5263,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4708,9 +5297,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    identities := IndividualIdentity.Query(params, nil)
-    for identity := range identities {
-        fmt.Println(identity.Id)
+    identities, errorChannel := IndividualIdentity.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case identity, ok := <-identities:
+            if !ok {
+                break loop
+            }
+            fmt.Println(identity)
+        }
     }
 }
 
@@ -4737,7 +5339,7 @@ func main() {
     identity, err := IndividualIdentity.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4767,7 +5369,7 @@ func main() {
     identity, err := IndividualIdentity.Update("5761721251659776", "processing", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4801,7 +5403,7 @@ func main() {
     identity, err := IndividualIdentity.Cancel("5761721251659776", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4831,9 +5433,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -4860,7 +5475,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4911,7 +5526,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -4945,9 +5560,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    documents := IndividualDocument.Query(params, nil)
-    for document := range documents {
-        fmt.Println(document.Id)
+    documents, errorChannel := IndividualDocument.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case document, ok := <-documents:
+            if !ok {
+                break loop
+            }
+            fmt.Println(document)
+        }
     }
 }
 
@@ -4974,7 +5602,7 @@ func main() {
     document, err := IndividualDocument.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5004,9 +5632,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    logs := Log.Query(params, nil)
-    for log := range logs {
-        fmt.Println(log.Id)
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
     }
 }
 
@@ -5033,7 +5674,7 @@ func main() {
     log, err := Log.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5069,7 +5710,7 @@ func main() {
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5099,9 +5740,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    webhooks := Webhook.Query(params, nil)
-    for webhook := range webhooks {
-        fmt.Println(webhook.Id)
+    webhooks, errorChannel := Webhook.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case webhook, ok := <-webhooks:
+            if !ok {
+                break loop
+            }
+            fmt.Println(webhook)
+        }
     }
 }
 
@@ -5128,7 +5782,7 @@ func main() {
     webhook, err := Webhook.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5158,7 +5812,7 @@ func main() {
     webhook, err := Webhook.Delete("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5188,11 +5842,16 @@ func main() {
 
     request := listen() // this is the method you made to get the events posted to your webhook endpoint
 
-    event := Event.Parse(
+    event, err := Event.Parse(
         request.Data,
         request.Headers["Digital-Signature"],
         nil,
     )
+    if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 
     if event.Subscription == "pix-request" {
         fmt.Println(event.Log)
@@ -5232,9 +5891,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 15
 
-    events := Event.Query(params, nil)
-    for event := range events {
-        fmt.Println(event.Id)
+    events, errorChannel := Event.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case event, ok := <-events:
+            if !ok {
+                break loop
+            }
+            fmt.Println(event)
+        }
     }
 }
 
@@ -5261,7 +5933,7 @@ func main() {
     event, err := Event.Get("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5291,7 +5963,7 @@ func main() {
     event, err := Event.Delete("5792731695677440", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5323,7 +5995,7 @@ func main() {
     event, err := Event.Update("4535785248260096", true, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5353,9 +6025,22 @@ func main() {
     var params = map[string]interface{}{}
     params["limit"] = 2
 
-    attempts := Attempt.Query(params, nil)
-    for attempt := range attempts {
-        fmt.Println(attempt.Id)
+    attempts, errorChannel := Attempt.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case attempt, ok := <-attempts:
+            if !ok {
+                break loop
+            }
+            fmt.Println(attempt)
+        }
     }
 }
 
@@ -5382,7 +6067,7 @@ func main() {
     attempt, err := Attempt.Get("5182107395555328", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
 
@@ -5424,12 +6109,12 @@ func main() {
 	)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		fmt.println(unmarshalError)
 	}
 
     fmt.Println(data)
@@ -5461,12 +6146,12 @@ func main() {
 	)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		fmt.println(unmarshalError)
 	}
 
     fmt.Println(data)
@@ -5499,12 +6184,12 @@ func main() {
 	)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		fmt.println(unmarshalError)
 	}
 
     fmt.Println(data)
@@ -5537,12 +6222,12 @@ func main() {
 	)
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		fmt.println(unmarshalError)
 	}
 
     fmt.Println(data)
@@ -5595,12 +6280,12 @@ func main() {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		fmt.println(unmarshalError)
 	}
 
     fmt.Println(data)
@@ -5638,12 +6323,12 @@ func main() {
 
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
     if unmarshalError != nil {
-        panic(unmarshalError)
+        fmt.println(unmarshalError)
     }
     fmt.println(data)
 }
@@ -5680,12 +6365,12 @@ func main() {
 
     if err.Errors != nil {
         for _, e := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     unmarshalError := json.Unmarshal(response.Content, &data)
     if unmarshalError != nil {
-        panic(unmarshalError)
+        fmt.println(unmarshalError)
     }
     fmt.println(data)
 }      
@@ -5726,8 +6411,8 @@ func main() {
             },
         }, nil)
     if err.Errors != nil {
-        for _, erro := range err.Errors {
-            panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
     }
     

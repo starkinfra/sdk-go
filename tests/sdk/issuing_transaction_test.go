@@ -1,12 +1,10 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IssuingTransaction "github.com/starkinfra/sdk-go/starkinfra/issuingtransaction"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
 	"testing"
 )
 
@@ -14,12 +12,26 @@ func TestIssuingTransactionQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	transactions := IssuingTransaction.Query(params, nil)
-	for transaction := range transactions {
-		assert.NotNil(t, transaction.Id)
+	transactions, errorChannel := IssuingTransaction.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case transaction, ok := <-transactions:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, transaction.Id)
+		}
 	}
 }
 
@@ -33,37 +45,53 @@ func TestIssuingTransactionPage(t *testing.T) {
 	transactions, cursor, err := IssuingTransaction.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, transaction := range transactions {
 		assert.NotNil(t, transaction.Id)
-		fmt.Println(transaction.Id)
 	}
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
 
 func TestIssuingTransactionGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	var transactionList []IssuingTransaction.IssuingTransaction
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var transactionList []IssuingTransaction.IssuingTransaction
 
-	transactions := IssuingTransaction.Query(paramsQuery, nil)
-	for transaction := range transactions {
-		transactionList = append(transactionList, transaction)
-	}
-
-	transaction, err := IssuingTransaction.Get(transactionList[rand.Intn(len(transactionList))].Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	transactions, errorChannel := IssuingTransaction.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case transaction, ok := <-transactions:
+			if !ok {
+				break loop
+			}
+			transactionList = append(transactionList, transaction)
 		}
 	}
 
-	assert.NotNil(t, transaction.Id)
-	fmt.Println(transaction.Id)
+	for _, transaction := range transactionList {
+		getTransaction, err := IssuingTransaction.Get(transaction.Id, nil)
+		if err.Errors != nil {
+			for _, e := range err.Errors {
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
+			}
+		}
+		assert.NotNil(t, getTransaction.Id)
+	}
+
+	assert.Equal(t, limit, len(transactionList))
 }

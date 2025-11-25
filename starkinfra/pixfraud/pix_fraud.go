@@ -90,7 +90,7 @@ func Get(id string, user user.User) (PixFraud, Error.StarkErrors) {
 	return pixFraud, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan PixFraud {
+func Query(params map[string]interface{}, user user.User) (chan PixFraud, chan Error.StarkErrors) {
 	//	Retrieve PixFraud structs
 	//
 	//	Receive a channel of PixFraud structs previously created in the Stark Infra API
@@ -112,19 +112,25 @@ func Query(params map[string]interface{}, user user.User) chan PixFraud {
 	//	- channel of PixFraud structs with updated attributes
 	var pixFraud PixFraud
 	frauds := make(chan PixFraud)
-	query := utils.Query(resource, params, user)
+	fraudsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixFraud)
 			if err != nil {
-				print(err)
+				fraudsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			frauds <- pixFraud
 		}
+		for err := range errorChannel {
+			fraudsError <- err
+		}
 		close(frauds)
+		close(fraudsError)
 	}()
-	return frauds
+	return frauds, fraudsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]PixFraud, string, Error.StarkErrors) {

@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	IssuingProduct "github.com/starkinfra/sdk-go/starkinfra/issuingproduct"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -13,13 +12,26 @@ func TestIssuingProductQuery(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	products := IssuingProduct.Query(params, nil)
-	for product := range products {
-		assert.NotNil(t, product.Id)
-		fmt.Println(product.Id)
+	products, errorChannel := IssuingProduct.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case product, ok := <-products:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, product.Id)
+		}
 	}
 }
 
@@ -27,20 +39,20 @@ func TestIssuingProductPage(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
+	limit := 1
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
 	products, cursor, err := IssuingProduct.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, product := range products {
 		assert.NotNil(t, product.Id)
-		fmt.Println(product.Id)
 	}
 
-	fmt.Println(cursor)
+	assert.NotNil(t, cursor)
 }
