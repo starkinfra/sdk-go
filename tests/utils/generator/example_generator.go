@@ -32,6 +32,8 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/pixreversal"
 	"github.com/starkinfra/sdk-go/starkinfra/pixstatement"
 	"github.com/starkinfra/sdk-go/starkinfra/staticbrcode"
+	"github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+	"github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
 	Utils "github.com/starkinfra/sdk-go/starkinfra/utils"
 	"github.com/starkinfra/sdk-go/starkinfra/webhook"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -41,7 +43,7 @@ func BrcodePreview() []brcodepreview.BrcodePreview {
 
 	starkinfra.User = utils.ExampleProject
 
-	limit := 20
+	limit := 1
 	var params = map[string]interface{}{}
 	params["limit"] = limit
 
@@ -539,4 +541,55 @@ func Webhook() webhook.Webhook {
 		Subscriptions: []string{"boleto"},
 	}
 	return webhookObj
+}
+
+
+func PixPullSubscription() []pixpullsubscription.PixPullSubscription {
+
+	installmentStart := time.Now().UTC()
+	
+	subscriptions := []pixpullsubscription.PixPullSubscription{
+		{
+            Amount: 52064,
+            AmountMinLimit: 0,
+            BacenId: PixPullSubscriptionBacenId("32160637"),
+            Description: "A Lannister always pays his debts",
+            InstallmentEnd: "",
+            InstallmentStart: &installmentStart,
+            Interval: "month",
+            PullRetryLimit: 3,
+            ReceiverBankCode: "32160637",
+            ReceiverName: "Stark Bank",
+            ReceiverTaxId: "39.908.427/0001-28",
+            ReferenceCode: "36135971",
+            SenderFinalName: "STARK SCD S.A.",
+            SenderFinalTaxId: "39908427000128",
+            Type: "push",
+            SenderTaxId: "99.999.919/9999-79",
+            SenderAccountNumber: "55213",
+            SenderBranchCode: "356",
+            ExternalId: ExternalId(),
+        },
+	}
+	return subscriptions
+}
+
+func PixPullRequest(subscriptionId string) []pixpullrequest.PixPullRequest {
+
+	due := time.Now().AddDate(0, 0, 4)
+
+	requests := []pixpullrequest.PixPullRequest{
+		{
+			Amount: 79562,
+			AttemptType: "default",
+			Description: "Monthly fare",
+			Due: &due,
+			EndToEndId: Utils.EndToEndId("32160637"),
+			ReceiverAccountNumber: "00000000",
+			ReceiverAccountType: "payment",
+			ReconciliationId: ExternalId(),
+			SubscriptionId: subscriptionId,
+		},
+	}
+	return requests
 }
