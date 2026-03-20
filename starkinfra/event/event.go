@@ -277,7 +277,7 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-request.out" {
-		var log PixReversalLog.Log
+		var log PixRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {

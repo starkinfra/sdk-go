@@ -36,7 +36,7 @@ import (
 //  - AmountMinLimit [int]: The floor value for the maximum amount allowed to be set by the sender when approving the subscription.
 //  - Description [string]: Additional information to be delivered to the sender.
 //  - Due [time.Time]: Due date for answering with an approval or denial.
-//  - InstallmentEnd [string]: End of settlements allowed for this Pix Pull Subscription
+//  - InstallmentEnd [time.Time]: End of settlements allowed for this Pix Pull Subscription
 //  - ReceiverBankCode [string]: Receiver's bank institution code in Brazil.
 //  - ReferenceCode [string]: Represents the comercial relation. It can be a contract number, order identification or client code.
 //  - PullRetryLimit [int]: Defines if the receiver is able to create Pix Pull Request for retries.
@@ -68,7 +68,7 @@ type PixPullSubscription struct {
 	AmountMinLimit      int        `json:",omitempty"`
 	Description         string     `json:",omitempty"`
 	Due                 *time.Time `json:",omitempty"`
-	InstallmentEnd      string     `json:",omitempty"`
+	InstallmentEnd      *time.Time `json:",omitempty"`
 	ReceiverBankCode    string     `json:",omitempty"`
 	ReferenceCode       string     `json:",omitempty"`
 	PullRetryLimit      int        `json:",omitempty"`
@@ -101,6 +101,7 @@ func Create(subscriptions []PixPullSubscription, user user.User) ([]PixPullSubsc
 	create, err := utils.Multi(resource, subscriptions, nil, user)
 	jsonStr := string(create)
 	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscriptions)
 	if unmarshalError != nil {
 		return subscriptions, err
@@ -125,6 +126,7 @@ func Get(id string, user user.User) (PixPullSubscription, Error.StarkErrors) {
 	get, err := utils.Get(resource, id, nil, user)
 	jsonStr := string(get)
 	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
 		return subscription, err
@@ -158,6 +160,7 @@ func Query(params map[string]interface{}, user user.User) (chan PixPullSubscript
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
 			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 			err := json.Unmarshal([]byte(jsonStr), &subscription)
 			if err != nil {
 				subscriptionsError <- Error.UnknownError(err.Error())
@@ -198,6 +201,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixPullSubscription,
 	page, cursor, err := utils.Page(resource, params, user)
 	jsonStr := string(page)
 	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscriptions)
 	if unmarshalError != nil {
 		return subscriptions, cursor, err
@@ -227,6 +231,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 	update, err := utils.Patch(resource, id, patchData, user)
 	jsonStr := string(update)
 	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
 		return subscription, err
@@ -266,6 +271,7 @@ func Cancel(id string, reason string, user user.User) (PixPullSubscription, Erro
 	jsonBytes, _ := json.Marshal(data[api.LastName(resource)])
 	jsonStr := string(jsonBytes)
 	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 
 	unmarshalError = json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {

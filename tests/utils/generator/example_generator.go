@@ -554,7 +554,7 @@ func PixPullSubscription() []pixpullsubscription.PixPullSubscription {
             AmountMinLimit: 0,
             BacenId: PixPullSubscriptionBacenId("32160637"),
             Description: "A Lannister always pays his debts",
-            InstallmentEnd: "",
+            InstallmentEnd: nil,
             InstallmentStart: &installmentStart,
             Interval: "month",
             PullRetryLimit: 3,
