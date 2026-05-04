@@ -54,8 +54,10 @@ type PixPullRequest struct {
 	ReceiverAccountNumber string     `json:",omitempty"`
 	ReceiverAccountType   string     `json:",omitempty"`
 	ReceiverBankCode      string     `json:",omitempty"`
+	ReceiverName          string     `json:",omitempty"`
 	ReconciliationId      string     `json:",omitempty"`
 	SubscriptionId        string     `json:",omitempty"`
+	SubscriptionBacenId   string     `json:",omitempty"`
 	AttemptType           string     `json:",omitempty"`
 	Description           string     `json:",omitempty"`
 	ReceiverBranchCode    string     `json:",omitempty"`
