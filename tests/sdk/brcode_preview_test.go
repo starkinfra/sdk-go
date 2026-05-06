@@ -13,7 +13,9 @@ func TestSuccess(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	previews, err := BrcodePreview.Create(Example.BrcodePreview(), nil)
+	examplePreviews := Example.BrcodePreview()
+
+	previews, err := BrcodePreview.Create(examplePreviews, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)

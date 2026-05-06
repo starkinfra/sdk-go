@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strings"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	Errors "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/utils/parse"
@@ -35,4 +36,8 @@ func Verify(content string, signature string, user user.User) (string, Errors.St
 		return "", err
 	}
 	return response.(string), err
+}
+
+func ReplaceEmptyStringField(jsonStr, pattern, replacement string) string {
+	return strings.ReplaceAll(jsonStr, pattern, replacement)
 }

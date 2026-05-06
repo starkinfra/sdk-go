@@ -28,6 +28,7 @@ import (
 //	- BranchCode [string]: Payment receiver branch code. ex: "0001"
 //	- CashAmount [int]: Amount to be withdrawn from the cashier in cents. ex: 1000 (= R$ 10.00)
 //	- CashierBankCode [string]: Cashier's bank code. ex: "20018183"
+//	- Subscription [Subscription struct]: BR Code subscription information.
 //	- CashierType [string]: Cashier's type. Options: "merchant", "participant" and "other"
 //	- DiscountAmount [int]: Discount value calculated over nominalAmount. ex: 3000
 //	- FineAmount [int]: Fine value calculated over nominalAmount. ex: 20000
@@ -42,29 +43,30 @@ import (
 //	- TaxId [string]: Payment receiver tax ID. ex: "012.345.678-90"
 
 type BrcodePreview struct {
-	Id               string     `json:",omitempty"`
-	PayerId          string     `json:",omitempty"`
-	EndToEndId       string     `json:",omitempty"`
-	AccountNumber    string     `json:",omitempty"`
-	AccountType      string     `json:",omitempty"`
-	Amount           int        `json:",omitempty"`
-	AmountType       string     `json:",omitempty"`
-	BankCode         string     `json:",omitempty"`
-	BranchCode       string     `json:",omitempty"`
-	CashAmount       int        `json:",omitempty"`
-	CashierBankCode  string     `json:",omitempty"`
-	CashierType      string     `json:",omitempty"`
-	DiscountAmount   int        `json:",omitempty"`
-	FineAmount       int        `json:",omitempty"`
-	InterestAmount   int        `json:",omitempty"`
-	KeyId            string     `json:",omitempty"`
-	Name             string     `json:",omitempty"`
-	NominalAmount    int        `json:",omitempty"`
-	ReconciliationId string     `json:",omitempty"`
-	ReductionAmount  int        `json:",omitempty"`
-	Scheduled        *time.Time `json:",omitempty"`
-	Status           string     `json:",omitempty"`
-	TaxId            string     `json:",omitempty"`
+	Id               string        `json:",omitempty"`
+	PayerId          string        `json:",omitempty"`
+	EndToEndId       string        `json:",omitempty"`
+	AccountNumber    string        `json:",omitempty"`
+	AccountType      string        `json:",omitempty"`
+	Amount           int           `json:",omitempty"`
+	AmountType       string        `json:",omitempty"`
+	BankCode         string        `json:",omitempty"`
+	BranchCode       string        `json:",omitempty"`
+	CashAmount       int           `json:",omitempty"`
+	CashierBankCode  string        `json:",omitempty"`
+	CashierType      string        `json:",omitempty"`
+	DiscountAmount   int           `json:",omitempty"`
+	FineAmount       int           `json:",omitempty"`
+	InterestAmount   int           `json:",omitempty"`
+	KeyId            string        `json:",omitempty"`
+	Name             string        `json:",omitempty"`
+	NominalAmount    int           `json:",omitempty"`
+	ReconciliationId string        `json:",omitempty"`
+	ReductionAmount  int           `json:",omitempty"`
+	Scheduled        *time.Time    `json:",omitempty"`
+	Status           string        `json:",omitempty"`
+	TaxId            string        `json:",omitempty"`
+	Subscription     *Subscription `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "BrcodePreview"}

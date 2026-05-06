@@ -14,6 +14,8 @@ import (
 	PixKeyLog "github.com/starkinfra/sdk-go/starkinfra/pixkey/log"
 	PixRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixrequest/log"
 	PixReversalLog "github.com/starkinfra/sdk-go/starkinfra/pixreversal/log"
+	PixPullSubscriptionLog "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription/log"
+	PixPullRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest/log"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"time"
 )
@@ -207,7 +209,16 @@ func Parse(content string, signature string, user user.User) (Event, Error.Stark
 	if err.Errors != nil {
 		return event, err
 	}
-	unmarshalError := json.Unmarshal([]byte(parsed), &event)
+
+	var raw map[string]interface{}
+	unmarshalError := json.Unmarshal([]byte(parsed), &raw)
+	if unmarshalError != nil {
+		return event, Error.UnknownError(unmarshalError.Error())
+	}
+	
+	eventData := raw["event"]
+	eventBytes, _ := json.Marshal(eventData)
+	unmarshalError = json.Unmarshal(eventBytes, &event)
 	if unmarshalError != nil {
 		return event, Error.UnknownError(unmarshalError.Error())
 	}
@@ -266,7 +277,7 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "pix-request.out" {
-		var log PixReversalLog.Log
+		var log PixRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
@@ -327,6 +338,26 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "credit-note" {
 		var log CreditNoteLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "pix-pull-subscription" {
+		var log PixPullSubscriptionLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "pix-pull-request" {
+		var log PixPullRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {
