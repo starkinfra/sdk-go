@@ -16,6 +16,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Added
 - PixPullSubscription and PixPullRequest resources
 - Subscription attribute to BrcodePreview
+- Deprecated create pix infraction
 
 ## [1.0.0] - 2025-11-25
 ### Changed

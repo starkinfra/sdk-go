@@ -78,12 +78,8 @@ func Create(infractions []PixInfraction, user user.User) ([]PixInfraction, Error
 	//
 	//	Return:
 	//	- slice of PixInfraction structs with updated attributes
-	create, err := utils.Multi(resource, infractions, nil, user)
-	unmarshalError := json.Unmarshal(create, &infractions)
-	if unmarshalError != nil {
-		return infractions, err
-	}
-	return infractions, err
+	//  Deprecated: Function deprecated since v1.1.0
+	return nil, Error.UnknownError("Function deprecated since v1.1.0")
 }
 
 func Get(id string, user user.User) (PixInfraction, Error.StarkErrors) {

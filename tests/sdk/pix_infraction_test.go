@@ -6,6 +6,7 @@ import (
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -14,15 +15,18 @@ func TestPixInfractionPost(t *testing.T) {
 	starkinfra.User = utils.ExampleProject
 
 	infractions, err := PixInfraction.Create(Example.PixInfraction(), nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+
+	assert.Nil(t, infractions)
+	assert.NotEmpty(t, err.Errors)
+
+	deprecated := false
+	for _, e := range err.Errors {
+		if e.Code == "unknownError" && strings.Contains(e.Message, "deprecated") {
+			deprecated = true
+			break
 		}
 	}
-
-	for _, infraction := range infractions {
-		assert.NotNil(t, infraction.Id)
-	}
+	assert.True(t, deprecated, "expected Create to return deprecated error")
 }
 
 func TestPixInfractionQuery(t *testing.T) {
