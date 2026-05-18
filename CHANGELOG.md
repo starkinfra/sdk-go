@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [1.1.0] - 2026-05-18
 ### Added
 - PixPullSubscription and PixPullRequest resources
 - Subscription attribute to BrcodePreview
