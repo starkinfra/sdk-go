@@ -59,6 +59,9 @@ This SDK version is compatible with the Stark Infra API v2.
     - [Identity](#identity)
         - [IndividualIdentity](#create-individualidentities): Create individual identities
         - [IndividualDocument](#create-individualdocuments): Create individual documents
+    - [Account approval](#account-approval)
+        - [IndividualAccountRequest](#create-individualaccountrequests): Request an individual account approval
+        - [IndividualAccountAttachment](#create-individualaccountattachments): Attach supporting documents to an account request
     - [Webhook](#webhook):
         - [Webhook](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
         - [WebhookEvents](#process-webhook-events): Manage Webhook events
@@ -5672,6 +5675,455 @@ func main() {
     starkinfra.User = utils.ExampleProject
 
     log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+## Account approval
+
+### Create IndividualAccountRequests
+
+You can request an individual account approval by submitting the individual's identifying data and income.
+The address is passed as a structured object. The API runs the approval flow asynchronously.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountRequest "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    requests, err := IndividualAccountRequest.Create(
+        []IndividualAccountRequest.IndividualAccountRequest{
+            {
+                Name:   "Tony Stark",
+                TaxId:  "012.345.678-90",
+                Income: 1000000,
+                Address: IndividualAccountRequest.Address{
+                    Street:       "Rua do Estilo Barroco",
+                    Number:       "648",
+                    Neighborhood: "Santo Amaro",
+                    City:         "Sao Paulo",
+                    State:        "SP",
+                    ZipCode:      "05724005",
+                },
+                Tags: []string{"employees", "monthly"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, request := range requests {
+        fmt.Println(request.Id)
+    }
+}
+
+```
+
+### Query IndividualAccountRequests
+
+You can query multiple individual account requests according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountRequest "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    requests, errorChannel := IndividualAccountRequest.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case request, ok := <-requests:
+            if !ok {
+                break loop
+            }
+            fmt.Println(request)
+        }
+    }
+}
+
+```
+
+### Get an IndividualAccountRequest
+
+After its creation, information on an individual account request may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountRequest "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := IndividualAccountRequest.Get("5189530608992256", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(request.Id)
+}
+
+```
+
+### Update an IndividualAccountRequest
+
+You can update an individual account request by passing its id and a map of the attributes to be changed.
+The address, when present, replaces the whole object — there is no partial address PATCH.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountRequest "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "processing"
+
+    request, err := IndividualAccountRequest.Update("5189530608992256", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(request.Id)
+}
+
+```
+
+### Query IndividualAccountRequest logs
+
+You can query individual account request logs to better understand the account-approval life cycle.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an IndividualAccountRequest log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5189530608992256", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+### Create IndividualAccountAttachments
+
+You can attach supporting documents (identity, driver's license, selfie) to an individual account request.
+Pass the raw image bytes and a MIME content type; the SDK encodes them into a data: URL before sending.
+
+```golang
+package main
+
+import (
+    "encoding/base64"
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountAttachment "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    bytes := []byte("...raw image bytes...")
+
+    attachments, err := IndividualAccountAttachment.Create(
+        []IndividualAccountAttachment.IndividualAccountAttachment{
+            {
+                Type:             "identity-front",
+                ContentType:      "image/png",
+                Content:          base64.StdEncoding.EncodeToString(bytes),
+                AccountRequestId: "5189530608992256",
+                Tags:             []string{"employees", "monthly"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, attachment := range attachments {
+        fmt.Println(attachment.Id)
+    }
+}
+
+```
+
+### Query IndividualAccountAttachments
+
+You can query multiple individual account attachments according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountAttachment "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    attachments, errorChannel := IndividualAccountAttachment.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case attachment, ok := <-attachments:
+            if !ok {
+                break loop
+            }
+            fmt.Println(attachment)
+        }
+    }
+}
+
+```
+
+### Get an IndividualAccountAttachment
+
+After its creation, information on an individual account attachment may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountAttachment "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    attachment, err := IndividualAccountAttachment.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(attachment.Id)
+}
+
+```
+
+### Cancel an IndividualAccountAttachment
+
+You can cancel an individual account attachment by its id. The deleted attachment is returned with
+its status set to "deleted".
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IndividualAccountAttachment "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    attachment, err := IndividualAccountAttachment.Cancel("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(attachment.Id)
+}
+
+```
+
+### Query IndividualAccountAttachment logs
+
+You can query individual account attachment logs to better understand the attachment life cycle.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an IndividualAccountAttachment log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5656565656565656", nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
             fmt.Printf("code: %s, message: %s", e.Code, e.Message)
