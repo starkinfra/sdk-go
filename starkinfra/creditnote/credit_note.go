@@ -43,6 +43,7 @@ import (
 //	- RebateAmount [int, default 0]: Credit analysis fee deducted from lent amount. ex: 1234 (= R$ 112.34)
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for CreditNotes. ex: []string{"employees", "monthly"}
 //	- Expiration [int, default default 604800 (7 days)]: Time interval in seconds between due date and expiration date. ex: 123456789
+//	- Rules [slice of CreditNote.Rule structs, default nil]: Slice of CreditNote.Rule structs that modify the CreditNote behavior. ex: []creditnote.Rule{{Key: "invoiceCreationMode", Value: "scheduled"}}
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the CreditNote is created. ex: "5656565656565656"
@@ -50,6 +51,7 @@ import (
 //	- Status [string]: Current status of the CreditNote. ex: "canceled", "created", "expired", "failed", "processing", "signed", "success"
 //	- TransactionIds [slice of strings]: Ledger transaction ids linked to this CreditNote. ex: []string{"19827356981273"}
 //	- WorkspaceId [string]: ID of the Workspace that generated this CreditNote. ex: "4545454545454545"
+//	- DebtorWorkspaceId [string]: ID of the debtor's Workspace, when it differs from the Workspace that generated this CreditNote. ex: "4545454545454545"
 //	- TaxAmount [int]: Tax amount included in the CreditNote. ex: 100
 //	- NominalInterest [float64]: Yearly nominal interest rate of the CreditNote, in percentage. ex: 11.5
 //	- Interest [float64]: Yearly effective interest rate of the credit note, in percentage. ex: 12.5
@@ -57,34 +59,36 @@ import (
 //	- Updated [time.Time]: Latest update datetime for the CreditNote. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 
 type CreditNote struct {
-	Id             string                `json:",omitempty"`
-	TemplateId     string                `json:",omitempty"`
-	Name           string                `json:",omitempty"`
-	TaxId          string                `json:",omitempty"`
-	Scheduled      *time.Time            `json:",omitempty"`
-	Payment        Transfer              `json:",omitempty"`
-	Invoices       []Invoice.Invoice     `json:",omitempty"`
-	Signers        []Signer.CreditSigner `json:",omitempty"`
-	ExternalId     string                `json:",omitempty"`
-	StreetLine1    string                `json:",omitempty"`
-	StreetLine2    string                `json:",omitempty"`
-	District       string                `json:",omitempty"`
-	City           string                `json:",omitempty"`
-	StateCode      string                `json:",omitempty"`
-	ZipCode        string                `json:",omitempty"`
-	NominalAmount  int                   `json:",omitempty"`
-	PaymentType    string                `json:",omitempty"`
-	Amount         int                   `json:",omitempty"`
-	RebateAmount   int                   `json:",omitempty"`
-	Tags           []string              `json:",omitempty"`
-	DocumentId     string                `json:",omitempty"`
-	Status         string                `json:",omitempty"`
-	TransactionIds []string              `json:",omitempty"`
-	WorkspaceId    string                `json:",omitempty"`
-	TaxAmount      int                   `json:",omitempty"`
-	Interest       float64               `json:",omitempty"`
-	Created        *time.Time            `json:",omitempty"`
-	Updated        *time.Time            `json:",omitempty"`
+	Id                string                `json:",omitempty"`
+	TemplateId        string                `json:",omitempty"`
+	Name              string                `json:",omitempty"`
+	TaxId             string                `json:",omitempty"`
+	Scheduled         *time.Time            `json:",omitempty"`
+	Payment           Transfer              `json:",omitempty"`
+	Invoices          []Invoice.Invoice     `json:",omitempty"`
+	Signers           []Signer.CreditSigner `json:",omitempty"`
+	ExternalId        string                `json:",omitempty"`
+	StreetLine1       string                `json:",omitempty"`
+	StreetLine2       string                `json:",omitempty"`
+	District          string                `json:",omitempty"`
+	City              string                `json:",omitempty"`
+	StateCode         string                `json:",omitempty"`
+	ZipCode           string                `json:",omitempty"`
+	NominalAmount     int                   `json:",omitempty"`
+	PaymentType       string                `json:",omitempty"`
+	Amount            int                   `json:",omitempty"`
+	RebateAmount      int                   `json:",omitempty"`
+	Tags              []string              `json:",omitempty"`
+	Rules             []Rule                `json:",omitempty"`
+	DocumentId        string                `json:",omitempty"`
+	Status            string                `json:",omitempty"`
+	TransactionIds    []string              `json:",omitempty"`
+	WorkspaceId       string                `json:",omitempty"`
+	DebtorWorkspaceId string                `json:",omitempty"`
+	TaxAmount         int                   `json:",omitempty"`
+	Interest          float64               `json:",omitempty"`
+	Created           *time.Time            `json:",omitempty"`
+	Updated           *time.Time            `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "CreditNote"}
