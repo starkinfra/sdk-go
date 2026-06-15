@@ -22,6 +22,8 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/issuingholder"
 	"github.com/starkinfra/sdk-go/starkinfra/issuinginvoice"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingrestock"
+	"github.com/starkinfra/sdk-go/starkinfra/issuingstock"
+	"github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingwithdrawal"
 	"github.com/starkinfra/sdk-go/starkinfra/ledger"
 	"github.com/starkinfra/sdk-go/starkinfra/ledgertransaction"
@@ -727,4 +729,43 @@ func PixInternalTransactionReport() []pixinternaltransactionreport.PixInternalTr
 		},
 	}
 	return reports
+}
+
+func IssuingStockRule() []issuingstockrule.IssuingStockRule {
+
+	starkinfra.User = utils.ExampleProject
+
+	limit := 1
+	var params = map[string]interface{}{}
+	params["limit"] = limit
+
+	var rules []issuingstockrule.IssuingStockRule
+
+	stocks, errorChannel := issuingstock.Query(params, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Println(e.Code, e.Message)
+				}
+			}
+		case stock, ok := <-stocks:
+			if !ok {
+				break loop
+			}
+			rule := issuingstockrule.IssuingStockRule{
+				MinimumBalance: 10000,
+				StockId:        stock.Id,
+				Tags:           []string{"card", "corporate"},
+				Emails:         []string{"john.doe@enterprise.com"},
+				Phones:         []string{"+5511912345678"},
+			}
+			rules = append(rules, rule)
+		}
+	}
+
+	return rules
 }

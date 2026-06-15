@@ -34,6 +34,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - PixDispute resource
 - new attributes to PixChargeback resource
 - Amount and DisputeId attributes to PixInfraction resource
+- IssuingStockRule resource
 ### Changed
 - PixUser.Statistics attribute from list of strings to list of PixUser.Statistics sub-resources
 - PixBalance.Get to accept a params map, enabling the before filter
