@@ -20,13 +20,13 @@ import (
 //	- ReferenceId [string]: EndToEndId or return_id of the transaction being reported. ex: "E20018183202201201450u34sDGd19lz"
 //	- Type [string]: Type of infraction report. Options: "fraud", "reversal", "reversalChargeback"
 //	- Method [string]: Method of Pix Infraction. Options: "scam", "unauthorized", "coercion", "invasion", "other", "unknown"
+//	- OperatorEmail [string]: Contact email of the operator responsible for the PixInfraction.
+//	- OperatorPhone [string]: Contact phone number of the operator responsible for the PixInfraction.
 //
 //	Parameters (optional):
 //	- Description [string, default nil]: Description for any details that can help with the infraction investigation.
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
 //	- FraudType [string, default nil]: Type of Pix Fraud. Options: "identity", "mule", "scam", "unknown", "other"
-//  - OperatorEmail [string]: Contact email of the operator responsible for the PixInfraction,
-//  - OperatorPhone [string]: Contact phone number of the operator responsible for the PixInfraction,
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixInfraction is created. ex: "5656565656565656"
@@ -34,22 +34,24 @@ import (
 //	- CreditedBankCode [string]: BankCode of the credited Pix participant in the reported transaction. ex: "20018183"
 //	- DebitedBankCode [string]: BankCode of the debited Pix participant in the reported transaction. ex: "20018183"
 //	- Flow [string]: Direction of the PixInfraction flow. Options: "out" if you created the PixInfraction, "in" if you received the PixInfraction.
-//  - Analysis [string]: Analysis that led to the result.
-//  - ReportedBy [string]: Agent that reported the PixInfraction. Options: "debited", "credited"
-//  - Result [string]: Result after the analysis of the PixInfraction by the receiving party. Options: "agreed", "disagreed"
-//  - Status [string]: Current PixInfraction status. Options: "created", "failed", "delivered", "closed", "canceled"
-//  - Created [time.Time]: Creation datetime for the PixInfraction. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-//  - Updated [time.Time]: Latest update datetime for the PixInfraction. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- Analysis [string]: Analysis that led to the result.
+//	- ReportedBy [string]: Agent that reported the PixInfraction. Options: "debited", "credited"
+//	- Result [string]: Result after the analysis of the PixInfraction by the receiving party. Options: "agreed", "disagreed"
+//	- Amount [int]: Amount in cents of the reported transaction. ex: 11234 (= R$ 112.34)
+//	- DisputeId [string]: Id of the PixDispute associated with the PixInfraction. ex: "5656565656565656"
+//	- Status [string]: Current PixInfraction status. Options: "created", "failed", "delivered", "closed", "canceled"
+//	- Created [time.Time]: Creation datetime for the PixInfraction. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- Updated [time.Time]: Latest update datetime for the PixInfraction. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type PixInfraction struct {
 	ReferenceId      string     `json:",omitempty"`
 	Type             string     `json:",omitempty"`
 	Method           string     `json:",omitempty"`
+	OperatorEmail    string     `json:",omitempty"`
+	OperatorPhone    string     `json:",omitempty"`
 	Description      string     `json:",omitempty"`
 	Tags             []string   `json:",omitempty"`
 	FraudType        string     `json:",omitempty"`
-	OperatorEmail    string     `json:",omitempty"`
-	OperatorPhone    string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
 	FraudId          string     `json:",omitempty"`
 	CreditedBankCode string     `json:",omitempty"`
@@ -58,6 +60,8 @@ type PixInfraction struct {
 	Analysis         string     `json:",omitempty"`
 	ReportedBy       string     `json:",omitempty"`
 	Result           string     `json:",omitempty"`
+	Amount           int        `json:",omitempty"`
+	DisputeId        string     `json:",omitempty"`
 	Status           string     `json:",omitempty"`
 	Created          *time.Time `json:",omitempty"`
 	Updated          *time.Time `json:",omitempty"`

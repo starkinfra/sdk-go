@@ -11,6 +11,7 @@ import (
 	IssuingTokenLog "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
 	PixChargebackLog "github.com/starkinfra/sdk-go/starkinfra/pixchargeback/log"
 	PixClaimLog "github.com/starkinfra/sdk-go/starkinfra/pixclaim/log"
+	PixDisputeLog "github.com/starkinfra/sdk-go/starkinfra/pixdispute/log"
 	PixInfractionLog "github.com/starkinfra/sdk-go/starkinfra/pixinfraction/log"
 	PixKeyLog "github.com/starkinfra/sdk-go/starkinfra/pixkey/log"
 	PixRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixrequest/log"
@@ -259,6 +260,16 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "pix-infraction" {
 		var log PixInfractionLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "pix-dispute" {
+		var log PixDisputeLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {

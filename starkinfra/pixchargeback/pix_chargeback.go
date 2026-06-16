@@ -30,32 +30,46 @@ import (
 //	- Id [string]: Unique id returned when the PixChargeback is created. ex: "5656565656565656"
 //	- Analysis [string]: Analysis that led to the result.
 //	- SenderBankCode [string]: BankCode of the Pix participant that created the PixChargeback. ex: "20018183"
-//  - ReceiverBankCode [string]: BankCode of the Pix participant that received the PixChargeback. ex: "20018183"
-//  - RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse"
-//  - ReversalReferenceId [string]: ReturnId or endToEndId of the reversal transaction. ex: "D20018183202202030109X3OoBHG74wo"
-//  - Result [string]: Result after the analysis of the PixChargeback by the receiving party. Options: "rejected", "accepted", "partiallyAccepted"
-//  - Flow [string]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
-//  - Status [string]: Current PixChargeback status. Options: "created", "failed", "delivered", "closed", "canceled"
-//  - Created [time.Time]: Creation datetime for the PixChargeback. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-//  - Updated [time.Time]: Latest update datetime for the PixChargeback. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- ReceiverBankCode [string]: BankCode of the Pix participant that received the PixChargeback. ex: "20018183"
+//	- RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse"
+//	- ReversalReferenceId [string]: ReturnId or endToEndId of the reversal transaction. ex: "D20018183202202030109X3OoBHG74wo"
+//	- Result [string]: Result after the analysis of the PixChargeback by the receiving party. Options: "rejected", "accepted", "partiallyAccepted"
+//	- Flow [string]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
+//	- Status [string]: Current PixChargeback status. Options: "created", "failed", "delivered", "closed", "canceled"
+//	- DisputeId [string]: Id of the dispute associated with the PixChargeback. ex: "5656565656565656"
+//	- IsMonitoringRequired [bool]: Indicates if monitoring is required for this chargeback. ex: true
+//	- ReversalAccountNumber [string]: Account number for the reversal transaction. ex: "876543-2"
+//	- ReversalAccountType [string]: Account type for the reversal transaction. ex: "checking"
+//	- ReversalBankCode [string]: Bank code for the reversal transaction. ex: "20018183"
+//	- ReversalBranchCode [string]: Branch code for the reversal transaction. ex: "1357-9"
+//	- ReversalTaxId [string]: Tax ID for the reversal transaction. ex: "01234567890"
+//	- Created [time.Time]: Creation datetime for the PixChargeback. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- Updated [time.Time]: Latest update datetime for the PixChargeback. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type PixChargeback struct {
-	Id                  string     `json:",omitempty"`
-	Amount              int        `json:",omitempty"`
-	ReferenceId         string     `json:",omitempty"`
-	Reason              string     `json:",omitempty"`
-	Description         string     `json:",omitempty"`
-	Tags                []string   `json:",omitempty"`
-	Analysis            string     `json:",omitempty"`
-	SenderBankCode      string     `json:",omitempty"`
-	ReceiverBankCode    string     `json:",omitempty"`
-	RejectionReason     string     `json:",omitempty"`
-	ReversalReferenceId string     `json:",omitempty"`
-	Result              string     `json:",omitempty"`
-	Flow                string     `json:",omitempty"`
-	Status              string     `json:",omitempty"`
-	Created             *time.Time `json:",omitempty"`
-	Updated             *time.Time `json:",omitempty"`
+	Id                    string     `json:",omitempty"`
+	Amount                int        `json:",omitempty"`
+	ReferenceId           string     `json:",omitempty"`
+	Reason                string     `json:",omitempty"`
+	Description           string     `json:",omitempty"`
+	Tags                  []string   `json:",omitempty"`
+	Analysis              string     `json:",omitempty"`
+	SenderBankCode        string     `json:",omitempty"`
+	ReceiverBankCode      string     `json:",omitempty"`
+	RejectionReason       string     `json:",omitempty"`
+	ReversalReferenceId   string     `json:",omitempty"`
+	Result                string     `json:",omitempty"`
+	Flow                  string     `json:",omitempty"`
+	Status                string     `json:",omitempty"`
+	DisputeId             string     `json:",omitempty"`
+	IsMonitoringRequired  bool       `json:",omitempty"`
+	ReversalAccountNumber string     `json:",omitempty"`
+	ReversalAccountType   string     `json:",omitempty"`
+	ReversalBankCode      string     `json:",omitempty"`
+	ReversalBranchCode    string     `json:",omitempty"`
+	ReversalTaxId         string     `json:",omitempty"`
+	Created               *time.Time `json:",omitempty"`
+	Updated               *time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "PixChargeback"}
