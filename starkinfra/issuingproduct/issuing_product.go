@@ -19,15 +19,17 @@ import (
 //  - FundingType [string]: Type of funding used for payment. ex: "credit", "debit"
 //  - HolderType [string]: Holder type. ex: "business", "individual"
 //  - Code [string]: Internal code from card flag informing the product. ex: "MRW", "MCO", "MWB", "MCS"
+//  - CustomerType [string]: Same as holderType. Kept for backward compatibility. ex: "business", "individual"
 //  - Created [time.Time]: Creation datetime for the IssuingProduct. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IssuingProduct struct {
-	Id          string     `json:",omitempty"`
-	Network     string     `json:",omitempty"`
-	FundingType string     `json:",omitempty"`
-	HolderType  string     `json:",omitempty"`
-	Code        string     `json:",omitempty"`
-	Created     *time.Time `json:",omitempty"`
+	Id           string     `json:",omitempty"`
+	Network      string     `json:",omitempty"`
+	FundingType  string     `json:",omitempty"`
+	HolderType   string     `json:",omitempty"`
+	Code         string     `json:",omitempty"`
+	CustomerType string     `json:",omitempty"`
+	Created      *time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "IssuingProduct"}

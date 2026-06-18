@@ -21,12 +21,14 @@ import (
 //	Attributes (return-only):
 //	- Name [string]: Category's name. ex: "Veterinary services", "Fast food restaurants"
 //  - Number [string]: Category's number. ex: "742", "5814"
+//  - Group [string]: Category's group. ex: "pets", "food"
 
 type MerchantCategory struct {
 	Code   string `json:",omitempty"`
 	Type   string `json:",omitempty"`
 	Name   string `json:",omitempty"`
 	Number string `json:",omitempty"`
+	Group  string `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "MerchantCategory"}

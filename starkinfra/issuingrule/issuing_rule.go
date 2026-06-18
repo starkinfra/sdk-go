@@ -26,6 +26,8 @@ import (
 //	- CounterAmount [int]: Current rule spent amount. ex: 1000
 //	- CurrencySymbol [string]: Currency symbol. ex: "R$"
 //	- CurrencyName [string]: Currency name. ex: "Brazilian Real"
+//	- Schedule [string]: Optional schedule dictating when the rule can be used. Some examples: "everyday from 09:00 to 18:00 in America/Sao_Paulo" - every day, 09:00-18:00 Sao Paulo time; "every monday, wednesday, friday from 08:00 to 12:00 in America/Sao_Paulo" - only those weekdays, mornings; "every saturday, sunday" - weekends, all day, in UTC
+//	- Purposes [slice of strings]: Optional list of transaction purposes the rule applies to. Options: "purchase", "withdrawal", "verification". The rule then limits only purchases of those purposes; omit it to allow any purposes. Example: []string{"purchase", "verification"} if you want us to automatically deny withdrawal.
 
 type IssuingRule struct {
 	Name           string                              `json:",omitempty"`
@@ -39,4 +41,6 @@ type IssuingRule struct {
 	CounterAmount  int                                 `json:",omitempty"`
 	CurrencySymbol string                              `json:",omitempty"`
 	CurrencyName   string                              `json:",omitempty"`
+	Schedule       string                              `json:",omitempty"`
+	Purposes       []string                            `json:",omitempty"`
 }

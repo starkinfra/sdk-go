@@ -23,6 +23,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IssuingTokenRequest sub-resource
 - IssuingToken resource
 - IssuingToken Log sub-resource
+- New attributes to issiuing resources
 
 ## [1.1.0] - 2026-05-18
 ### Added

@@ -18,12 +18,16 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when IssuingBalance is created. ex: "5656565656565656"
 //	- Amount [int]: Current balance amount of the Workspace in cents. ex: 200 (= R$ 2.00)
+//	- Limit [int]: Spending limit of the balance. ex: 1000 (= R$ 10.00)
+//	- MaxLimit [int]: Maximum spending limit. This field is currently always equal to limit. ex: 1000 (= R$ 10.00)
 //	- Currency [string]: Currency of the current Workspace. Expect others to be added eventually. ex: "BRL"
 //	- Updated [string]: Latest update datetime for the IssuingBalance. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IssuingBalance struct {
 	Id       string     `json:",omitempty"`
 	Amount   int        `json:",omitempty"`
+	Limit    int        `json:",omitempty"`
+	MaxLimit int        `json:",omitempty"`
 	Currency string     `json:",omitempty"`
 	Updated  *time.Time `json:",omitempty"`
 }
