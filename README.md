@@ -32,6 +32,8 @@ This SDK version is compatible with the Stark Infra API v2.
         - [EmbossingRequest](#create-issuingembossingrequests): Create embossing requests
         - [Purchases](#process-purchase-authorizations): Authorize and view your past purchases
         - [Invoices](#create-issuinginvoices): Add money to your issuing balance
+        - [BillingInvoices](#query-issuingbillinginvoices): View the invoices charged for your issuing usage
+        - [BillingTransactions](#query-issuingbillingtransactions): View the transactions that compose the invoices charged for your issuing usage
         - [Withdrawals](#create-issuingwithdrawals): Send money back to your Workspace from your issuing balance
         - [Balance](#get-your-issuingbalance): View your issuing balance
         - [Transactions](#query-issuingtransactions): View the transactions that have affected your issuing balance
@@ -2022,6 +2024,194 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+### Query IssuingBillingInvoices
+
+You can get a list of the invoices charged for your issuing usage given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    invoices, errorChannel := IssuingBillingInvoice.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case invoice, ok := <-invoices:
+            if !ok {
+                break loop
+            }
+            fmt.Println(invoice)
+        }
+    }
+}
+
+```
+
+### Query IssuingBillingInvoices by page
+
+Use this function instead of query if you want to manually page your requests.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    invoices, cursor, err := IssuingBillingInvoice.Page(params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, invoice := range invoices {
+        fmt.Println(invoice)
+    }
+
+    fmt.Println(cursor)
+}
+
+```
+
+### Get an IssuingBillingInvoice
+
+You can retrieve a specific invoice charged for your issuing usage by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    invoice, err := IssuingBillingInvoice.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(invoice.Id)
+}
+
+```
+
+### Query IssuingBillingTransactions
+
+You can get a list of the transactions that compose the invoices charged for your issuing usage given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingTransaction "github.com/starkinfra/sdk-go/starkinfra/issuingbillingtransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    transactions, errorChannel := IssuingBillingTransaction.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case transaction, ok := <-transactions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(transaction)
+        }
+    }
+}
+
+```
+
+### Query IssuingBillingTransactions by page
+
+Use this function instead of query if you want to manually page your requests.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingTransaction "github.com/starkinfra/sdk-go/starkinfra/issuingbillingtransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    transactions, cursor, err := IssuingBillingTransaction.Page(params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, transaction := range transactions {
+        fmt.Println(transaction)
+    }
+
+    fmt.Println(cursor)
 }
 
 ```
