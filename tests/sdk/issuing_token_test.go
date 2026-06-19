@@ -137,7 +137,6 @@ func TestIssuingTokenGet(t *testing.T) {
 	assert.IsType(t, "", token.WalletId)
 	assert.IsType(t, "", token.WalletName)
 	assert.IsType(t, "", token.MerchantId)
-	assert.IsType(t, "", token.Url)
 	assert.IsType(t, "", token.ExternalId)
 	assert.IsType(t, []string{}, token.Tags)
 	assert.IsType(t, "", token.Status)

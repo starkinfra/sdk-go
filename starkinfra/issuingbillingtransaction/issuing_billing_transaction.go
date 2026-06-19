@@ -24,8 +24,8 @@ import (
 //	- ExternalId [string]: external id of the transaction. ex: "my_external_id"
 //	- Description [string]: transaction description. ex: "Buying food"
 //	- CardEnding [string]: last 4 digits of the card. ex: "1234"
-//	- Tax [int]: tax amount in cents. ex: 1234 (= R$ 12.34)
-//	- Rate [float64]: tax rate as a percentage. ex: 1.5
+//	- Tax [int]: IOF amount in cents applied to the transaction. ex: 224 (= R$ 2.24)
+//	- Rate [float64]: Conversion rate applied to international transactions. ex: 1.1114875
 //	- MerchantAmount [int]: merchant amount in cents. ex: 1234 (= R$ 12.34)
 //	- MerchantCurrencyCode [string]: merchant currency code in ISO 4217 format. ex: "USD"
 //	- Created [time.Time]: creation datetime for the IssuingBillingTransaction. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
@@ -63,6 +63,7 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingBillingTr
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- invoiceId [string, default nil]: id of the IssuingBillingInvoice the transactions belong to. ex: "5656565656565656"
 	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"tony", "stark"}
+	//		- ids [slice of strings, default nil]: list of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
@@ -104,6 +105,7 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingBillingTransa
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- invoiceId [string, default nil]: id of the IssuingBillingInvoice the transactions belong to. ex: "5656565656565656"
 	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"tony", "stark"}
+	//		- ids [slice of strings, default nil]: list of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:

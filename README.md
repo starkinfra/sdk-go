@@ -1406,6 +1406,78 @@ func main() {
 
 ```
 
+### Query IssuingToken logs
+
+Logs are pretty important to understand the life cycle of a token.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an IssuingToken log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
 ### Query IssuingEmbossingKits
 
 You can get a list of existing embossing kits given some filters.

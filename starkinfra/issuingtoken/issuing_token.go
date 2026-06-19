@@ -18,14 +18,13 @@ import (
 //	- WalletId [string]: Wallet provider which the token is bounded to. ex: "google"
 //	- WalletName [string]: Wallet name. ex: "GOOGLE"
 //	- MerchantId [string]: Merchant unique id. ex: "5656565656565656"
-//	- Url [string]: Token URL. ex: "https://token.starkinfra.com/5656565656565656"
 //	- Updated [time.Time]: Latest update datetime for the IssuingToken. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: Creation datetime for the IssuingToken. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //
 //	Parameters (optional):
 //	- ExternalId [string]: A unique string among all your IssuingTokens, used to avoid resource duplication. ex: "DSHRMC00002626944b0e3b539d4d459281bdba90c2588791"
 //	- Tags [slice of strings]: Slice of strings for reference when searching for IssuingToken. ex: []string{"employees", "monthly"}
-//	- Status [string]: Current IssuingToken status. ex: "active", "blocked", "canceled", "frozen" or "pending"
+//	- Status [string]: Current IssuingToken status. ex: "active", "blocked", "canceled", "denied", "frozen" or "pending"
 //	- ActivationCode [string]: Activation code received through the bank app or SMS. ex: "481632"
 //	- MethodCode [string]: Provisioning method. Options: "app", "token", "manual", "server" or "browser"
 //	- DeviceType [string]: Device type used for tokenization. ex: "Phone"
@@ -42,7 +41,6 @@ type IssuingToken struct {
 	WalletId           string     `json:",omitempty"`
 	WalletName         string     `json:",omitempty"`
 	MerchantId         string     `json:",omitempty"`
-	Url                string     `json:",omitempty"`
 	ExternalId         string     `json:",omitempty"`
 	Tags               []string   `json:",omitempty"`
 	Status             string     `json:",omitempty"`
@@ -93,7 +91,7 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingToken, ch
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"active", "blocked", "canceled", "frozen", "pending"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"active", "blocked", "canceled", "denied", "frozen", "pending"}
 	//		- cardIds [slice of strings, default nil]: Slice of cardIds to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"travel", "food"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
@@ -137,7 +135,7 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingToken, string
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. Max = 100. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"active", "blocked", "canceled", "frozen", "pending"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"active", "blocked", "canceled", "denied", "frozen", "pending"}
 	//		- cardIds [slice of strings, default nil]: Slice of cardIds to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"travel", "food"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}

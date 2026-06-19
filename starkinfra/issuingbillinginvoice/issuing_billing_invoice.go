@@ -16,8 +16,8 @@ import (
 //	- Id [string]: unique id returned when the IssuingBillingInvoice is created. ex: "5656565656565656"
 //	- TaxId [string]: payer tax ID (CPF or CNPJ). ex: "012.345.678-90"
 //	- Name [string]: payer name. ex: "Tony Stark"
-//	- Fine [float64]: fine value charged on the invoice, in cents. ex: 1234.0 (= R$ 12.34)
-//	- Interest [float64]: interest value charged on the invoice, in cents. ex: 1234.0 (= R$ 12.34)
+//	- Fine [float64]: Fine percentage applied when paid after the due date. ex: 2.0
+//	- Interest [float64]: Monthly interest percentage applied when paid after the due date. ex: 1.0
 //	- Status [string]: current IssuingBillingInvoice status. ex: "created", "paid"
 //	- Amount [int]: invoice amount in cents. ex: 1234 (= R$ 12.34)
 //	- NominalAmount [int]: nominal amount in cents. ex: 1234 (= R$ 12.34)
