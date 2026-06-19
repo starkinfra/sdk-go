@@ -26,6 +26,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Holders](#create-issuingholders): Manage card holders
         - [Cards](#create-issuingcards): Create virtual and/or physical cards
         - [Design](#query-issuingdesigns): View your current card or package designs
+        - [TokenDesign](#query-issuingtokendesigns): View your current card tokenization designs
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
@@ -1046,6 +1047,112 @@ func main() {
     }
 
     fmt.Println(design.Id)
+}
+
+```
+
+### Query IssuingTokenDesigns
+
+You can get a list of available token designs given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    designs, errorChannel := IssuingTokenDesign.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case design, ok := <-designs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(design)
+        }
+    }
+}
+
+```
+
+### Get an IssuingTokenDesign
+
+Information on a token design may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    design, err := IssuingTokenDesign.Get("5747368922185728", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(design.Id)
+}
+
+```
+
+### Get an IssuingTokenDesign PDF
+
+You can retrieve the token design as a PDF file by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := IssuingTokenDesign.Pdf("5747368922185728", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    errFile := os.WriteFile("issuingTokenDesign.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Print(errFile)
+    }
 }
 
 ```
