@@ -27,6 +27,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Cards](#create-issuingcards): Create virtual and/or physical cards
         - [Design](#query-issuingdesigns): View your current card or package designs
         - [TokenDesign](#query-issuingtokendesigns): View your current card tokenization designs
+        - [TokenRequest](#create-an-issuingtokenrequest): Generate the payload to proceed with card tokenization
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
@@ -1153,6 +1154,42 @@ func main() {
     if errFile != nil {
         fmt.Print(errFile)
     }
+}
+
+```
+
+### Create an IssuingTokenRequest
+
+You can create an IssuingTokenRequest to generate the payload needed to proceed with the card tokenization.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenRequest "github.com/starkinfra/sdk-go/starkinfra/issuingtokenrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := IssuingTokenRequest.Create(
+        IssuingTokenRequest.IssuingTokenRequest{
+            CardId:     "5734340247945216",
+            WalletId:   "google",
+            MethodCode: "app",
+        }, nil,
+    )
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%v", request.Content)
 }
 
 ```

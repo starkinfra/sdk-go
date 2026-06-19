@@ -21,6 +21,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IssuingBillingInvoice resource
 - IssuingBillingTransaction resource
 - IssuingTokenDesign resource
+- IssuingTokenRequest sub-resource
 
 ## [1.1.0] - 2026-05-18
 ### Added
