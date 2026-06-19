@@ -28,6 +28,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Design](#query-issuingdesigns): View your current card or package designs
         - [TokenDesign](#query-issuingtokendesigns): View your current card tokenization designs
         - [TokenRequest](#create-an-issuingtokenrequest): Generate the payload to proceed with card tokenization
+        - [Token](#query-issuingtokens): Manage the digital tokens created for your cards
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
@@ -1190,6 +1191,217 @@ func main() {
     }
 
     fmt.Printf("%v", request.Content)
+}
+
+```
+
+### Query IssuingTokens
+
+You can get a list of existing tokens given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+
+    tokens, errorChannel := IssuingToken.Query(params, nil)
+    for token := range tokens {
+        fmt.Printf("%+v", token)
+    }
+    for err := range errorChannel {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+}
+
+```
+
+### Get an IssuingToken
+
+After its creation, information on a token may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    token, err := IssuingToken.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Update an IssuingToken
+
+You can update a specific token by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "blocked"
+
+    token, err := IssuingToken.Update("5656565656565656", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Cancel an IssuingToken
+
+You can also cancel a token by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    token, err := IssuingToken.Cancel("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Process Token authorization requests
+
+It's easy to process token authorization requests that arrived at your registered endpoint.
+If the provided digital signature does not check out with the StarkInfra public key, an error is returned.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    content := "{\"cardId\": \"5656565656565656\", \"walletId\": \"google\", \"methodCode\": \"app\"}"
+    signature := "MEUCIQDOpo1j+V40DNZK2URL2786UQK/8mDXon9ayEd8U0/l7AIgYXtIZJBTs8zCRR3vmted6Ehz/qfw1GRut/eYyvf1yOk="
+
+    token, err := IssuingToken.Parse(content, signature, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+To respond to a token authorization request, build the response with `ResponseAuthorization`:
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var authorization = map[string]interface{}{}
+    authorization["status"] = "approved"
+
+    response := IssuingToken.ResponseAuthorization(authorization)
+    fmt.Print(response)
+}
+
+```
+
+To respond to a token activation request, build the response with `ResponseActivation`:
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var authorization = map[string]interface{}{}
+    authorization["status"] = "approved"
+
+    response := IssuingToken.ResponseActivation(authorization)
+    fmt.Print(response)
 }
 
 ```
