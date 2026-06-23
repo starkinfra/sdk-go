@@ -2396,6 +2396,7 @@ func main() {
                 ReceiverBranchCode:    "1357-9",
                 ReceiverAccountType:   "payment",
                 EndToEndId:            Utils.EndToEndId("35547753"),
+                Reason:                "subscriptionFlaw",
             },
         }, nil)
     if err.Errors != nil {
