@@ -57,6 +57,9 @@ This SDK version is compatible with the Stark Infra API v2.
         - [StaticBrcode](#create-staticbrcodes): Create static Pix BR codes
         - [DynamicBrcode](#create-dynamicbrcodes): Create dynamic Pix BR codes
         - [BrcodePreview](#create-brcodepreviews): Read data from BR Codes before paying them
+    - [Ledger](#ledger)
+        - [Ledger](#create-ledgers): Track the balance of a given amount
+        - [LedgerTransaction](#create-ledgertransactions): Move amounts in and out of a Ledger
     - [Lending](#lending)
         - [CreditNote](#create-creditnotes): Create credit notes
         - [CreditPreview](#create-creditpreviews): Create credit previews
@@ -5289,6 +5292,348 @@ func main() {
     for _, preview := range previews {
         fmt.Println(preview.Id)
     }
+}
+
+```
+
+## Ledger
+
+Ledgers are used to track the balance of a given amount by inserting LedgerTransactions to them.
+They can represent a bank account, a digital wallet, an inventory product, etc.
+
+### Create Ledgers
+
+Send a slice of Ledger structs for creation in the Stark Infra API.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Ledger "github.com/starkinfra/sdk-go/starkinfra/ledger"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    ledgers, err := Ledger.Create(
+        []Ledger.Ledger{
+            {
+                ExternalId: "my-internal-id-123456",
+                Tags:       []string{"account/123", "savings"},
+                Rules: []Ledger.Rule{
+                    {
+                        Key:   "minimumBalance",
+                        Value: 0,
+                    },
+                },
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, ledger := range ledgers {
+        fmt.Println(ledger.Id)
+    }
+}
+
+```
+
+### Query Ledgers
+
+You can query multiple Ledgers according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Ledger "github.com/starkinfra/sdk-go/starkinfra/ledger"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["after"] = "2020-01-01"
+    params["before"] = "2020-03-01"
+
+    ledgers, errorChannel := Ledger.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case ledger, ok := <-ledgers:
+            if !ok {
+                break loop
+            }
+            fmt.Println(ledger)
+        }
+    }
+}
+
+```
+
+### Get a Ledger
+
+After its creation, information on a Ledger may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Ledger "github.com/starkinfra/sdk-go/starkinfra/ledger"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    ledger, err := Ledger.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(ledger.Id)
+}
+
+```
+
+### Update a Ledger
+
+Update a Ledger by passing its id to change its rules, tags or metadata.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Ledger "github.com/starkinfra/sdk-go/starkinfra/ledger"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["tags"] = []string{"account/123", "updated"}
+
+    ledger, err := Ledger.Update("5155165527080960", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(ledger.Id)
+}
+
+```
+
+### Query Ledger logs
+
+You can query Ledger logs to better understand Ledger life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    LedgerLog "github.com/starkinfra/sdk-go/starkinfra/ledger/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 50
+
+    logs, errorChannel := LedgerLog.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a Ledger log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    LedgerLog "github.com/starkinfra/sdk-go/starkinfra/ledger/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := LedgerLog.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+### Create LedgerTransactions
+
+Send a slice of LedgerTransaction structs to move amounts in and out of a Ledger.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    LedgerTransaction "github.com/starkinfra/sdk-go/starkinfra/ledgertransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    transactions, err := LedgerTransaction.Create(
+        []LedgerTransaction.LedgerTransaction{
+            {
+                Amount:     11234,
+                LedgerId:   "5656565656565656",
+                ExternalId: "my-internal-id-123456",
+                Source:     "bank-transfer/123",
+                Tags:       []string{"transfer/123", "savings"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, transaction := range transactions {
+        fmt.Println(transaction.Id)
+    }
+}
+
+```
+
+### Query LedgerTransactions
+
+You can query multiple LedgerTransactions according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    LedgerTransaction "github.com/starkinfra/sdk-go/starkinfra/ledgertransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["ledgerId"] = "5656565656565656"
+    params["after"] = "2020-01-01"
+    params["before"] = "2020-03-01"
+
+    transactions, errorChannel := LedgerTransaction.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case transaction, ok := <-transactions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(transaction)
+        }
+    }
+}
+
+```
+
+### Get a LedgerTransaction
+
+After its creation, information on a LedgerTransaction may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    LedgerTransaction "github.com/starkinfra/sdk-go/starkinfra/ledgertransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    transaction, err := LedgerTransaction.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(transaction.Id)
 }
 
 ```
