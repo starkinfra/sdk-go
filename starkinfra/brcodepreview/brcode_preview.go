@@ -41,32 +41,38 @@ import (
 //	- Scheduled [time.Time]: Date of payment execution. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Status [string]: Payment status. ex: "active", "paid", "canceled" or "unknown"
 //	- TaxId [string]: Payment receiver tax ID. ex: "012.345.678-90"
+//	- Expired [time.Time]: Date/time after which the dynamic QR Code is considered expired. ex: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)
+//	- Data [slice of maps]: Slice of additional data in key/value pairs. ex: []map[string]interface{}{{"key": "additional-info", "value": "order #12345"}}
+//	- Jws [string]: JWS of the dynamic QR Code, returned only when "jws" is passed in the expand query parameter. ex: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 type BrcodePreview struct {
-	Id               string        `json:",omitempty"`
-	PayerId          string        `json:",omitempty"`
-	EndToEndId       string        `json:",omitempty"`
-	AccountNumber    string        `json:",omitempty"`
-	AccountType      string        `json:",omitempty"`
-	Amount           int           `json:",omitempty"`
-	AmountType       string        `json:",omitempty"`
-	BankCode         string        `json:",omitempty"`
-	BranchCode       string        `json:",omitempty"`
-	CashAmount       int           `json:",omitempty"`
-	CashierBankCode  string        `json:",omitempty"`
-	CashierType      string        `json:",omitempty"`
-	DiscountAmount   int           `json:",omitempty"`
-	FineAmount       int           `json:",omitempty"`
-	InterestAmount   int           `json:",omitempty"`
-	KeyId            string        `json:",omitempty"`
-	Name             string        `json:",omitempty"`
-	NominalAmount    int           `json:",omitempty"`
-	ReconciliationId string        `json:",omitempty"`
-	ReductionAmount  int           `json:",omitempty"`
-	Scheduled        *time.Time    `json:",omitempty"`
-	Status           string        `json:",omitempty"`
-	TaxId            string        `json:",omitempty"`
-	Subscription     *Subscription `json:",omitempty"`
+	Id               string                   `json:",omitempty"`
+	PayerId          string                   `json:",omitempty"`
+	EndToEndId       string                   `json:",omitempty"`
+	AccountNumber    string                   `json:",omitempty"`
+	AccountType      string                   `json:",omitempty"`
+	Amount           int                      `json:",omitempty"`
+	AmountType       string                   `json:",omitempty"`
+	BankCode         string                   `json:",omitempty"`
+	BranchCode       string                   `json:",omitempty"`
+	CashAmount       int                      `json:",omitempty"`
+	CashierBankCode  string                   `json:",omitempty"`
+	CashierType      string                   `json:",omitempty"`
+	DiscountAmount   int                      `json:",omitempty"`
+	FineAmount       int                      `json:",omitempty"`
+	InterestAmount   int                      `json:",omitempty"`
+	KeyId            string                   `json:",omitempty"`
+	Name             string                   `json:",omitempty"`
+	NominalAmount    int                      `json:",omitempty"`
+	ReconciliationId string                   `json:",omitempty"`
+	ReductionAmount  int                      `json:",omitempty"`
+	Scheduled        *time.Time               `json:",omitempty"`
+	Status           string                   `json:",omitempty"`
+	TaxId            string                   `json:",omitempty"`
+	Subscription     *Subscription            `json:",omitempty"`
+	Expired          *time.Time               `json:",omitempty"`
+	Data             []map[string]interface{} `json:",omitempty"`
+	Jws              string                   `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "BrcodePreview"}

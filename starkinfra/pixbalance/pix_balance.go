@@ -30,12 +30,14 @@ type PixBalance struct {
 
 var resource = map[string]string{"name": "PixBalance"}
 
-func Get(user user.User) (PixBalance, Error.StarkErrors) {
+func Get(params map[string]interface{}, user user.User) (PixBalance, Error.StarkErrors) {
 	//	Retrieve the PixBalance struct
 	//
 	//	Receive the Balance struct linked to your Workspace in the Stark Infra API
 	//
 	//	Parameters (optional):
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- before [string, default nil]: Date to retrieve the balance as of the end of the informed day. ex: "2022-01-31"
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
@@ -43,7 +45,7 @@ func Get(user user.User) (PixBalance, Error.StarkErrors) {
 	var pixBalance PixBalance
 	balance := make(chan PixBalance)
 	balanceError := make(chan Error.StarkErrors)
-	query, errorChannel := utils.Query(resource, nil, user)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)

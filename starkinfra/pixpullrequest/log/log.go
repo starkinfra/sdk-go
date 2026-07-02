@@ -19,14 +19,18 @@ import (
 //	- Request [PixPullRequest struct]: PixPullRequest entity to which the log refers to.
 //	- Type [string]: Type of the PixRequest event which triggered the log creation. ex: "sent", "denied", "failed", "created", "success", "approved", "credited", "refunded", "processing"
 //	- Errors [slice of strings]: Slice of errors linked to this PixRequest event
+//	- Description [string]: Description of the log event. ex: "The Pix Pull Request was settled."
+//  - Reason [string]: Reason for the log event. ex: "The Pix Pull Request was settled."
 //	- Created [time.Time]: Creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Log struct {
-	Id           string                        `json:",omitempty"`
-	Request PixPullRequest.PixPullRequest `json:",omitempty"`
-	Type         string                        `json:",omitempty"`
-	Errors       interface{}                   `json:",omitempty"`
-	Created      *time.Time                    `json:",omitempty"`
+	Id          string                        `json:",omitempty"`
+	Request     PixPullRequest.PixPullRequest `json:",omitempty"`
+	Type        string                        `json:",omitempty"`
+	Errors      interface{}                   `json:",omitempty"`
+	Description string                        `json:",omitempty"`
+	Reason      string                        `json:",omitempty"`
+	Created     *time.Time                    `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "PixPullRequestLog"}
