@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
+	BusinessIdentityLog "github.com/starkinfra/sdk-go/starkinfra/businessidentity/log"
 	CreditNoteLog "github.com/starkinfra/sdk-go/starkinfra/creditnote/log"
 	IssuingCardLog "github.com/starkinfra/sdk-go/starkinfra/issuingcard/log"
 	IssuingInvoiceLog "github.com/starkinfra/sdk-go/starkinfra/issuinginvoice/log"
@@ -360,6 +361,16 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "credit-note" {
 		var log CreditNoteLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "business-identity" {
+		var log BusinessIdentityLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {

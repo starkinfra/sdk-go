@@ -9,6 +9,8 @@ import (
 
 	"github.com/starkinfra/sdk-go/starkinfra"
 	"github.com/starkinfra/sdk-go/starkinfra/brcodepreview"
+	"github.com/starkinfra/sdk-go/starkinfra/businessattachment"
+	"github.com/starkinfra/sdk-go/starkinfra/businessidentity"
 	"github.com/starkinfra/sdk-go/starkinfra/creditholmes"
 	"github.com/starkinfra/sdk-go/starkinfra/creditnote"
 	"github.com/starkinfra/sdk-go/starkinfra/creditnote/invoice"
@@ -624,6 +626,32 @@ func IndividualDocument(identityId, documentType string, bytes []byte) []individ
 	}
 
 	return documents
+}
+
+func BusinessIdentity() []businessidentity.BusinessIdentity {
+
+	identities := []businessidentity.BusinessIdentity{
+		{
+			TaxId: "20.018.183/0001-80",
+			Tags:  []string{"test", "testing"},
+		},
+	}
+	return identities
+}
+
+func BusinessAttachment(businessIdentityId, name string, bytes []byte) []businessattachment.BusinessAttachment {
+
+	attachments := []businessattachment.BusinessAttachment{
+		{
+			Name:               name,
+			ContentType:        "image/png",
+			Content:            base64.StdEncoding.EncodeToString(bytes),
+			BusinessIdentityId: businessIdentityId,
+			Tags:               []string{"test", "testing"},
+		},
+	}
+
+	return attachments
 }
 
 func Webhook() webhook.Webhook {

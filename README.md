@@ -71,6 +71,8 @@ This SDK version is compatible with the Stark Infra API v2.
     - [Identity](#identity)
         - [IndividualIdentity](#create-individualidentities): Create individual identities
         - [IndividualDocument](#create-individualdocuments): Create individual documents
+        - [BusinessIdentity](#create-businessidentities): Create business identities
+        - [BusinessAttachment](#create-businessattachments): Create business attachments
     - [Webhook](#webhook):
         - [Webhook](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
         - [WebhookEvents](#process-webhook-events): Manage Webhook events
@@ -7436,6 +7438,475 @@ func main() {
 
 ```
 
+### Create BusinessIdentities
+
+You can create a BusinessIdentity to validate a document of a legal person
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessIdentity "github.com/starkinfra/sdk-go/starkinfra/businessidentity"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    identities, err := BusinessIdentity.Create(
+        []BusinessIdentity.BusinessIdentity{
+            {
+                TaxId: "20.018.183/0001-80",
+                Tags:  []string{"test", "testing"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, identity := range identities {
+        fmt.Println(identity.Id)
+    }
+}
+
+```
+
+**Note**: Instead of using BusinessIdentity objects, you can also pass each element in dictionary format
+
+### Query BusinessIdentity
+
+You can query multiple business identities according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessIdentity "github.com/starkinfra/sdk-go/starkinfra/businessidentity"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    identities, errorChannel := BusinessIdentity.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case identity, ok := <-identities:
+            if !ok {
+                break loop
+            }
+            fmt.Println(identity)
+        }
+    }
+}
+
+```
+
+### Get an BusinessIdentity
+
+After its creation, information on a business identity may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessIdentity "github.com/starkinfra/sdk-go/starkinfra/businessidentity"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    identity, err := BusinessIdentity.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(identity.Id)
+}
+
+```
+
+### Update an BusinessIdentity
+
+You can update a specific identity status to "processing" for send it to validation.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessIdentity "github.com/starkinfra/sdk-go/starkinfra/businessidentity"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "processing"
+
+    identity, err := BusinessIdentity.Update("5761721251659776", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(identity.Id)
+}
+
+```
+
+**Note**: Before sending your business identity to validation by patching its status, you must send all the required
+attachments using the create method of the BusinessAttachment resource. Note that you must reference the business identity
+in the create method of the BusinessAttachment resource by its id.
+
+### Cancel an BusinessIdentity
+
+You can cancel a business identity before updating its status to processing.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessIdentity "github.com/starkinfra/sdk-go/starkinfra/businessidentity"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    identity, err := BusinessIdentity.Cancel("5761721251659776", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(identity.Id)
+}
+
+```
+
+### Query BusinessIdentity logs
+
+You can query business identity logs to better understand business identity life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessidentity/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an BusinessIdentity log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessidentity/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+### Create BusinessAttachments
+
+You can create a business attachment to attach files to a specific business Identity.
+You must reference the desired business identity by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAttachment "github.com/starkinfra/sdk-go/starkinfra/businessattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    attachments, err := BusinessAttachment.Create(
+        []BusinessAttachment.BusinessAttachment{
+            {
+                Name:               "articles-of-incorporation.png",
+                Content:            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
+                ContentType:        "image/png",
+                BusinessIdentityId: "5656565656565656",
+                Tags:               []string{"test", "testing"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, attachment := range attachments {
+        fmt.Println(attachment.Id)
+    }
+}
+
+```
+
+**Note**: Instead of using BusinessAttachment objects, you can also pass each element in dictionary format
+
+### Query BusinessAttachment
+
+You can query multiple business attachments according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAttachment "github.com/starkinfra/sdk-go/starkinfra/businessattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    attachments, errorChannel := BusinessAttachment.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case attachment, ok := <-attachments:
+            if !ok {
+                break loop
+            }
+            fmt.Println(attachment)
+        }
+    }
+}
+
+```
+
+### Get an BusinessAttachment
+
+After its creation, information on a business attachment may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAttachment "github.com/starkinfra/sdk-go/starkinfra/businessattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    document, err := BusinessAttachment.Get("5792731695677440", nil, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(document.Id)
+}
+
+```
+
+### Cancel an BusinessAttachment
+
+You can cancel a business attachment by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAttachment "github.com/starkinfra/sdk-go/starkinfra/businessattachment"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    attachment, err := BusinessAttachment.Cancel("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(attachment.Id)
+}
+
+```
+
+### Query BusinessAttachment logs
+
+You can query business attachment logs to better understand business attachment life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessattachment/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an BusinessAttachment log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessattachment/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
 ## Webhook
 
 ### Create a webhook subscription
@@ -7459,7 +7930,7 @@ func main() {
     webhook, err := Webhook.Create(
         Webhook.Webhook{
             Url:           "https://webhook.site/dd784f26-1d6a-4ca6-81cb-fda0267761ec",
-            Subscriptions: []string{"boleto"},
+            Subscriptions: []string{"boleto", "business-identity"},
         }, nil)
     if err.Errors != nil {
         for _, e := range err.Errors {
@@ -7617,6 +8088,8 @@ func main() {
     } else if event.Subscription == "issuing-purchase" {
         fmt.Println(event.Log)
     } else if event.Subscription == "credit-note" {
+        fmt.Println(event.Log)
+    } else if event.Subscription == "business-identity" {
         fmt.Println(event.Log)
     }
 }
