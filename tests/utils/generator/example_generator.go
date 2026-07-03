@@ -28,6 +28,7 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/pixchargeback"
 	"github.com/starkinfra/sdk-go/starkinfra/pixclaim"
 	"github.com/starkinfra/sdk-go/starkinfra/pixdirector"
+	"github.com/starkinfra/sdk-go/starkinfra/pixdispute"
 	"github.com/starkinfra/sdk-go/starkinfra/pixfraud"
 	"github.com/starkinfra/sdk-go/starkinfra/pixinfraction"
 	"github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
@@ -432,6 +433,35 @@ func PixClaim() pixclaim.PixClaim {
 		KeyId:          fmt.Sprintf("+55119898671%v", rand.Intn(99)),
 	}
 	return claim
+}
+
+func PixDispute() []pixdispute.PixDispute {
+
+	disputes := []pixdispute.PixDispute{
+		{
+			ReferenceId:   "E35547753202201201450oo8sDGca066",
+			Method:        "scam",
+			OperatorEmail: "ned.stark@company.com",
+			OperatorPhone: "+5511999999999",
+			Tags:          []string{"tony", "stark"},
+		},
+	}
+	return disputes
+}
+
+func PixDisputeMethodOther() []pixdispute.PixDispute {
+
+	disputes := []pixdispute.PixDispute{
+		{
+			ReferenceId:   "E35547753202201201450oo8sDGca066",
+			Method:        "other",
+			OperatorEmail: "ned.stark@company.com",
+			OperatorPhone: "+5511999999999",
+			Description:   "testDisputeGolang",
+			Tags:          []string{"tony", "stark"},
+		},
+	}
+	return disputes
 }
 
 func PixDirector() pixdirector.PixDirector {

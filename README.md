@@ -49,6 +49,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [PixKey](#create-a-pixkey): Create a Pix Key
         - [PixClaim](#create-a-pixclaim): Claim a Pix Key
         - [PixDirector](#create-a-pixdirector): Create a Pix Director
+        - [PixDispute](#create-pixdisputes): Create Pix Dispute reports
         - [PixInfraction](#create-pixinfractions): Create Pix Infraction reports
         - [PixFraud](#create-a-pixfraud): Create a Pix Fraud 
         - [PixKeyHolmes](#create-a-pixkeyholmes): Investigate the registration status of a Pix Key
@@ -4169,6 +4170,221 @@ func main() {
     }
 
     fmt.Println(director.Name)
+}
+
+```
+
+### Create PixDisputes
+
+Pix Disputes are used to report a transaction that is suspected of fraud to the Central Bank so that a graph
+analysis can be created to trace the funds. You can create a slice of PixDisputes at once.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDispute "github.com/starkinfra/sdk-go/starkinfra/pixdispute"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    disputes, err := PixDispute.Create(
+        []PixDispute.PixDispute{
+            {
+                ReferenceId:   "E35547753202201201450oo8sDGca066",
+                Method:        "scam",
+                OperatorEmail: "fraud@company.com",
+                OperatorPhone: "+5511989898989",
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, dispute := range disputes {
+        fmt.Println(dispute.Id)
+    }
+}
+
+```
+
+### Query PixDisputes
+
+You can query multiple Pix Disputes according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDispute "github.com/starkinfra/sdk-go/starkinfra/pixdispute"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    disputes, errorChannel := PixDispute.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case dispute, ok := <-disputes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(dispute)
+        }
+    }
+}
+
+```
+
+### Get a PixDispute
+
+After its creation, information on a Pix Dispute may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDispute "github.com/starkinfra/sdk-go/starkinfra/pixdispute"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    dispute, err := PixDispute.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(dispute)
+}
+
+```
+
+### Cancel a PixDispute
+
+You can cancel a Pix Dispute by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDispute "github.com/starkinfra/sdk-go/starkinfra/pixdispute"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    dispute, err := PixDispute.Cancel("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(dispute)
+}
+
+```
+
+### Query PixDispute logs
+
+You can query Pix Dispute logs to better understand the disputes' life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDisputeLog "github.com/starkinfra/sdk-go/starkinfra/pixdispute/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := PixDisputeLog.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a PixDispute log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixDisputeLog "github.com/starkinfra/sdk-go/starkinfra/pixdispute/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := PixDisputeLog.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log)
 }
 
 ```
