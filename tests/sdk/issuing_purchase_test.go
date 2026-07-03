@@ -151,3 +151,49 @@ func TestIssuingPurchaseResponseDenied(t *testing.T) {
 	response := IssuingPurchase.Response(denied)
 	assert.True(t, strings.Contains(response, "denied"))
 }
+
+func TestIssuingPurchaseNewFields(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	purchase := IssuingPurchase.IssuingPurchase{
+		ProductId:            "53810200",
+		MerchantCategoryType: "food",
+		Description:          "Office Supplies",
+		HolderId:             "5917814565109760",
+		ZipCode:              "02101234",
+		Metadata:             map[string]interface{}{"authorizationId": "OjZAqj"},
+		AcquirerId:           "236090",
+	}
+
+	assert.Equal(t, "53810200", purchase.ProductId)
+	assert.Equal(t, "food", purchase.MerchantCategoryType)
+	assert.Equal(t, "Office Supplies", purchase.Description)
+	assert.Equal(t, "5917814565109760", purchase.HolderId)
+	assert.Equal(t, "02101234", purchase.ZipCode)
+	assert.Equal(t, "236090", purchase.AcquirerId)
+	assert.Equal(t, "OjZAqj", purchase.Metadata["authorizationId"])
+}
+
+func TestIssuingPurchaseParseNewFields(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	content := "{\"acquirerId\": \"236090\", \"amount\": 100, \"cardId\": \"5671893688385536\", \"cardTags\": [], \"description\": \"Office Supplies\", \"endToEndId\": \"2fa7ef9f-b889-4bae-ac02-16749c04a3b6\", \"holderId\": \"5917814565109760\", \"holderTags\": [], \"isPartialAllowed\": false, \"issuerAmount\": 100, \"issuerCurrencyCode\": \"BRL\", \"merchantAmount\": 100, \"merchantCategoryCode\": \"bookStores\", \"merchantCategoryType\": \"food\", \"merchantCountryCode\": \"BRA\", \"merchantCurrencyCode\": \"BRL\", \"merchantFee\": 0, \"merchantId\": \"204933612653639\", \"merchantName\": \"COMPANY 123\", \"metadata\": {\"authorizationId\": \"OjZAqj\"}, \"methodCode\": \"token\", \"productId\": \"53810200\", \"purpose\": \"purchase\", \"score\": null, \"tax\": 0, \"walletId\": \"\", \"zipCode\": \"02101234\"}"
+	validSignature := "MEUCIBxymWEpit50lDqFKFHYOgyyqvE5kiHERi0ZM6cJpcvmAiEA2wwIkxcsuexh9BjcyAbZxprpRUyjcZJ2vBAjdd7o28Q="
+
+	parsed, err := IssuingPurchase.Parse(content, validSignature, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	assert.Equal(t, "236090", parsed.AcquirerId)
+	assert.Equal(t, "53810200", parsed.ProductId)
+	assert.Equal(t, "food", parsed.MerchantCategoryType)
+	assert.Equal(t, "Office Supplies", parsed.Description)
+	assert.Equal(t, "5917814565109760", parsed.HolderId)
+	assert.Equal(t, "02101234", parsed.ZipCode)
+	assert.Equal(t, "OjZAqj", parsed.Metadata["authorizationId"])
+}

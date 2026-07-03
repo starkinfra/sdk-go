@@ -17,16 +17,18 @@ import (
 //	- Balance [int]: [EXPANDABLE] current stock balance. ex: 1000
 //	- DesignId [string]: IssuingDesign unique id. ex: "5656565656565656"
 //	- EmbosserId [string]: Embosser unique id. ex: "5656565656565656"
+//	- EmbosserName [string]: Name of the embosser that holds this stock. ex: "Embosser 1"
 //	- Updated [time.Time]: Latest update datetime for the IssuingStock. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: Creation datetime for the IssuingStock. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IssuingStock struct {
-	Id         string     `json:",omitempty"`
-	Balance    int        `json:",omitempty"`
-	DesignId   string     `json:",omitempty"`
-	EmbosserId string     `json:",omitempty"`
-	Updated    *time.Time `json:",omitempty"`
-	Created    *time.Time `json:",omitempty"`
+	Id           string     `json:",omitempty"`
+	Balance      int        `json:",omitempty"`
+	DesignId     string     `json:",omitempty"`
+	EmbosserId   string     `json:",omitempty"`
+	EmbosserName string     `json:",omitempty"`
+	Updated      *time.Time `json:",omitempty"`
+	Created      *time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "IssuingStock"}

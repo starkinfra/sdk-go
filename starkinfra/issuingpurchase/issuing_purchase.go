@@ -28,8 +28,16 @@ import (
 //	- MerchantCurrencyCode [string]: Merchant currency code. ex: "USD"
 //	- MerchantCurrencySymbol [string]: Merchant currency symbol. ex: "$"
 //	- MerchantCategoryCode [string]: Merchant category code. ex: "fastFoodRestaurants"
+//	- MerchantCategoryNumber [int]: MCC number of the merchant category. ex: 5814
 //	- MerchantCountryCode [string]: Merchant country code. ex: "USA"
 //	- AcquirerId [string]: Acquirer ID. ex: "5656565656565656"
+//	- ProductId [string]: Unique card product number (BIN) registered within the card network. ex: "53810200"
+//	- MerchantCategoryType [string]: Merchant category type. ex: "health"
+//	- Description [string]: IssuingPurchase description. ex: "Coffee"
+//	- HolderId [string]: Card holder ID. ex: "5656565656565656"
+//	- ZipCode [string]: Zip code of the merchant location. ex: "02101234"
+//	- Metadata [map[string]interface{}]: Dictionary object used to store additional information about the IssuingPurchase. ex: map[string]interface{}{"extraData": "info"}
+//	- Confirmed [time.Time]: Confirmation datetime. Null until the purchase is confirmed. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- MerchantId [string]: Merchant ID. ex: "5656565656565656"
 //	- MerchantName [string]: Merchant name. ex: "Google Cloud Platform"
 //	- MerchantFee [int]: Fee charged by the merchant to cover specific costs, such as ATM withdrawal logistics, etc. ex: 200 (= R$ 2.00)
@@ -51,38 +59,46 @@ import (
 //	- HolderTags [slice of strings]: Tags of the IssuingHolder responsible for this purchase. ex: []string{"technology", "john snow"]
 
 type IssuingPurchase struct {
-	Id                     string     `json:",omitempty"`
-	HolderName             string     `json:",omitempty"`
-	CardId                 string     `json:",omitempty"`
-	CardEnding             string     `json:",omitempty"`
-	Purpose                string     `json:",omitempty"`
-	InstallmentCount       int        `json:",omitempty"`
-	Amount                 int        `json:",omitempty"`
-	Tax                    int        `json:",omitempty"`
-	IssuerAmount           int        `json:",omitempty"`
-	IssuerCurrencyCode     string     `json:",omitempty"`
-	IssuerCurrencySymbol   string     `json:",omitempty"`
-	MerchantAmount         int        `json:",omitempty"`
-	MerchantCurrencyCode   string     `json:",omitempty"`
-	MerchantCurrencySymbol string     `json:",omitempty"`
-	MerchantCategoryCode   string     `json:",omitempty"`
-	MerchantCountryCode    string     `json:",omitempty"`
-	AcquireId              string     `json:",omitempty"`
-	MerchantId             string     `json:",omitempty"`
-	MerchantName           string     `json:",omitempty"`
-	MerchantFee            int        `json:",omitempty"`
-	WalletId               string     `json:",omitempty"`
-	MethodCode             string     `json:",omitempty"`
-	Score                  float64    `json:",omitempty"`
-	EndToEndId             string     `json:",omitempty"`
-	Tags                   []string   `json:",omitempty"`
-	IssuingTransactionIds  []string   `json:",omitempty"`
-	Status                 string     `json:",omitempty"`
-	Updated                *time.Time `json:",omitempty"`
-	Created                *time.Time `json:",omitempty"`
-	IsPartialAllowed       bool       `json:",omitempty"`
-	CardTags               []string   `json:",omitempty"`
-	HolderTags             []string   `json:",omitempty"`
+	Id                     string                 `json:",omitempty"`
+	HolderName             string                 `json:",omitempty"`
+	CardId                 string                 `json:",omitempty"`
+	CardEnding             string                 `json:",omitempty"`
+	Purpose                string                 `json:",omitempty"`
+	InstallmentCount       int                    `json:",omitempty"`
+	Amount                 int                    `json:",omitempty"`
+	Tax                    int                    `json:",omitempty"`
+	IssuerAmount           int                    `json:",omitempty"`
+	IssuerCurrencyCode     string                 `json:",omitempty"`
+	IssuerCurrencySymbol   string                 `json:",omitempty"`
+	MerchantAmount         int                    `json:",omitempty"`
+	MerchantCurrencyCode   string                 `json:",omitempty"`
+	MerchantCurrencySymbol string                 `json:",omitempty"`
+	MerchantCategoryCode   string                 `json:",omitempty"`
+	MerchantCategoryType   string                 `json:",omitempty"`
+	MerchantCountryCode    string                 `json:",omitempty"`
+	AcquirerId             string                 `json:",omitempty"`
+	MerchantId             string                 `json:",omitempty"`
+	MerchantName           string                 `json:",omitempty"`
+	MerchantFee            int                    `json:",omitempty"`
+	WalletId               string                 `json:",omitempty"`
+	MethodCode             string                 `json:",omitempty"`
+	Score                  float64                `json:",omitempty"`
+	EndToEndId             string                 `json:",omitempty"`
+	Tags                   []string               `json:",omitempty"`
+	IssuingTransactionIds  []string               `json:",omitempty"`
+	Status                 string                 `json:",omitempty"`
+	Updated                *time.Time             `json:",omitempty"`
+	Created                *time.Time             `json:",omitempty"`
+	IsPartialAllowed       bool                   `json:",omitempty"`
+	CardTags               []string               `json:",omitempty"`
+	HolderTags             []string               `json:",omitempty"`
+	ProductId              string                 `json:",omitempty"`
+	Description            string                 `json:",omitempty"`
+	HolderId               string                 `json:",omitempty"`
+	ZipCode                string                 `json:",omitempty"`
+	Metadata               map[string]interface{} `json:",omitempty"`
+	MerchantCategoryNumber int                    `json:",omitempty"`
+	Confirmed              *time.Time             `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "IssuingPurchase"}
@@ -210,7 +226,7 @@ func Parse(content string, signature string, user user.User) (IssuingPurchase, E
 	if unmarshalError != nil {
 		return issuingPurchase, Error.UnknownError(unmarshalError.Error())
 	}
-	
+
 	return issuingPurchase, Error.StarkErrors{}
 }
 

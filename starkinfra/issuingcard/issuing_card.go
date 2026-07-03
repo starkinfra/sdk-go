@@ -36,6 +36,7 @@ import (
 //	- HolderId [string]: Card holder unique id. ex: "5656565656565656"
 //	- Type [string]: Card type. ex: "virtual"
 //	- Status [string]: Current IssuingCard status. ex: "active", "blocked", "canceled", "expired".
+//	- IsPinDefined [bool]: Whether the card has a PIN defined. Returned only when "expand=isPinDefined" is informed in the request
 //	- Number [string]: [EXPANDABLE] Masked card number. Expand to unmask the value. ex: "123".
 //	- SecurityCode [string]: [EXPANDABLE] Masked card verification value (cvv). Expand to unmask the value. ex: "123".
 //	- Expiration [time.Time]: [EXPANDABLE] Masked card expiration datetime. Expand to unmask the value.
@@ -60,6 +61,7 @@ type IssuingCard struct {
 	HolderId         string                    `json:",omitempty"`
 	Type             string                    `json:",omitempty"`
 	Status           string                    `json:",omitempty"`
+	IsPinDefined     bool                      `json:",omitempty"`
 	Number           string                    `json:",omitempty"`
 	SecurityCode     string                    `json:",omitempty"`
 	Expiration       string                    `json:",omitempty"`
