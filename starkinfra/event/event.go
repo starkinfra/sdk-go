@@ -8,6 +8,7 @@ import (
 	IssuingCardLog "github.com/starkinfra/sdk-go/starkinfra/issuingcard/log"
 	IssuingInvoiceLog "github.com/starkinfra/sdk-go/starkinfra/issuinginvoice/log"
 	IssuingPurchaseLog "github.com/starkinfra/sdk-go/starkinfra/issuingpurchase/log"
+	IssuingTokenLog "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
 	PixChargebackLog "github.com/starkinfra/sdk-go/starkinfra/pixchargeback/log"
 	PixClaimLog "github.com/starkinfra/sdk-go/starkinfra/pixclaim/log"
 	PixInfractionLog "github.com/starkinfra/sdk-go/starkinfra/pixinfraction/log"
@@ -328,6 +329,16 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "issuing-purchase" {
 		var log IssuingPurchaseLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "issuing-token" {
+		var log IssuingTokenLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {

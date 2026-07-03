@@ -17,6 +17,12 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - BacenId method
 ### Added
 - reason attribute to PixRequest resource
+- IssuingBillingInvoice resource
+- IssuingBillingTransaction resource
+- IssuingTokenDesign resource
+- IssuingTokenRequest sub-resource
+- IssuingToken resource
+- IssuingToken Log sub-resource
 
 ## [1.1.0] - 2026-05-18
 ### Added

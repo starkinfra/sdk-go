@@ -26,12 +26,17 @@ This SDK version is compatible with the Stark Infra API v2.
         - [Holders](#create-issuingholders): Manage card holders
         - [Cards](#create-issuingcards): Create virtual and/or physical cards
         - [Design](#query-issuingdesigns): View your current card or package designs
+        - [TokenDesign](#query-issuingtokendesigns): View your current card tokenization designs
+        - [TokenRequest](#create-an-issuingtokenrequest): Generate the payload to proceed with card tokenization
+        - [Token](#query-issuingtokens): Manage the digital tokens created for your cards
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
         - [EmbossingRequest](#create-issuingembossingrequests): Create embossing requests
         - [Purchases](#process-purchase-authorizations): Authorize and view your past purchases
         - [Invoices](#create-issuinginvoices): Add money to your issuing balance
+        - [BillingInvoices](#query-issuingbillinginvoices): View the invoices charged for your issuing usage
+        - [BillingTransactions](#query-issuingbillingtransactions): View the transactions that compose the invoices charged for your issuing usage
         - [Withdrawals](#create-issuingwithdrawals): Send money back to your Workspace from your issuing balance
         - [Balance](#get-your-issuingbalance): View your issuing balance
         - [Transactions](#query-issuingtransactions): View the transactions that have affected your issuing balance
@@ -1048,6 +1053,431 @@ func main() {
 
 ```
 
+### Query IssuingTokenDesigns
+
+You can get a list of available token designs given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    designs, errorChannel := IssuingTokenDesign.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case design, ok := <-designs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(design)
+        }
+    }
+}
+
+```
+
+### Get an IssuingTokenDesign
+
+Information on a token design may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    design, err := IssuingTokenDesign.Get("5747368922185728", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(design.Id)
+}
+
+```
+
+### Get an IssuingTokenDesign PDF
+
+You can retrieve the token design as a PDF file by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenDesign "github.com/starkinfra/sdk-go/starkinfra/issuingtokendesign"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := IssuingTokenDesign.Pdf("5747368922185728", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    errFile := os.WriteFile("issuingTokenDesign.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Print(errFile)
+    }
+}
+
+```
+
+### Create an IssuingTokenRequest
+
+You can create an IssuingTokenRequest to generate the payload needed to proceed with the card tokenization.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenRequest "github.com/starkinfra/sdk-go/starkinfra/issuingtokenrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := IssuingTokenRequest.Create(
+        IssuingTokenRequest.IssuingTokenRequest{
+            CardId:     "5734340247945216",
+            WalletId:   "google",
+            MethodCode: "app",
+        }, nil,
+    )
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%v", request.Content)
+}
+
+```
+
+### Query IssuingTokens
+
+You can get a list of existing tokens given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+
+    tokens, errorChannel := IssuingToken.Query(params, nil)
+    for token := range tokens {
+        fmt.Printf("%+v", token)
+    }
+    for err := range errorChannel {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+}
+
+```
+
+### Get an IssuingToken
+
+After its creation, information on a token may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    token, err := IssuingToken.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Update an IssuingToken
+
+You can update a specific token by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "blocked"
+
+    token, err := IssuingToken.Update("5656565656565656", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Cancel an IssuingToken
+
+You can also cancel a token by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    token, err := IssuingToken.Cancel("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+### Process Token authorization requests
+
+It's easy to process token authorization requests that arrived at your registered endpoint.
+If the provided digital signature does not check out with the StarkInfra public key, an error is returned.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    content := "{\"cardId\": \"5656565656565656\", \"walletId\": \"google\", \"methodCode\": \"app\"}"
+    signature := "MEUCIQDOpo1j+V40DNZK2URL2786UQK/8mDXon9ayEd8U0/l7AIgYXtIZJBTs8zCRR3vmted6Ehz/qfw1GRut/eYyvf1yOk="
+
+    token, err := IssuingToken.Parse(content, signature, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", token)
+}
+
+```
+
+To respond to a token authorization request, build the response with `ResponseAuthorization`:
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var authorization = map[string]interface{}{}
+    authorization["status"] = "approved"
+
+    response := IssuingToken.ResponseAuthorization(authorization)
+    fmt.Print(response)
+}
+
+```
+
+To respond to a token activation request, build the response with `ResponseActivation`:
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingToken "github.com/starkinfra/sdk-go/starkinfra/issuingtoken"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var authorization = map[string]interface{}{}
+    authorization["status"] = "approved"
+
+    response := IssuingToken.ResponseActivation(authorization)
+    fmt.Print(response)
+}
+
+```
+
+### Query IssuingToken logs
+
+Logs are pretty important to understand the life cycle of a token.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get an IssuingToken log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
 ### Query IssuingEmbossingKits
 
 You can get a list of existing embossing kits given some filters.
@@ -2022,6 +2452,194 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+### Query IssuingBillingInvoices
+
+You can get a list of the invoices charged for your issuing usage given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    invoices, errorChannel := IssuingBillingInvoice.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case invoice, ok := <-invoices:
+            if !ok {
+                break loop
+            }
+            fmt.Println(invoice)
+        }
+    }
+}
+
+```
+
+### Query IssuingBillingInvoices by page
+
+Use this function instead of query if you want to manually page your requests.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    invoices, cursor, err := IssuingBillingInvoice.Page(params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, invoice := range invoices {
+        fmt.Println(invoice)
+    }
+
+    fmt.Println(cursor)
+}
+
+```
+
+### Get an IssuingBillingInvoice
+
+You can retrieve a specific invoice charged for your issuing usage by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingInvoice "github.com/starkinfra/sdk-go/starkinfra/issuingbillinginvoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    invoice, err := IssuingBillingInvoice.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(invoice.Id)
+}
+
+```
+
+### Query IssuingBillingTransactions
+
+You can get a list of the transactions that compose the invoices charged for your issuing usage given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingTransaction "github.com/starkinfra/sdk-go/starkinfra/issuingbillingtransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    transactions, errorChannel := IssuingBillingTransaction.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case transaction, ok := <-transactions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(transaction)
+        }
+    }
+}
+
+```
+
+### Query IssuingBillingTransactions by page
+
+Use this function instead of query if you want to manually page your requests.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingBillingTransaction "github.com/starkinfra/sdk-go/starkinfra/issuingbillingtransaction"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    transactions, cursor, err := IssuingBillingTransaction.Page(params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, transaction := range transactions {
+        fmt.Println(transaction)
+    }
+
+    fmt.Println(cursor)
 }
 
 ```
