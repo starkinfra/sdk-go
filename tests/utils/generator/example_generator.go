@@ -82,26 +82,31 @@ func BrcodePreview() []brcodepreview.BrcodePreview {
 func CreditNote() []creditnote.CreditNote {
 
 	scheduled := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).AddDate(0, 0, 2)
-	amount := rand.Intn(100000 - 1)
 
 	notes := []creditnote.CreditNote{
 		{
-			TemplateId:  "5706627130851328",
-			Amount:      1000,
-			Name:        "Jamie Lannister",
-			TaxId:       Cpf(),
-			Scheduled:   &scheduled,
-			Invoices:    Invoice(amount),
-			Payment:     Payment(),
-			Signers:     Signer(),
-			ExternalId:  ExternalId(),
-			StreetLine1: "Rua ABC",
-			StreetLine2: "Ap 123",
-			District:    "Jardim Paulista",
-			City:        "São Paulo",
-			StateCode:   "SP",
-			ZipCode:     "01234-567",
-			PaymentType: "transfer",
+			TemplateId:    "5706627130851328",
+			NominalAmount: 120000,
+			Name:          "Jamie Lannister",
+			TaxId:         Cpf(),
+			Scheduled:     &scheduled,
+			Invoices:      Invoice(120000),
+			Payment:       Payment(),
+			Signers:       Signer(),
+			ExternalId:    ExternalId(),
+			StreetLine1:   "Rua ABC",
+			StreetLine2:   "Ap 123",
+			District:      "Jardim Paulista",
+			City:          "São Paulo",
+			StateCode:     "SP",
+			ZipCode:       "01234-567",
+			PaymentType:   "transfer",
+			Rules: []creditnote.Rule{
+				{
+					Key:   "invoiceCreationMode",
+					Value: "scheduled",
+				},
+			},
 		},
 	}
 	return notes

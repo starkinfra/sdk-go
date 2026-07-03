@@ -5710,6 +5710,12 @@ func main() {
                         Method:  "link",
                     },
                 },
+                Rules: []CreditNote.Rule{
+                    {
+                        Key:   "invoiceCreationMode",
+                        Value: "scheduled",
+                    },
+                },
                 ExternalId:  "1234",
                 StreetLine1: "Rua ABC",
                 StreetLine2: "Ap 123",
