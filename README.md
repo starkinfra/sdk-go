@@ -32,6 +32,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
+        - [StockRule](#create-issuingstockrules): Create notification rules attached to an IssuingStock
         - [EmbossingRequest](#create-issuingembossingrequests): Create embossing requests
         - [Purchases](#process-purchase-authorizations): Authorize and view your past purchases
         - [Invoices](#create-issuinginvoices): Add money to your issuing balance
@@ -1878,6 +1879,182 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+### Create IssuingStockRules
+
+You can create notification rules attached to a specific IssuingStock. When the linked stock balance reaches `MinimumBalance`, the recipients in `Emails` and `Phones` are notified.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingStockRule "github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    rules, err := IssuingStockRule.Create(
+        []IssuingStockRule.IssuingStockRule{
+            {
+                MinimumBalance: 10000,
+                StockId:        "5136459887542272",
+                Tags:           []string{"card", "corporate"},
+                Emails:         []string{"john.doe@enterprise.com"},
+                Phones:         []string{"+5511912345678"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, rule := range rules {
+        fmt.Println(rule.Id)
+    }
+}
+
+```
+
+### Query IssuingStockRules
+
+You can get a list of created stock rules given some filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingStockRule "github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 150
+
+    rules, errorChannel := IssuingStockRule.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case rule, ok := <-rules:
+            if !ok {
+                break loop
+            }
+            fmt.Println(rule)
+        }
+    }
+}
+
+```
+
+### Get an IssuingStockRule
+
+After its creation, information on a stock rule may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingStockRule "github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    rule, err := IssuingStockRule.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(rule.Id)
+}
+
+```
+
+### Update an IssuingStockRule
+
+You can update a stock rule's notification threshold and recipients by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingStockRule "github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["minimumBalance"] = 20000
+
+    rule, err := IssuingStockRule.Update("5792731695677440", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(rule.Id)
+}
+
+```
+
+### Cancel an IssuingStockRule
+
+You can cancel a stock rule by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingStockRule "github.com/starkinfra/sdk-go/starkinfra/issuingstockrule"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    rule, err := IssuingStockRule.Cancel("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(rule.Status)
 }
 
 ```
