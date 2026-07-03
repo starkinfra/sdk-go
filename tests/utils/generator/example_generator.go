@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"os"
 
 	"github.com/starkinfra/sdk-go/starkinfra"
 	"github.com/starkinfra/sdk-go/starkinfra/brcodepreview"
@@ -452,16 +453,17 @@ func PixRequest() []pixrequest.PixRequest {
 			SenderName:            "Edward Stark",
 			SenderTaxId:           "20.018.183/0001-80",
 			SenderBranchCode:      "1357-9",
-			SenderAccountNumber:   "876543-2",
+			SenderAccountNumber:   "876543",
 			SenderAccountType:     "checking",
 			ReceiverName:          "Edward Stark",
 			ReceiverTaxId:         "01234567890",
 			ReceiverBankCode:      "20018183",
-			ReceiverAccountNumber: "876543-2",
+			ReceiverAccountNumber: "876543",
 			ReceiverBranchCode:    "1357-9",
 			ReceiverAccountType:   "payment",
-			EndToEndId:            Utils.EndToEndId("35547753"),
+			EndToEndId:            Utils.EndToEndId(os.Getenv("SANDBOX_BANK_CODE")),
 			Priority:              "low",
+			Reason:                "subscriptionFlaw",
 		},
 	}
 	return requests

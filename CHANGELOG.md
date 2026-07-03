@@ -13,6 +13,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Fixed
+- BacenId method
+### Added
+- reason attribute to PixRequest resource
 
 ## [1.1.0] - 2026-05-18
 ### Added
