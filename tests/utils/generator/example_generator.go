@@ -30,7 +30,9 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/pixdirector"
 	"github.com/starkinfra/sdk-go/starkinfra/pixfraud"
 	"github.com/starkinfra/sdk-go/starkinfra/pixinfraction"
+	"github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
 	"github.com/starkinfra/sdk-go/starkinfra/pixkey"
+	"github.com/starkinfra/sdk-go/starkinfra/pixkeyholmes"
 	"github.com/starkinfra/sdk-go/starkinfra/pixrequest"
 	"github.com/starkinfra/sdk-go/starkinfra/pixreversal"
 	"github.com/starkinfra/sdk-go/starkinfra/pixstatement"
@@ -474,6 +476,16 @@ func PixFraud() []pixfraud.PixFraud {
 	return frauds
 }
 
+func PixKeyHolmes() []pixkeyholmes.PixKeyHolmes {
+
+	holmes := []pixkeyholmes.PixKeyHolmes{
+		{
+			KeyId: "valid@sandbox.com",
+		},
+	}
+	return holmes
+}
+
 func PixKey() pixkey.PixKey {
 
 	accountCreated := time.Date(2022, 01, 01, 0, 0, 0, 0, time.UTC)
@@ -640,4 +652,49 @@ func PixPullRequest(subscriptionId string) []pixpullrequest.PixPullRequest {
 		},
 	}
 	return requests
+}
+
+func PixInternalTransactionReport() []pixinternaltransactionreport.PixInternalTransactionReport {
+
+	created := time.Now().AddDate(0, 0, -1)
+
+	reports := []pixinternaltransactionreport.PixInternalTransactionReport{
+		{
+			Amount:                12345,
+			Created:               &created,
+			EndToEndId:            Utils.EndToEndId("00000665"),
+			Method:                "manual",
+			ReferenceType:         "request",
+			SenderAccountNumber:   "876543-2",
+			SenderBranchCode:      "1357-9",
+			SenderAccountType:     "checking",
+			SenderBankCode:        "00000665",
+			SenderTaxId:           "20.018.183/0001-80",
+			ReceiverAccountNumber: "876543-2",
+			ReceiverBranchCode:    "1357-9",
+			ReceiverAccountType:   "payment",
+			ReceiverBankCode:      "18236120",
+			ReceiverTaxId:         "01234567890",
+			ReceiverKeyId:         "+5511989898989",
+		},
+		{
+			Amount:                6789,
+			Created:               &created,
+			EndToEndId:            Utils.EndToEndId("00000665"),
+			Method:                "dict",
+			ReferenceType:         "reversal",
+			SenderAccountNumber:   "876543-2",
+			SenderBranchCode:      "1357-9",
+			SenderAccountType:     "savings",
+			SenderBankCode:        "00000665",
+			SenderTaxId:           "20.018.183/0001-80",
+			ReceiverAccountNumber: "876543-2",
+			ReceiverBranchCode:    "1357-9",
+			ReceiverAccountType:   "checking",
+			ReceiverBankCode:      "60701190",
+			ReceiverTaxId:         "01234567890",
+			ReturnId:              Utils.ReturnId("00000665"),
+		},
+	}
+	return reports
 }
