@@ -51,6 +51,8 @@ This SDK version is compatible with the Stark Infra API v2.
         - [PixDirector](#create-a-pixdirector): Create a Pix Director
         - [PixInfraction](#create-pixinfractions): Create Pix Infraction reports
         - [PixFraud](#create-a-pixfraud): Create a Pix Fraud 
+        - [PixKeyHolmes](#create-a-pixkeyholmes): Investigate the registration status of a Pix Key
+        - [PixInternalTransactionReport](#create-a-pixinternaltransactionreport): Report internal (non-SPI) transactions to the Central Bank
         - [PixUser](#get-a-pixuser): Get fraud statistics of a user
         - [PixChargeback](#create-pixchargebacks): Create Pix Chargeback requests
         - [PixDomain](#query-pixdomains): View registered SPI participants certificates
@@ -4560,6 +4562,394 @@ func main() {
     }
 
     fmt.Println(fraud.Id)
+}
+
+```
+
+### Query PixFraud logs
+
+You can query Pix fraud logs to better understand Pix fraud life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/pixfraud/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a PixFraud log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/pixfraud/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+### Create a PixKeyHolmes
+
+You can use a PixKeyHolmes to investigate the registration status of a Pix Key
+in the Central Bank's DICT. Open one per key you want to check; the API resolves
+it asynchronously and reports back whether the key is registered.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixKeyHolmes "github.com/starkinfra/sdk-go/starkinfra/pixkeyholmes"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    holmes, err := PixKeyHolmes.Create(
+        []PixKeyHolmes.PixKeyHolmes{
+            {
+                KeyId: "+5511989898989",
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, sherlock := range holmes {
+        fmt.Println(sherlock.Id)
+    }
+}
+
+```
+
+### Query PixKeyHolmes
+
+You can query multiple Pix Key holmes according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixKeyHolmes "github.com/starkinfra/sdk-go/starkinfra/pixkeyholmes"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    holmes, errorChannel := PixKeyHolmes.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case sherlock, ok := <-holmes:
+            if !ok {
+                break loop
+            }
+            fmt.Println(sherlock)
+        }
+    }
+}
+
+```
+
+### Create a PixInternalTransactionReport
+
+Transactions that happen internally — outside of the SPI — must be reported to the Central Bank so they are reflected in the participant's statements. Create a PixInternalTransactionReport for each such transaction.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "time"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixInternalTransactionReport "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    created := time.Now().AddDate(0, 0, -1)
+
+    reports, err := PixInternalTransactionReport.Create(
+        []PixInternalTransactionReport.PixInternalTransactionReport{
+            {
+                Amount:                12345,
+                Created:               &created,
+                EndToEndId:            "E20018183202201201213u34sav898j",
+                Method:                "manual",
+                ReferenceType:         "request",
+                SenderAccountNumber:   "876543-2",
+                SenderBranchCode:      "1357-9",
+                SenderAccountType:     "checking",
+                SenderBankCode:        "20018183",
+                SenderTaxId:           "20.018.183/0001-80",
+                ReceiverAccountNumber: "876543-2",
+                ReceiverBranchCode:    "1357-9",
+                ReceiverAccountType:   "payment",
+                ReceiverBankCode:      "18236120",
+                ReceiverTaxId:         "01234567890",
+                ReceiverKeyId:         "+5511989898989",
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, report := range reports {
+        fmt.Println(report.Id)
+    }
+}
+
+```
+
+### Query PixInternalTransactionReports
+
+You can query multiple Pix Internal Transaction Reports according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixInternalTransactionReport "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+
+    reports, errorChannel := PixInternalTransactionReport.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case report, ok := <-reports:
+            if !ok {
+                break loop
+            }
+            fmt.Println(report)
+        }
+    }
+}
+
+```
+
+### Page PixInternalTransactionReports
+
+You can manually page Pix Internal Transaction Reports using the cursor returned by each call.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixInternalTransactionReport "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+
+    reports, cursor, err := PixInternalTransactionReport.Page(params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, report := range reports {
+        fmt.Println(report.Id)
+    }
+    fmt.Println(cursor)
+}
+
+```
+
+### Get a PixInternalTransactionReport
+
+After its creation, information on a Pix Internal Transaction Report may be retrieved by its ID.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixInternalTransactionReport "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    report, err := PixInternalTransactionReport.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(report.Id)
+}
+
+```
+
+### Query PixInternalTransactionReport logs
+
+You can query Pix Internal Transaction Report logs to better understand the report life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 15
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a PixInternalTransactionReport log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log.Id)
 }
 
 ```

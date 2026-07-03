@@ -33,7 +33,7 @@ func BankCode(BankCode string) string {
 
 	return fmt.Sprintf("%v%v%v",
 		BankCode,
-		time.Now().Format("2006-01-02- 15:04"),
+		time.Now().Format("200601021504"),
 		randomString,
 	)
 }

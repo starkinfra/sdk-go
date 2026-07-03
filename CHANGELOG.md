@@ -28,6 +28,9 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - LedgerTransaction resource
 - New attributes to payments resources
 - rules and debtorWorkspaceId parameters to CreditNote resource
+- PixFraudLog resource
+- PixKeyHolmes resource
+- PixInternalTransactionReport resource
 ### Changed
 - PixUser.Statistics attribute from list of strings to list of PixUser.Statistics sub-resources
 - PixBalance.Get to accept a params map, enabling the before filter
