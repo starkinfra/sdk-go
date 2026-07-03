@@ -23,6 +23,8 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/issuinginvoice"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingrestock"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingwithdrawal"
+	"github.com/starkinfra/sdk-go/starkinfra/ledger"
+	"github.com/starkinfra/sdk-go/starkinfra/ledgertransaction"
 	"github.com/starkinfra/sdk-go/starkinfra/pixchargeback"
 	"github.com/starkinfra/sdk-go/starkinfra/pixclaim"
 	"github.com/starkinfra/sdk-go/starkinfra/pixdirector"
@@ -358,6 +360,45 @@ func IssuingWithdrawal() issuingwithdrawal.IssuingWithdrawal {
 		Description: "testeIssuingWithdrawal",
 	}
 	return withdrawal
+}
+
+func Ledger() []ledger.Ledger {
+
+	ledgers := []ledger.Ledger{
+		{
+			ExternalId: ExternalId(),
+			Tags:       []string{"savings account", "spending counter"},
+			Metadata:   map[string]interface{}{"accountId": "123"},
+			Rules: []ledger.Rule{
+				{
+					Key:   "minimumBalance",
+					Value: 0,
+				},
+			},
+		},
+	}
+	return ledgers
+}
+
+func LedgerTransaction(ledgerId string) []ledgertransaction.LedgerTransaction {
+
+	transactions := []ledgertransaction.LedgerTransaction{
+		{
+			Amount:     rand.Intn(9999-1000) + 1000,
+			LedgerId:   ledgerId,
+			Source:     fmt.Sprintf("account/%06d", rand.Intn(999999)+1),
+			ExternalId: ExternalId(),
+			Tags:       []string{"savings account", "spending counter"},
+			Metadata:   map[string]interface{}{"accountId": "123"},
+			Rules: []ledger.Rule{
+				{
+					Key:   "minimumBalance",
+					Value: 0,
+				},
+			},
+		},
+	}
+	return transactions
 }
 
 func PixChargeback(e2e string) []pixchargeback.PixChargeback {
