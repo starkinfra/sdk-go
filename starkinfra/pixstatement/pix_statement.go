@@ -27,6 +27,7 @@ import (
 //	- Id [string]: Unique id returned when the PixStatement is created. ex: "5656565656565656"
 //	- Status [string]: Current PixStatement status. ex: []string{"success", "failed"}
 //	- TransactionCount [int]: Number of transactions that happened during the day that the PixStatement was requested. ex: 11
+//	- ChunkCount [int]: Number of chunks the statement file is split into. ex: 2
 //	- Created [time.Time]: Creation datetime for the PixStatement. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: Latest update datetime for the PixStatement. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
@@ -37,6 +38,7 @@ type PixStatement struct {
 	Id               string     `json:",omitempty"`
 	Status           string     `json:",omitempty"`
 	TransactionCount int        `json:",omitempty"`
+	ChunkCount       int        `json:",omitempty"`
 	Created          *time.Time `json:",omitempty"`
 	Updated          *time.Time `json:",omitempty"`
 }

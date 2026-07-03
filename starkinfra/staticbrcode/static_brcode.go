@@ -26,6 +26,7 @@ import (
 //	- CashierBankCode [string, default nil]: Cashier's bank code. ex: "20018183".
 //	- Description [string, default nil]: Optional description to override default description to be shown in the bank statement. ex: "Payment for service #1234"
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
+//	- Type [string, default "instant"]: Type of the StaticBrcode. Options: "instant", "instantAndOrSubscription"
 //
 //	Attributes (return-only):
 //	- Id [string]: Id returned on creation, this is the BR code. ex: "00020126360014br.gov.bcb.pix0114+552840092118152040000530398654040.095802BR5915Jamie Lannister6009Sao Paulo620705038566304FC6C"
@@ -43,6 +44,7 @@ type StaticBrcode struct {
 	CashierBankCode  string     `json:",omitempty"`
 	Description      string     `json:",omitempty"`
 	Tags             []string   `json:",omitempty"`
+	Type             string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
 	Uuid             string     `json:",omitempty"`
 	Url              string     `json:",omitempty"`

@@ -12,7 +12,7 @@ func TestPixBalanceGet(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject
 
-	balance, err := PixBalance.Get(nil)
+	balance, err := PixBalance.Get(nil, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)

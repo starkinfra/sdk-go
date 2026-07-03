@@ -13,12 +13,13 @@ import (
 //
 //	Parameters (required):
 //	- Id [string]: user tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
+//
 //	Attributes (return-only):
-//	- Statistics [slice of strings, default nil]: list of PixUser.Statistics objects. ex: [PixUser.Statistics(after="2023-11-06T18:57:08.325090+00:00", source="pix-key")]
+//	- Statistics [slice of Statistics structs]: Slice of PixUser.Statistics structs with fraud statistics of the user. ex: []pixuser.Statistics{{Value: 3, Type: "infractions", Source: "keyManagement"}}
 
 type PixUser struct {
-	Statistics       []string   `json:",omitempty"`
-	Id               string     `json:",omitempty"`
+	Statistics []Statistics `json:",omitempty"`
+	Id         string       `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "PixUser"}

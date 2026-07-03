@@ -29,7 +29,7 @@ import (
 //  - ExternalId [string]: String that must be unique among all your DynamicBrcodes. Duplicated external ids will cause failures. ex: "my-internal-id-123456"
 //
 //	Parameters (optional):
-//  - Type [string, default "instant"]: Type of the DynamicBrcode. Options: "instant", "due"
+//  - Type [string, default "instant"]: Type of the DynamicBrcode. Options: "instant", "due", "subscription", "subscriptionAndInstant", "dueAndOrSubscription"
 //  - Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"travel", "food"}
 //
 //	Attributes (return-only):

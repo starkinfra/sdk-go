@@ -18,7 +18,7 @@ import (
 //
 //	Parameters (required):
 //	- ReferenceId [string]: EndToEndId or return_id of the transaction being reported. ex: "E20018183202201201450u34sDGd19lz"
-//	- Type [string]: Type of infraction report. Options: "reversal", "reversalChargeback"
+//	- Type [string]: Type of infraction report. Options: "fraud", "reversal", "reversalChargeback"
 //	- Method [string]: Method of Pix Infraction. Options: "scam", "unauthorized", "coercion", "invasion", "other", "unknown"
 //
 //	Parameters (optional):

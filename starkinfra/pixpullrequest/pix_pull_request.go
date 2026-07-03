@@ -5,8 +5,8 @@ import (
 	"fmt"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
-	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"github.com/starkinfra/core-go/starkcore/utils/api"
+	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"time"
 )
 
@@ -45,6 +45,7 @@ import (
 //	- ReceiverTaxId [string]: Receiver's tax ID (CPF or CNPJ).
 //	- SenderBankCode [string]: Sender's bank institution code in Brazil.
 //	- SenderFinalName [string]: Sender's final name.
+//	- SenderFinalTaxId [string]: CPF or CNPJ of the final sender, when different from the account holder.
 //	- SenderTaxId [string]: Sender's tax ID (CPF or CNPJ).
 
 type PixPullRequest struct {
@@ -70,6 +71,7 @@ type PixPullRequest struct {
 	ReceiverTaxId         string     `json:",omitempty"`
 	SenderBankCode        string     `json:",omitempty"`
 	SenderFinalName       string     `json:",omitempty"`
+	SenderFinalTaxId      string     `json:",omitempty"`
 	SenderTaxId           string     `json:",omitempty"`
 }
 
@@ -195,7 +197,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 	//  Update PixPullRequests
 	//
 	//	A Pix Pull Request can be updated to change the status to "scheduled" or "denied"
-	// 
+	//
 	//  Parameters (required):
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"status": "approved", "senderCityCode": "3550308"}
 	//		Parameters (required):

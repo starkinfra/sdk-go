@@ -115,6 +115,7 @@ func Query(params map[string]interface{}, user user.User) (chan PixChargeback, c
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
 	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "failed", "delivered", "closed", "canceled"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- referenceIds [slice of strings, default nil]: Slice of endToEndIds or returnIds to filter retrieved structs. Max 30. ex: []string{"E20018183202201201450u34sDjD7334"}
 	//		- flow [string, default nil]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
 	//		- tags [slice of strings, default nil]: Filter for tags of retrieved structs. ex: []string{"travel", "food"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -158,6 +159,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixChargeback, strin
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
 	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "failed", "delivered", "closed", "canceled"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- referenceIds [slice of strings, default nil]: Slice of endToEndIds or returnIds to filter retrieved structs. Max 30. ex: []string{"E20018183202201201450u34sDjD7334"}
 	//		- flow [string, default nil]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
 	//		- tags [slice of strings, default nil]: Filter for tags of retrieved structs. ex: []string{"travel", "food"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

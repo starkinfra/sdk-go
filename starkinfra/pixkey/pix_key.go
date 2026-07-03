@@ -118,6 +118,7 @@ func Query(params map[string]interface{}, user user.User) (chan PixKey, chan Err
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"tony", "stark"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- type [string, default nil]: Filter for the type of retrieved PixKeys. Options: "cpf", "cnpj", "phone", "email" and "evp"
+	//		- taxId [string, default nil]: Filter for the tax ID (CPF/CNPJ) linked to the retrieved PixKeys. ex: "012.345.678-90"
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
@@ -161,6 +162,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixKey, string, Erro
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"tony", "stark"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//		- type [string, default nil]: Filter for the type of retrieved PixKeys. Options: "cpf", "cnpj", "phone", "email" and "evp"
+	//		- taxId [string, default nil]: Filter for the tax ID (CPF/CNPJ) linked to the retrieved PixKeys. ex: "012.345.678-90"
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
