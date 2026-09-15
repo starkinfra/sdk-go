@@ -16,6 +16,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Added
 - PixPullSubscription.parse method
 - CreditSigner.resendToken method
+- Pdf and Payment methods to CreditNote resource
 
 ## [1.2.0] - 2026-07-03
 ### Fixed

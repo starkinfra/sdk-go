@@ -281,3 +281,83 @@ func TestCreditNoteDebtorWorkspaceId(t *testing.T) {
 		assert.IsType(t, "", getNote.DebtorWorkspaceId)
 	}
 }
+
+func firstCreditNote(t *testing.T, params map[string]interface{}) (CreditNote.CreditNote, bool) {
+
+	var noteList []CreditNote.CreditNote
+
+	notes, errorChannel := CreditNote.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Fatalf("CreditNote.Query failed: code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case note, ok := <-notes:
+			if !ok {
+				break loop
+			}
+			noteList = append(noteList, note)
+		}
+	}
+
+	if len(noteList) == 0 {
+		return CreditNote.CreditNote{}, false
+	}
+	return noteList[0], true
+}
+
+func TestCreditNotePdf(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	var paramsQuery = map[string]interface{}{}
+	paramsQuery["limit"] = 1
+	paramsQuery["status"] = "created"
+
+	note, ok := firstCreditNote(t, paramsQuery)
+	if !ok {
+		t.Fatal("no created CreditNote available in this workspace")
+	}
+
+	pdf, err := CreditNote.Pdf(note.Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+		return
+	}
+
+	if assert.Greater(t, len(pdf), 4) {
+		assert.Equal(t, "%PDF", string(pdf[:4]))
+	}
+}
+
+func TestCreditNotePayment(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	var paramsQuery = map[string]interface{}{}
+	paramsQuery["limit"] = 1
+	paramsQuery["status"] = "success"
+
+	note, ok := firstCreditNote(t, paramsQuery)
+	if !ok {
+		t.Skip("no CreditNote with status success available in this workspace")
+	}
+
+	pdf, err := CreditNote.Payment(note.Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+		return
+	}
+
+	if assert.Greater(t, len(pdf), 4) {
+		assert.Equal(t, "%PDF", string(pdf[:4]))
+	}
+}

@@ -6663,6 +6663,76 @@ func main() {
 
 ```
 
+### Retrieve CCB disbursement pdf file
+
+To retrieve the CCB disbursement pdf file, use the `CreditNote.Pdf` function with a CreditNote id. The pdf is not available for canceled CreditNotes.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    CreditNote "github.com/starkinfra/sdk-go/starkinfra/creditnote"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := CreditNote.Pdf("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    errFile := os.WriteFile("credit_note.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Println(errFile)
+    }
+}
+
+```
+
+### Retrieve CCB disbursement payment pdf file
+
+To retrieve the CCB disbursement payment pdf file, use the `CreditNote.Payment` function with the id of a CreditNote in status `success`.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    CreditNote "github.com/starkinfra/sdk-go/starkinfra/creditnote"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := CreditNote.Payment("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    errFile := os.WriteFile("credit_note_payment.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Println(errFile)
+    }
+}
+
+```
+
 ### Query CreditNote logs
 
 You can query credit note logs to better understand credit note life cycles.
