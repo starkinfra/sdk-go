@@ -285,3 +285,36 @@ func Cancel(id string, reason string, user user.User) (PixPullSubscription, Erro
 	}
 	return subscription, err
 }
+
+func Parse(content string, signature string, user user.User) (PixPullSubscription, Error.StarkErrors) {
+	//	Create a single verified PixPullSubscription struct from a content string
+	//
+	//	Create a single PixPullSubscription struct from a content string received from a handler listening at the subscription url.
+	//	If the provided digital signature does not check out with the StarkInfra public key, a
+	//	starkinfra.error.InvalidSignatureError will be raised.
+	//
+	//	Parameters (required):
+	//	- content [string]: Response content from request received at user endpoint (not parsed)
+	//	- signature [string]: Base-64 digital signature received at response header "Digital-Signature"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
+	//
+	//	Return:
+	//	- parsed PixPullSubscription struct
+	var subscription PixPullSubscription
+	parsed, err := utils.ParseAndVerify(content, signature, "", user)
+	if err.Errors != nil {
+		return subscription, err
+	}
+
+	jsonStr := parsed
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
+	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
+	if unmarshalError != nil {
+		return subscription, Error.UnknownError(unmarshalError.Error())
+	}
+
+	return subscription, Error.StarkErrors{}
+}
