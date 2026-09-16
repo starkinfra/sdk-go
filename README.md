@@ -55,6 +55,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [PixFraud](#create-a-pixfraud): Create a Pix Fraud 
         - [PixKeyHolmes](#create-a-pixkeyholmes): Investigate the registration status of a Pix Key
         - [PixInternalTransactionReport](#create-a-pixinternaltransactionreport): Report internal (non-SPI) transactions to the Central Bank
+        - [PixPullSubscription](#process-inbound-pixpullsubscription-events): Set up recurring Pix debit authorizations
         - [PixUser](#get-a-pixuser): Get fraud statistics of a user
         - [PixChargeback](#create-pixchargebacks): Create Pix Chargeback requests
         - [PixDomain](#query-pixdomains): View registered SPI participants certificates
@@ -5345,6 +5346,40 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+### Process inbound PixPullSubscription events
+
+Inbound PixPullSubscription events will be POSTed at your registered endpoint. You can use the `Parse` function
+to verify the digital signature and reconstruct the PixPullSubscription struct.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    content := "{\"bacenId\": \"RR2017032900000000000000003\", ...}"
+    signature := "MEUCIQC7FVhXdripx/aXg5yNLxmNoZlehpyvX3QYDXJ8o3PAZQIgVe1omKFh7Vd54ML4U1z7L+kpx+GHl+G2XLeFTLZeBJk="
+
+    subscription, err := PixPullSubscription.Parse(content, signature, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", subscription)
 }
 
 ```
