@@ -9,6 +9,7 @@ import (
 
 	"github.com/starkinfra/sdk-go/starkinfra"
 	"github.com/starkinfra/sdk-go/starkinfra/brcodepreview"
+	"github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest"
 	"github.com/starkinfra/sdk-go/starkinfra/businessattachment"
 	"github.com/starkinfra/sdk-go/starkinfra/businessidentity"
 	"github.com/starkinfra/sdk-go/starkinfra/creditholmes"
@@ -637,6 +638,40 @@ func BusinessIdentity() []businessidentity.BusinessIdentity {
 		},
 	}
 	return identities
+}
+
+func BusinessAccountRequest() []businessaccountrequest.BusinessAccountRequest {
+
+	requests := []businessaccountrequest.BusinessAccountRequest{
+		{
+			Name:    "Stark Bank S.A.",
+			TaxId:   "20.018.183/0001-80",
+			Revenue: 100000000,
+			Address: businessaccountrequest.Address{
+				Street:       "Av. Faria Lima",
+				Number:       "2000",
+				Neighborhood: "Itaim Bibi",
+				City:         "Sao Paulo",
+				State:        "SP",
+				ZipCode:      "04538-132",
+				Complement:   "Sala 42",
+			},
+			Owners: []businessaccountrequest.Owner{
+				{
+					TaxId: "012.345.678-90",
+					Name:  "Jamie Lannister",
+					Role:  "partner",
+				},
+				{
+					TaxId: "812.531.960-36",
+					Name:  "Cersei Lannister",
+					Role:  "representative",
+				},
+			},
+			Tags: []string{"employees", "monthly"},
+		},
+	}
+	return requests
 }
 
 func BusinessAttachment(businessIdentityId, name string, bytes []byte) []businessattachment.BusinessAttachment {

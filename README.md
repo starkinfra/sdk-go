@@ -74,6 +74,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [IndividualDocument](#create-individualdocuments): Create individual documents
         - [BusinessIdentity](#create-businessidentities): Create business identities
         - [BusinessAttachment](#create-businessattachments): Create business attachments
+        - [BusinessAccountRequest](#create-businessaccountrequests): Open a Stark Infra account for a company
     - [Webhook](#webhook):
         - [Webhook](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
         - [WebhookEvents](#process-webhook-events): Manage Webhook events
@@ -8069,6 +8070,230 @@ func main() {
         for _, e := range err.Errors {
             fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
+    }
+
+    fmt.Println(log.Id)
+}
+
+```
+
+### Create BusinessAccountRequests
+
+You can create a BusinessAccountRequest to request an account for a specific company, opening the account with
+identity verification by webview for each of its owners.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAccountRequest "github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    requests, err := BusinessAccountRequest.Create(
+        []BusinessAccountRequest.BusinessAccountRequest{
+            {
+                Name:    "Stark Bank S.A.",
+                TaxId:   "20.018.183/0001-80",
+                Revenue: 100000000,
+                Address: BusinessAccountRequest.Address{
+                    Street:       "Av. Faria Lima",
+                    Number:       "2000",
+                    Neighborhood: "Itaim Bibi",
+                    City:         "Sao Paulo",
+                    State:        "SP",
+                    ZipCode:      "04538-132",
+                    Complement:   "Sala 42",
+                },
+                Owners: []BusinessAccountRequest.Owner{
+                    {
+                        TaxId: "012.345.678-90",
+                        Name:  "Jamie Lannister",
+                        Role:  "partner",
+                    },
+                    {
+                        TaxId: "812.531.960-36",
+                        Name:  "Cersei Lannister",
+                        Role:  "representative",
+                    },
+                },
+                Tags: []string{"employees", "monthly"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, request := range requests {
+        fmt.Println(request.Id)
+    }
+}
+
+```
+
+**Note**: Instead of using BusinessAccountRequest, Address and Owner objects, you can also pass each element in dictionary format
+
+### Query BusinessAccountRequests
+
+You can query multiple business account requests according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAccountRequest "github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+    params["after"] = "2020-01-01"
+    params["before"] = "2020-04-01"
+    params["status"] = "approved"
+    params["tags"] = []string{"employees", "monthly"}
+
+    requests, errorChannel := BusinessAccountRequest.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case request, ok := <-requests:
+            if !ok {
+                break loop
+            }
+            fmt.Println(request)
+        }
+    }
+}
+
+```
+
+### Get a BusinessAccountRequest
+
+After its creation, information on a business account request may be retrieved by its id. Use it to read the
+per-owner verification status.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    BusinessAccountRequest "github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := BusinessAccountRequest.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, owner := range request.Owners {
+        fmt.Println(owner.Name, owner.Status)
+    }
+}
+
+```
+
+Each owner also carries a `ValidatorLink`, the webview where that owner completes biometrics and document
+capture. Treat it as a credential: deliver it to its owner through a secure channel, and never log it or write
+it to disk.
+
+### Query BusinessAccountRequest logs
+
+You can query business account request logs to better understand business account request life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 50
+    params["after"] = "2020-01-01"
+    params["before"] = "2020-01-20"
+
+    logs, errorChannel := Log.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a BusinessAccountRequest log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    Log "github.com/starkinfra/sdk-go/starkinfra/businessaccountrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := Log.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
     }
 
     fmt.Println(log.Id)
