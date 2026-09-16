@@ -6735,6 +6735,36 @@ func main() {
 
 ```
 
+### Resend a signature request to a CreditSigner
+
+You can resend the CCB token to a signer in case they missed the original email or link.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    CreditSigner "github.com/starkinfra/sdk-go/starkinfra/creditsigner"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    signer, err := CreditSigner.ResendToken("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(signer)
+}
+
+```
+
 ### Create CreditPreviews
 
 You can preview a credit operation before creating them (Currently we only have CreditNote / CCB previews):
