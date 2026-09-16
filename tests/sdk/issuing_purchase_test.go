@@ -98,6 +98,52 @@ func TestIssuingPurchaseGet(t *testing.T) {
 	assert.Equal(t, limit, len(purchaseList))
 }
 
+func TestIssuingPurchaseUpdate(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	limit := 1
+	var params = map[string]interface{}{}
+	params["limit"] = limit
+
+	var purchaseList []IssuingPurchase.IssuingPurchase
+
+	purchases, errorChannel := IssuingPurchase.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case purchase, ok := <-purchases:
+			if !ok {
+				break loop
+			}
+			purchaseList = append(purchaseList, purchase)
+		}
+	}
+
+	if len(purchaseList) == 0 {
+		t.Skip("no IssuingPurchase available in this workspace")
+	}
+
+	var patchData = map[string]interface{}{}
+	patchData["description"] = "Office Supplies"
+	patchData["tags"] = []string{"tony", "stark"}
+
+	purchase, err := IssuingPurchase.Update(purchaseList[0].Id, patchData, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	assert.Equal(t, "Office Supplies", purchase.Description)
+}
+
 func TestIssuingPurchaseParseRight(t *testing.T) {
 
 	starkinfra.User = utils.ExampleProject

@@ -231,3 +231,37 @@ func Cancel(id string, user user.User) (CreditNote, Error.StarkErrors) {
 	}
 	return creditNote, err
 }
+
+func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
+	//	Retrieve a specific CreditNote pdf file
+	//
+	//	Receive the CCB disbursement pdf file of a CreditNote previously created in the Stark Infra API by its id.
+	//	Not available for canceled CreditNotes.
+	//
+	//	Parameters (required):
+	//	- id [string]: CreditNote unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
+	//
+	//	Return:
+	//	- CreditNote pdf file
+	return utils.GetContent(resource, id, nil, user, "pdf")
+}
+
+func Payment(id string, user user.User) ([]byte, Error.StarkErrors) {
+	//	Retrieve a specific CreditNote payment pdf file
+	//
+	//	Receive the CCB disbursement payment pdf file of a CreditNote previously created in the Stark Infra API by its id.
+	//	Only CreditNotes with status "success" have a payment pdf.
+	//
+	//	Parameters (required):
+	//	- id [string]: CreditNote unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
+	//
+	//	Return:
+	//	- CreditNote payment pdf file
+	return utils.GetContent(resource, id, nil, user, "payment/pdf")
+}

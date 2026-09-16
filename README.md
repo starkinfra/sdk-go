@@ -2387,6 +2387,40 @@ func main() {
 
 ```
 
+### Update an IssuingPurchase
+
+You can update a specific purchase by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingPurchase "github.com/starkinfra/sdk-go/starkinfra/issuingpurchase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["tags"] = []string{"tony", "stark"}
+    patchData["description"] = "Office Supplies"
+
+    purchase, err := IssuingPurchase.Update("5792731695677440", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(purchase.Id)
+}
+
+```
+
 ### Query IssuingPurchase logs
 
 Logs are pretty important to understand the life cycle of a purchase.
@@ -6659,6 +6693,76 @@ func main() {
     }
 
     fmt.Println(note.Id)
+}
+
+```
+
+### Retrieve CCB disbursement pdf file
+
+To retrieve the CCB disbursement pdf file, use the `CreditNote.Pdf` function with a CreditNote id. The pdf is not available for canceled CreditNotes.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    CreditNote "github.com/starkinfra/sdk-go/starkinfra/creditnote"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := CreditNote.Pdf("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    errFile := os.WriteFile("credit_note.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Println(errFile)
+    }
+}
+
+```
+
+### Retrieve CCB disbursement payment pdf file
+
+To retrieve the CCB disbursement payment pdf file, use the `CreditNote.Payment` function with the id of a CreditNote in status `success`.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    CreditNote "github.com/starkinfra/sdk-go/starkinfra/creditnote"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    pdf, err := CreditNote.Payment("5792731695677440", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    errFile := os.WriteFile("credit_note_payment.pdf", pdf, 0666)
+    if errFile != nil {
+        fmt.Println(errFile)
+    }
 }
 
 ```
