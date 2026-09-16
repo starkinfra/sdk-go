@@ -46,7 +46,9 @@ var resource = map[string]string{"name": "IssuingStockRule"}
 func Create(rules []IssuingStockRule, user user.User) ([]IssuingStockRule, Error.StarkErrors) {
 	//	Create IssuingStockRules
 	//
-	//	Send a slice of IssuingStockRule structs for creation at the Stark Infra API
+	//	Send a slice of IssuingStockRule structs for creation at the Stark Infra API. Each IssuingStock can have
+	//	only one active rule at a time. At least one email or phone must be informed per rule, and Emails/Phones
+	//	each accept at most 10 entries. MinimumBalance must be a positive integer.
 	//
 	//	Parameters (required):
 	//	- rules [slice of IssuingStockRule structs]: Slice of IssuingStockRule structs to be created in the API
@@ -189,7 +191,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 func Cancel(id string, user user.User) (IssuingStockRule, Error.StarkErrors) {
 	//	Cancel an IssuingStockRule entity
 	//
-	//	Cancel an IssuingStockRule entity previously created in the Stark Infra API
+	//	Cancel an IssuingStockRule entity previously created in the Stark Infra API. This action is irreversible.
 	//
 	//	Parameters (required):
 	//	- id [string]: IssuingStockRule unique id. ex: "5656565656565656"

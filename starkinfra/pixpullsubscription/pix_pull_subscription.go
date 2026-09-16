@@ -88,7 +88,10 @@ var resource = map[string]string{"name": "PixPullSubscription"}
 func Create(subscriptions []PixPullSubscription, user user.User) ([]PixPullSubscription, Error.StarkErrors) {
 	//	Create PixPullSubscriptions
 	//
-	//	Send a slice of PixPullSubscription structs for creation at the Stark Infra API
+	//	Send a slice of 1 to 100 PixPullSubscription structs for creation at the Stark Infra API. Authorization is
+	//	obtained through one of four journeys via Type: "push" (push notification to the payer's bank), "qrcode"
+	//	(QR Code with direct authorization), "qrcodeAndPayment" (QR Code with authorization upon payment), or
+	//	"paymentAndOrQrcode" (billing QR Code with an authorization offer).
 	//
 	//	Parameters (required):
 	//	- subscriptions [slice of PixPullSubscription structs]: Slice of PixPullSubscription structs to be created in the API.
@@ -243,13 +246,16 @@ func Cancel(id string, reason string, user user.User) (PixPullSubscription, Erro
 	//	Cancel a PixPullSubscription
 	//
 	//	As the receiver, you can also cancel a delivered or confirmed subscription by providing a specific reason:
-	//  "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested".
+	//  "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested", "paymentNotFound".
 	//	As the sender, you can cancel a confirmed subscription. The allowed reasons for cancellation are:
-	//  "accountClosed", "senderDeceased", "fraud", "senderUserRequested".
+	//  "accountClosed", "senderDeceased", "fraud", "senderUserRequested", "paymentNotFound".
 	//
 	//	Parameters (required):
 	//	- id [string]: PixPullSubscription id. ex: '5656565656565656'
-	//	- reason [string]: Reason why the Pix Pull Subscription is being canceled. Options: "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested", "accountClosed", "senderDeceased", "fraud", "senderUserRequested"
+	//	- reason [string]: Reason why the Pix Pull Subscription is being canceled; available values depend on
+	//	whether you are the sender or the receiver.
+	//	As receiver: "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested", "paymentNotFound".
+	//	As sender: "accountClosed", "senderDeceased", "fraud", "senderUserRequested", "paymentNotFound".
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

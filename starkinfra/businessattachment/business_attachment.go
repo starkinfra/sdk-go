@@ -11,8 +11,10 @@ import (
 
 //	BusinessAttachment struct
 //
-//	A BusinessAttachment represents a file attached to a BusinessIdentity, used to validate
-//	the identity of the company. You must reference the desired BusinessIdentity by its id.
+//	A BusinessAttachment represents a corporate document (articles of incorporation, amendments, board minutes)
+//	uploaded against a BusinessIdentity. Each BusinessIdentity accepts up to two attachments. Every attachment
+//	goes through OCR and document validation; once both attachments reach "approved" status, the parent
+//	BusinessIdentity can be patched to "processing" to run the AI Model analysis.
 //
 //	When you initialize a BusinessAttachment, the entity will not be automatically
 //	created in the Stark Infra API. The 'create' function sends the objects
@@ -21,7 +23,7 @@ import (
 //	Parameters (required):
 //	- Name [string]: name of the BusinessAttachment. ex: "articles-of-incorporation.pdf"
 //  - Content [string]: Base64 data url of the file. ex: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
-//  - BusinessIdentityId [string]: Unique id of BusinessIdentity. ex: "5656565656565656"
+//  - BusinessIdentityId [string]: Unique id of the target BusinessIdentity, which must be in "created" or "pending" status and have fewer than 2 attachments already. ex: "5656565656565656"
 //
 //	Parameters (optional):
 //  - ContentType [string]: content MIME type. This parameter is required as input only. ex: "image/png" or "application/pdf"
@@ -52,10 +54,12 @@ var resource = map[string]string{"name": "BusinessAttachment"}
 func Create(attachments []BusinessAttachment, user user.User) ([]BusinessAttachment, Error.StarkErrors) {
 	//	Create BusinessAttachments
 	//
-	//	Send a slice of BusinessAttachment objects for creation at the Stark Infra API
+	//	Send a slice of BusinessAttachment objects for creation at the Stark Infra API. The API accepts only 1
+	//	attachment per request and at most 2 approved/created attachments per BusinessIdentity; only PDF, JPG
+	//	and PNG files up to 8 MB are accepted, and name must be unique among the identity's other "created" attachments.
 	//
 	//	Parameters (required):
-	//	- attachments [slice of BusinessAttachment structs]: slice of BusinessAttachment objects to be created in the API
+	//	- attachments [slice of BusinessAttachment structs]: slice of BusinessAttachment objects to be created in the API (send one at a time)
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -171,7 +175,7 @@ func Page(params map[string]interface{}, user user.User) ([]BusinessAttachment, 
 func Cancel(id string, user user.User) (BusinessAttachment, Error.StarkErrors) {
 	//	Cancel a BusinessAttachment entity
 	//
-	//	Cancel a BusinessAttachment by passing id.
+	//	Cancel a BusinessAttachment by passing id. Only BusinessAttachments still in "created" status can be canceled.
 	//
 	//	Parameters (required):
 	//	- id [string]: BusinessAttachment unique id. ex: "6306109539221504"

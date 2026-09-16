@@ -57,7 +57,8 @@ var resource = map[string]string{"name": "DynamicBrcode"}
 func Create(brcodes []DynamicBrcode, user user.User) ([]DynamicBrcode, Error.StarkErrors) {
 	//	Create DynamicBrcodes
 	//
-	//	Send a slice of DynamicBrcode structs for creation at the Stark Infra API
+	//	Send a slice of DynamicBrcode structs for creation at the Stark Infra API. You can create up to 100
+	//	DynamicBrcodes in a single request.
 	//
 	//	Parameters (required):
 	//	- brcodes [slice of DynamicBrcode structs]: Slice of DynamicBrcode structs to be created in the API.
@@ -225,7 +226,7 @@ func ResponseInstant(params map[string]interface{}) string {
 	//  	- cashierBankCode [string, default nil]: Cashier's bank code. Required if the cashAmount is different from 0. ex: "20018183"
 	//
 	//		Parameters (optional):
-	//		- cashAmount [int, default nil]: Amount to be withdrawn from the cashier in cents. ex: 1000 (= R$ 10.00)
+	//		- cashAmount [int, default nil]: Amount to be withdrawn from the cashier in cents. For a Saque (withdrawal) response, amount must equal cashAmount; for a Troco (change) response, amount must be larger than cashAmount. ex: 1000 (= R$ 10.00)
 	//  	- expiration [int, default 86400 (1 day)]: Time in seconds counted from the creation datetime until the DynamicBrcode expires. After expiration, the BR Code cannot be paid anymore. Default value: 86400 (1 day)
 	//  	- senderName [string, default nil]: Sender's full name. ex: "Anthony Edward Stark"
 	//  	- senderTaxId [string, default nil]: Sender's CPF (11 digits formatted or unformatted) or CNPJ (14 digits formatted or unformatted). ex: "01.001.001/0001-01"

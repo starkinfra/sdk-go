@@ -70,19 +70,9 @@ type PixInfraction struct {
 var resource = map[string]string{"name": "PixInfraction"}
 
 func Create(infractions []PixInfraction, user user.User) ([]PixInfraction, Error.StarkErrors) {
-	//	Create PixInfraction structs
-	//
-	//	Create PixInfractions in the Stark Infra API
-	//
-	//	Parameters (required):
-	//	- infractions [slice of PixInfraction structs]: Slice of PixInfraction structs to be created in the API.
-	//
-	//	Parameters (optional):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
-	//
-	//	Return:
-	//	- slice of PixInfraction structs with updated attributes
-	//  Deprecated: Function deprecated since v1.1.0
+	//	Deprecated: PixInfractions can no longer be created through this SDK/API. The docs no longer expose a
+	//	POST /v2/pix-infraction endpoint. This function always returns an error and is kept only for backward
+	//	source compatibility; remove call sites.
 	return nil, Error.UnknownError("Function deprecated since v1.1.0")
 }
 
@@ -192,7 +182,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixInf
 	//  	Parameters (required):
 	//		- result [string]: Result after the analysis of the PixInfraction. Options: "agreed", "disagreed"
 	//		Parameters (conditionally required):
-	//		- fraudType [string, default nil]: Type of Pix Fraud. Options: "identity", "mule", "scam", "unknown", "other"
+	//		- fraudType [string, default nil]: Type of Pix Fraud, required when result is "agreed" and optional when result is "disagreed". Options: "identity", "mule", "scam", "other"
 	//		Parameters (optional):
 	//		- analysis [string, default nil]: Analysis that led to the result.
 	//

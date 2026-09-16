@@ -11,6 +11,10 @@ import (
 
 //	IndividualDocument struct
 //
+//	Deprecated: the individualdocument package implements a resource the API no longer exposes: there is no
+//	create endpoint for IndividualDocument. Use IndividualIdentity's validatorLink flow and read the resulting
+//	evidence through IndividualIdentityProof (list/get only) instead of uploading a Type/Content pair here.
+//
 //	Parameters (required):
 //	- Type [string]: type of the IndividualDocument. Options: "drivers-license-front", "drivers-license-back", "identity-front", "identity-back" or "selfie"
 //  - Content [string]: Base64 data url of the picture. ex: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD...

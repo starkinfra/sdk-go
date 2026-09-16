@@ -8,6 +8,8 @@ package invoice
 //	- Amount [int]: Invoice value in cents. Minimum = 1 (any value will be accepted). ex: 1234 (= R$ 12.34)
 //
 //	Parameters (optional):
+//	- Fine [float64, default 2.0]: percentage charged if this Invoice is paid after the due date. Must be the same across every Invoice in a CreditNote. ex: 2.5
+//	- Interest [float64, default 1.0]: monthly percentage of interest charged if this Invoice is paid after the due date. Must be the same across every Invoice in a CreditNote. ex: 1.5
 //	- Due [string, default now + 2 days]: Invoice due date in UTC ISO format. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC), for immediate invoices and time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC), for scheduled invoices
 //	- Expiration [int, default 5097600 (59 days)]: Time interval in seconds between due date and expiration date. ex 123456789
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"tony", "stark"}
@@ -19,8 +21,6 @@ package invoice
 //	- TaxId [string]: Payer tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //	- Pdf [string]: Public Invoice PDF URL. ex: "https://invoice.starkbank.com/pdf/d454fa4e524441c1b0c1a729457ed9d8"
 //	- Link [string]: Public Invoice webpage URL. ex: "https://my-workspace.sandbox.starkbank.com/invoicelink/d454fa4e524441c1b0c1a729457ed9d8"
-//	- Fine [float64]: Invoice fine for overdue payment in %. ex: 2.5
-//	- Interest [float64]: Invoice monthly interest for overdue payment in %. ex: 5.2
 //	- NominalAmount [int]: Invoice emission value in cents (will change if invoice is updated, but not if it's paid). ex: 400000
 //	- FineAmount [int]: Invoice fine value calculated over nominalAmount. ex: 20000
 //	- InterestAmount [int]: Invoice interest value calculated over nominalAmount. ex: 10000

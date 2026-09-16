@@ -50,7 +50,11 @@ var resource = map[string]string{"name": "LedgerTransaction"}
 func Create(transactions []LedgerTransaction, user user.User) ([]LedgerTransaction, Error.StarkErrors) {
 	//	Create LedgerTransactions
 	//
-	//	Send a slice of LedgerTransaction structs for creation at the Stark Infra API
+	//	Send a slice of up to 500 LedgerTransaction structs for creation at the Stark Infra API. A single request
+	//	may target different Ledgers; each transaction is applied to its Ledger in the order it is sent, and the
+	//	resulting Balance is returned for each one. Optionally set Created on each struct to import an existing
+	//	transaction history — it must not be in the future, and when creating multiple transactions in one
+	//	request their Created datetimes must be in chronological order. If omitted, the current datetime is used.
 	//
 	//	Parameters (required):
 	//	- transactions [slice of LedgerTransaction structs]: Slice of LedgerTransaction structs to be created in the API

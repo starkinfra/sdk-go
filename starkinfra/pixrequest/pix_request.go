@@ -94,7 +94,9 @@ var resource = map[string]string{"name": "PixRequest"}
 func Create(requests []PixRequest, user user.User) ([]PixRequest, Error.StarkErrors) {
 	//	Create PixRequests
 	//
-	//	Send a slice of PixRequest structs for creation at the Stark Infra API
+	//	Send a slice of PixRequest structs for creation at the Stark Infra API. You can create up to 100
+	//	PixRequests in a single request. This creates outbound Pix payments; inbound Pix Requests are created by
+	//	the counterparty and must be answered synchronously through Response() (see its doc for the 1-second SLA).
 	//
 	//	Parameters (required):
 	//	- requests [slice of PixRequest structs]: Slice of PixRequest structs to be created in the API
@@ -238,7 +240,10 @@ func Parse(content string, signature string, user user.User) (PixRequest, Error.
 }
 
 func Response(authorization map[string]interface{}) string {
-	//	Helps you respond PixRequests
+	//	Helps you respond to an inbound PixRequest authorization
+	//
+	//	You must answer the synchronous POST authorization request sent to your registered pixRequestUrl within
+	//	1 second and with HTTP status code 200; otherwise the PixRequest is denied by default.
 	//
 	//	Parameters (required):
 	//	- status [string]: Response to the authorization. ex: "approved" or "denied"

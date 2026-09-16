@@ -70,7 +70,8 @@ var resource = map[string]string{"name": "IssuingEmbossingRequest"}
 func Create(requests []IssuingEmbossingRequest, user user.User) ([]IssuingEmbossingRequest, Error.StarkErrors) {
 	//	Create IssuingEmbossingRequests
 	//
-	//	Send a slice of IssuingEmbossingRequest structs for creation at the Stark Infra API
+	//	Send a slice of IssuingEmbossingRequest structs for creation at the Stark Infra API. You can create up to
+	//	100 IssuingEmbossingRequests in a single request.
 	//
 	//	Parameters (required):
 	//	- requests [slice of IssuingEmbossingRequest structs]: Slice of IssuingEmbossingRequest structs to be created in the API

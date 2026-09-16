@@ -71,7 +71,8 @@ var resource = map[string]string{"name": "PixInternalTransactionReport"}
 func Create(reports []PixInternalTransactionReport, user user.User) ([]PixInternalTransactionReport, Error.StarkErrors) {
 	//	Create PixInternalTransactionReports
 	//
-	//	Send a slice of PixInternalTransactionReport structs for creation at the Stark Infra API
+	//	Send a slice of PixInternalTransactionReport structs for creation at the Stark Infra API. You can create
+	//	up to 100 PixInternalTransactionReports in a single request.
 	//
 	//	Parameters (required):
 	//	- reports [slice of PixInternalTransactionReport structs]: Slice of PixInternalTransactionReport structs to be created in the API

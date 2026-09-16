@@ -19,7 +19,7 @@ import "time"
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the transfer is created. ex: "5656565656565656"
-//	- Amount [int]: Amount in cents to be transferred. ex: 1234 (= R$ 12.34)
+//	- Amount [int]: Amount in cents disbursed to the credit receiver, computed by the API. Do not set this field on input — it is ignored on CreditNote creation. ex: 1234 (= R$ 12.34)
 //	- ExternalId [string]: URL safe string that must be unique among all your transfers. Duplicated external_ids will cause failures. By default, this parameter will block any transfer that repeats amount and receiver information on the same date. ex: "my-internal-id-123456"
 //  - Scheduled [time.Time]: Date when the transfer will be processed. May be pushed to next business day if necessary. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Description [string]: Optional description to override default description to be shown in the bank statement. ex: "Payment for service #1234"

@@ -23,9 +23,9 @@ import (
 //	- Name [string]: Credit receiver's full name. ex: "Edward Stark"
 //	- TaxId [string]: Credit receiver's tax ID (CPF or CNPJ). ex: "20.018.183/0001-80"
 //	- Scheduled [time.Time]: Date of transfer execution. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
-//	- Invoices [slice of Invoice structs]: Slice of Invoice structs to be created and sent to the credit receiver. ex: []string{Invoice(), Invoice()]
+//	- Invoices [slice of Invoice structs]: Slice of up to 100 Invoice structs representing the installments to be paid by the borrower. All invoices in the same CreditNote must share the same Fine and Interest. ex: []invoice.Invoice{{Amount: 1000}, {Amount: 1000}}
 //	- Payment [creditNote.Transfer struct]: Payment entity to be created and sent to the credit receiver. ex: creditnote.Transfer()
-//	- Signers [slice of CreditSigner structs]: Signer's name, contact and delivery method for the signature request. ex: []string{creditnote.Signer(), creditnote.Signer()]
+//	- Signers [slice of CreditSigner structs]: slice of up to 10 CreditSigner structs, one per person or entity that must sign the contract. Method options: "link", "token", "server", "organization". Signers registered in your credit profile and the SCD signature are appended automatically. ex: []creditsigner.CreditSigner{creditnote.Signer(), creditnote.Signer()}
 //	- ExternalId [string]: A string that must be unique among all your CreditNotes, used to avoid resource duplication. ex: "my-internal-id-123456"
 //	- StreetLine1 [string]: Credit receiver main address. ex: "Av. Paulista, 200"
 //	- StreetLine2 [string]: Credit receiver address complement. ex: "Apto. 123"
@@ -96,7 +96,9 @@ var resource = map[string]string{"name": "CreditNote"}
 func Create(notes []CreditNote, user user.User) ([]CreditNote, Error.StarkErrors) {
 	//	Create CreditNotes
 	//
-	//	Send a slice of CreditNote structs for creation at the Stark Infra API
+	//	Send a slice of CreditNote structs for creation at the Stark Infra API. You can create up to 100
+	//	CreditNotes in a single request. Provide either NominalAmount (pre-tax) or Amount (net disbursed value) —
+	//	the other one, along with TaxAmount (IOF) and the interest rates, is computed automatically from the invoice schedule.
 	//
 	//	Parameters (required):
 	//	- notes [slice of CreditNote structs]: Slice of CreditNote structs to be created in the API
@@ -209,7 +211,9 @@ func Page(params map[string]interface{}, user user.User) ([]CreditNote, string, 
 func Cancel(id string, user user.User) (CreditNote, Error.StarkErrors) {
 	//	Cancel a CreditNote entity
 	//
-	//	Cancel a CreditNote entity previously created in the Stark Infra API
+	//	Cancel a CreditNote entity previously created in the Stark Infra API. Only CreditNotes with status
+	//	"created", "signed" or "processing" can be canceled, which also cancels the signing document. A CreditNote
+	//	in "success", "failed", "expired" or already "canceled" status is returned unchanged.
 	//
 	//	Parameters (required):
 	//	- id [string]: CreditNote unique id. ex: "6306109539221504"

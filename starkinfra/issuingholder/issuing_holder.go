@@ -45,7 +45,8 @@ var resource = map[string]string{"name": "IssuingHolder"}
 func Create(holders []IssuingHolder, expand map[string]interface{}, user user.User) ([]IssuingHolder, Error.StarkErrors) {
 	//	Create IssuingHolder
 	//
-	//	Send a slice of IssuingHolder structs for creation at the Stark Infra API
+	//	Send a slice of IssuingHolder structs for creation at the Stark Infra API. You can create up to 100
+	//	IssuingHolders in a single request.
 	//
 	//	Parameters (required):
 	//	- holders [slice of IssuingHolder structs]: Slice of IssuingHolder structs to be created in the API
@@ -162,13 +163,13 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingHolder, strin
 func Update(id string, patchData map[string]interface{}, user user.User) (IssuingHolder, Error.StarkErrors) {
 	//	Update IssuingHolder entity
 	//
-	//	Update an IssuingHolder by passing id, if it hasn't been paid yet.
+	//	Update an IssuingHolder by passing id.
 	//
 	//	Parameters (required):
 	//	- id [string]: IssuingHolder id. ex: '5656565656565656'
-	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
+	//  - patchData [map[string]interface{}]: map containing the attributes to be updated.
 	//		Parameters (optional):
-	//		- status [string]: You may block the IssuingHolder by passing 'blocked' in the status
+	//		- status [string]: You may block the IssuingHolder by passing "blocked", or reactivate it by passing "active", in the status.
 	//		- name [string]: Card holder name.
 	//		- tags [slice of strings]: Slice of strings for tagging
 	//		- rules [slice of maps, default nil]: Slice of maps with "amount": int, "currencyCode": string, "id": string, "interval": string, "name": string pairs
@@ -190,7 +191,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 func Cancel(id string, user user.User) (IssuingHolder, Error.StarkErrors) {
 	//	Cancel an IssuingHolder entity
 	//
-	//	Cancel an IssuingHolder entity previously created in the Stark Infra API
+	//	Cancel an IssuingHolder entity previously created in the Stark Infra API. This action is irreversible.
 	//
 	//	Parameters (required):
 	//	- id [string]: IssuingHolder unique id. ex: "5656565656565656"

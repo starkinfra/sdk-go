@@ -146,7 +146,8 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//	Delete a Webhook Event entity
 	//
-	//	Delete a notification Event entity previously created in the Stark Infra API by its id
+	//	Delete a notification Event entity previously created in the Stark Infra API by its id. This action
+	//	cannot be undone.
 	//
 	//	Parameters (required):
 	//	- id [string]: Event unique id. ex: "5656565656565656"
@@ -403,6 +404,18 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 }
 
 func ParseEvents(events []Event) ([]Event, Error.StarkErrors) {
+	//	Parse a slice of Events' logs
+	//
+	//	For each Event in the slice, resolve its generic Log field into the concrete Log struct that matches
+	//	the Event's Subscription (e.g. PixRequestLog for "pix-request.in"/"pix-request.out", CreditNoteLog for
+	//	"credit-note"). Subscriptions with no matching case are returned with Log left as the raw decoded map.
+	//	Called automatically by Page; use directly only when you fetched Events some other way.
+	//
+	//	Parameters (required):
+	//	- events [slice of Event structs]: Events whose Log field should be resolved into its concrete type.
+	//
+	//	Return:
+	//	- slice of Event structs with Log populated as the concrete per-subscription type
 	var err Error.StarkErrors
 	for i := 0; i < len(events); i++ {
 		events[i], err = events[i].ParseLog()

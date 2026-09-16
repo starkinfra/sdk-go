@@ -14,7 +14,6 @@ import (
 //
 //	Parameters (required):
 //	- Type [string]: Table type that defines the amortization system. Options: "sac", "price", "american", "bullet", "custom"
-//  - NominalAmount [int]: Amount in cents transferred to the credit receiver, before deductions. ex: 11234 (= R$ 112.34)
 //  - Scheduled [time.Time]: Date of transfer execution. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //  - TaxId [string]: Credit receiver's tax ID (CPF or CNPJ). ex: "20.018.183/0001-80"
 //
@@ -24,13 +23,14 @@ import (
 //  - InitialDue [time.Time]: Date of the first invoice. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //  - Count [int]: Quantity of invoices for payment. ex: 12
 //  - InitialAmount [int]: Value of the first invoice in cents. ex: 1234 (= R$12.34)
-//  - Interval [string]: Interval between invoices. ex: "year", "month"
+//  - Interval [string, default "month"]: Interval between invoices. Options: "day", "week", "month", "quarter", "semester", "year"
 //
 //	Parameters (optional):
+//	- NominalAmount [int]: amount in cents transferred to the credit receiver, before deductions. Provide exactly one of NominalAmount or Amount, for every type including "custom". ex: 11234 (= R$ 112.34)
+//	- Amount [int]: net amount in cents disbursed to the credit receiver. Provide exactly one of NominalAmount or Amount. ex: 11234 (= R$ 112.34)
 //	- RebateAmount [int, default nil]: Credit analysis fee deducted from lent amount. ex: 11234 (= R$ 112.34)
 //
 //	Attributes (return-only):
-//	- Amount [int]: Credit note value in cents. ex: 1234 (= R$ 12.34)
 //  - Interest [float64]: Yearly effective interest rate of the credit note, in percentage. ex: 12.5
 //  - TaxAmount [int]: Tax amount included in the credit note. ex: 100
 

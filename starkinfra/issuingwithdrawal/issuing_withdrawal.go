@@ -14,8 +14,8 @@ import (
 //	Banking balance.
 //
 //	Parameters (required):
-//	- Amount [int]: IssuingWithdrawal value in cents. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34)
-//	- ExternalId [string] IssuingWithdrawal external ID. ex: "12345"
+//	- Amount [int]: Amount in cents to be withdrawn from the issuing balance. ex: 10000 (= R$ 100.00)
+//	- ExternalId [string]: IssuingWithdrawal external ID, unique per workspace to prevent duplicate withdrawals. ex: "withdrawal-2024-001"
 //	- Description [string]: IssuingWithdrawal description. ex: "sending money back"
 //
 //	Parameters (optional):

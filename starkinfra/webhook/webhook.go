@@ -10,11 +10,14 @@ import (
 //	Webhook struct
 //
 //	A Webhook is used to subscribe to notification events on a user-selected endpoint.
-//	Currently, available services for subscription are contract, credit-note, signer, issuing-card, issuing-invoice, issuing-purchase, pix-request.in, pix-request.out, pix-reversal.in, pix-reversal.out, pix-claim, pix-key, pix-chargeback, pix-infraction,
+//	Currently, available services for subscription are: pix-request, pix-reversal, pix-pull-subscription,
+//	pix-pull-request, pix-internal-transaction-report, pix-key, pix-key-holmes, pix-claim, pix-infraction,
+//	pix-chargeback, pix-dispute, issuing-card, issuing-holder, issuing-purchase, issuing-invoice, credit-note,
+//	credit-holmes.
 //
 //	Parameters (required):
 //	- Url [string]: Url that will be notified when an event occurs.
-//	- Subscriptions [slice of strings]: Slice of any non-empty combination of the available services. ex: []string{"contract", "credit-note", "signer", "issuing-card", "issuing-invoice", "issuing-purchase", "pix-request.in", "pix-request.out", "pix-reversal.in", "pix-reversal.out", "pix-claim", "pix-key", "pix-chargeback", "pix-infraction"}
+//	- Subscriptions [slice of strings]: Slice of any non-empty combination of the available services. ex: []string{"pix-request", "issuing-card", "credit-note"}
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the webhook is created. ex: "5656565656565656"
@@ -32,7 +35,8 @@ var resource = map[string]string{"name": "Webhook"}
 func Create(webhook Webhook, user user.User) (Webhook, Error.StarkErrors) {
 	//	Create Webhook
 	//
-	//	Send a single Webhook for creation at the Stark Infra API
+	//	Send a single Webhook for creation at the Stark Infra API. If your endpoint URL does not return HTTP 200,
+	//	the event is retried up to 3 times, at 5, 30 and finally 120-minute intervals.
 	//
 	//	Parameters (required):
 	//  - webhook [Webhooks struct]: Webhook struct to be created in the API.
@@ -131,7 +135,7 @@ func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Err
 func Delete(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//	Delete a Webhook entity
 	//
-	//	Delete a Webhook entity previously created in the Stark Infra API
+	//	Delete a Webhook entity previously created in the Stark Infra API. This action cannot be undone.
 	//
 	//	Parameters (required):
 	//	- id [string]: Webhook unique id. ex: "5656565656565656"

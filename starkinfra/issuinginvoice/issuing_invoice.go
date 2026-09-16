@@ -26,7 +26,7 @@ import (
 //  - Due [time.Time]: Invoice due and expiration date in UTC ISO format. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
 //  - Link [string]: public Invoice webpage URL. ex: "https://starkbank-card-issuer.development.starkbank.com/invoicelink/d7f6546e194d4c64a153e8f79f1c41ac"
 //	- Status [string]: current IssuingInvoice status. ex: "created", "expired", "overdue", "paid"
-//	- IssuingTransactionId [string]: ledger transaction ids linked to this IssuingInvoice. ex: "issuing-invoice/5656565656565656"
+//	- IssuingTransactionId [string]: id of the IssuingTransaction created when the invoice is paid. Empty until payment. ex: "issuing-invoice/5656565656565656"
 //	- Updated [time.Time]: latest update datetime for the IssuingInvoice. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: creation datetime for the IssuingInvoice. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 

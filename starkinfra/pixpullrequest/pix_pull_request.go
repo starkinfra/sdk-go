@@ -80,7 +80,10 @@ var resource = map[string]string{"name": "PixPullRequest"}
 func Create(requests []PixPullRequest, user user.User) ([]PixPullRequest, Error.StarkErrors) {
 	//	Create PixPullRequests
 	//
-	//	Send a slice of PixPullRequest structs for creation in the Stark Infra API
+	//	Send a slice of 1 to 100 PixPullRequest structs for creation in the Stark Infra API. The API verifies that
+	//	the subscription is approved, the amount is within the authorized limit, the settlement date matches the
+	//	subscription's charge cycle, payer/receiver details match the contract, the request is made between 10 and
+	//	2 days before settlement, and there is no other scheduled request for the same cycle.
 	//
 	//	Parameters (required):
 	//	- requests [slice of PixPullRequest structs]: Slice of PixPullRequest structs to be created in the API.
@@ -201,9 +204,9 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 	//  Parameters (required):
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"status": "approved", "senderCityCode": "3550308"}
 	//		Parameters (required):
-	//		- status [string]: New status of the Pix Pull Request.
+	//		- status [string]: New status of the Pix Pull Request. Options: "scheduled", "denied"
 	//		Parameters (conditionally required):
-	//		- reason [string]: Reason why the Pix Pull Request is being denied. Options: "senderAccountClosed", "senderAccountBLocked", "amountNotAllowed"
+	//		- reason [string]: Reason why the Pix Pull Request is being denied. Required when status is "denied". Options: "senderAccountClosed", "senderAccountBlocked", "amountNotAllowed"
 	//  - user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
 	//	Return:
@@ -220,14 +223,14 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 func Cancel(id string, reason string, user user.User) (PixPullRequest, Error.StarkErrors) {
 	//	Cancel a PixPullRequest
 	//
-	//	As the receiver, you can also cancel a delivered or confirmed request by providing a specific reason:
-	//  "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested".
-	//	As the sender, you can cancel a confirmed request. The allowed reasons for cancellation are:
-	//  "accountClosed", "senderDeceased", "fraud", "senderUserRequested".
+	//	Cancel a PixPullRequest entity previously created in the Stark Infra API by passing its id and a
+	//	cancellation reason; the available values depend on whether you are the sender or the receiver.
+	//	As sender: "accountClosed", "accountBlocked", "pixRequestFailed", "other", "senderUserRequested".
+	//	As receiver: "accountClosed", "accountBlocked", "other", "receiverUserRequested".
 	//
 	//	Parameters (required):
 	//	- id [string]: PixPullRequest id. ex: '5656565656565656'
-	//	- reason [string]: Reason why the Pix Pull Request is being canceled. Options: "accountClosed", "receiverOrganizationClosed", "receiverInternalError", "fraud", "receiverUserRequested", "accountClosed", "senderDeceased", "fraud", "senderUserRequested"
+	//	- reason [string, required]: cancellation reason. As sender: "accountClosed", "accountBlocked", "pixRequestFailed", "other", "senderUserRequested". As receiver: "accountClosed", "accountBlocked", "other", "receiverUserRequested".
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

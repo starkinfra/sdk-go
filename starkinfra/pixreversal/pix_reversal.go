@@ -20,7 +20,7 @@ import (
 //	- Amount [int]: Amount in cents to be reversed from the PixRequest. ex: 1234 (= R$ 12.34)
 //	- ExternalId [string]: String that must be unique among all your PixReversals. Duplicated external IDs will cause failures. By default, this parameter will block any PixReversal that repeats amount and receiver information on the same date. ex: "my-internal-id-123456"
 //	- EndToEndId [string]: Central bank's unique transaction ID. ex: "E79457883202101262140HHX553UPqeq"
-//	- Reason [string]: Reason why the PixRequest is being reversed. Options are "bankError", "fraud", "chashierError", "customerRequest"
+//	- Reason [string]: Reason why the PixReversal is being reversed. Options are "bankError", "fraud", "cashierError", "customerRequest"
 //
 //	Parameters (optional):
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for PixReversals. ex: []string{"employees", "monthly"}
@@ -54,7 +54,8 @@ var resource = map[string]string{"name": "PixReversal"}
 func Create(reversals []PixReversal, user user.User) ([]PixReversal, Error.StarkErrors) {
 	//	Create PixReversals
 	//
-	//	Send a slice of PixReversal structs for creation at the Stark Infra API
+	//	Send a slice of PixReversal structs for creation at the Stark Infra API. You can create up to 100
+	//	PixReversals in a single request. Only inbound PixRequests with status "success" can be reversed.
 	//
 	//	Parameters (required):
 	//	- reversals [slice of PixReversal structs]: Slice of PixReversal structs to be created in the API
@@ -199,7 +200,12 @@ func Parse(content string, signature string, user user.User) (PixReversal, Error
 }
 
 func Response(authorization map[string]interface{}) string {
-	//	Helps you respond PixReversal authorization
+	//	Helps you respond to an inbound PixReversal authorization
+	//
+	//	When a participant reverses a Pix you successfully sent, a synchronous authorization request is sent to
+	//	your registered pixReversalUrl (which must be different from your pixRequestUrl). Answer within 1 second
+	//	and with HTTP status code 200, or the reversal is denied by default. If no pixReversalUrl is registered,
+	//	inbound PixReversals are accepted by default.
 	//
 	//	Parameters (required):
 	//	- status [string]: Response to the authorization. ex: "approved" or "denied"

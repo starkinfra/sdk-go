@@ -77,7 +77,9 @@ var resource = map[string]string{"name": "PixChargeback"}
 func Create(chargebacks []PixChargeback, user user.User) ([]PixChargeback, Error.StarkErrors) {
 	//	Create PixChargeback structs
 	//
-	//	Create PixChargebacks in the Stark Infra API
+	//	Create PixChargebacks in the Stark Infra API. A PixChargeback requests the reversal of a Pix transaction
+	//	and should only be created after a corresponding PixInfraction is completed (or a system malfunction). The
+	//	other participant must answer within 24 hours.
 	//
 	//	Parameters (required):
 	//	- chargebacks [slice of PixChargeback structs]: Slice of PixChargeback structs to be created in the API.
@@ -201,7 +203,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixCha
 	//      Parameters (required):
 	//		- result [string]: Result after the analysis of the PixChargeback. Options: "rejected", "accepted", "partiallyAccepted".
 	//		Parameters (conditionally required):
-	//		- rejectionReason [string, default nil]: If the PixChargeback is rejected a reason is required. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse".
+	//		- rejectionReason [string, default nil]: If the PixChargeback's result is "rejected", a reason is required. Options: "other", "noBalance", "accountClosed", "invalidRequest" ("unableToReverse" is not a valid value).
 	//		- reversalReferenceId [string, default nil]: ReturnId of the reversal transaction. ex: "D20018183202201201450u34sDGd19lz".
 	//		- analysis [string, default nil]: Description of the analysis that led to the result. Required if rejection_reason is "invalidRequest".
 	//
