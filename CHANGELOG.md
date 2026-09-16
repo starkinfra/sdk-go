@@ -25,6 +25,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IndividualAccountRequestLog resource
 - IndividualAccountAttachment resource
 - IndividualAccountAttachmentLog resource
+- IssuingTokenActivation resource
 
 ## [1.2.0] - 2026-07-03
 ### Fixed

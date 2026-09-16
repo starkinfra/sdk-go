@@ -29,6 +29,7 @@ This SDK version is compatible with the Stark Infra API v2.
         - [TokenDesign](#query-issuingtokendesigns): View your current card tokenization designs
         - [TokenRequest](#create-an-issuingtokenrequest): Generate the payload to proceed with card tokenization
         - [Token](#query-issuingtokens): Manage the digital tokens created for your cards
+        - [TokenActivation](#process-token-activations): Get notified on how to inform the activation code to the holder
         - [EmbossingKit](#query-issuingembossingkits): View your current embossing kits
         - [Stock](#query-issuingstocks): View your current stock of a certain IssuingDesign linked to an Embosser on the workspace
         - [Restock](#create-issuingrestocks): Create restock orders of a specific IssuingStock object
@@ -1241,6 +1242,44 @@ func main() {
 }
 
 ```
+
+### Process Token activations
+
+It's easy to process token activation notifications delivered to your endpoint.
+Remember to pass the signature header so the SDK can make sure it's Stark Infra that sent you the event.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingTokenActivation "github.com/starkinfra/sdk-go/starkinfra/issuingtokenactivation"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    content := "{\"activationMethod\": {\"type\": \"text\", \"value\": \"** *****-5678\"}, \"tokenId\": \"5585821789122165\", \"tags\": [\"token\", \"user/1234\"], \"cardId\": \"5189831499972623\"}"
+    signature := "MEUCIAxn0FmsPWI4r3Y7Nq8xFNQHYZgo0QAGDQ4/7CajKoVuAiEA09kXWrPMhsw4JbgC3pmNccCWr+hidfop/KsSNqza0yE="
+
+    activation, err := IssuingTokenActivation.Parse(content, signature, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Printf("%+v", activation)
+}
+
+```
+
+After that, you may generate the activation code and send it to the cardholder.
+The cardholder enters the received code in the wallet app. We'll receive and send it to
+tokenAuthorizationUrl for your validation. Completing the provisioning process.
 
 ### Get an IssuingToken
 
