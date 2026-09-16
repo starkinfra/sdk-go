@@ -8,16 +8,15 @@ import (
 	"time"
 )
 
-//	PixInfraction struct
+//	PixFraud struct
 //
-//	PixFrauds are used to report a PixKey or taxId when a fraud
-//	has been confirmed.
+//	PixFrauds are used to report a PixKey or taxId when a fraud has been confirmed.
 //	When you initialize a PixFraud, the entity will not be automatically
 //	created in the Stark Infra API. The 'create' function sends the structs
 //	to the Stark Infra API and returns the created struct.
 //
 //	Parameters (required):
-//	- ExternalId [string]: EndToEndId or ReturnId of the transaction being reported. ex: "my_external_id"
+//	- ExternalId [string]: Unique string to prevent duplicates among your PixFrauds. ex: "my-internal-id-123456"
 //	- Type [string]: Type of PixFraud. Options: "identity", "mule", "scam", "other"
 //	- TaxId [string]: User tax Id (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //
@@ -50,7 +49,7 @@ var resource = map[string]string{"name": "PixFraud"}
 func Create(frauds []PixFraud, user user.User) ([]PixFraud, Error.StarkErrors) {
 	//	Create PixFraud structs
 	//
-	//	Create PixFrauds in the Stark Infra API
+	//	Create PixFrauds in the Stark Infra API. You can create up to 100 PixFrauds in a single request.
 	//
 	//	Parameters (required):
 	//	- frauds [slice of PixFraud structs]: Slice of PixFraud structs to be created in the API.

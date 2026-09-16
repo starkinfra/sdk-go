@@ -45,7 +45,8 @@ var resource = map[string]string{"name": "PixKeyHolmes"}
 func Create(holmes []PixKeyHolmes, user user.User) ([]PixKeyHolmes, Error.StarkErrors) {
 	//	Create PixKeyHolmes
 	//
-	//	Send a slice of PixKeyHolmes structs for creation at the Stark Infra API
+	//	Send a slice of PixKeyHolmes structs for creation at the Stark Infra API. You can create up to 100
+	//	PixKeyHolmes in a single request.
 	//
 	//	Parameters (required):
 	//	- holmes [slice of PixKeyHolmes structs]: Slice of PixKeyHolmes structs to be created in the API

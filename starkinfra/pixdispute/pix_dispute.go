@@ -18,7 +18,7 @@ import (
 //
 //	Parameters (required):
 //	- ReferenceId [string]: EndToEndId of the transaction being reported. ex: "E20018183202201201450u34sDGd19lz"
-//	- Method [string]: Method of the dispute. Options: "scam", "unauthorized", "coercion", "invasion", "other"
+//	- Method [string]: Method of the dispute. Options: "scam", "unauthorized", "coercion", "invasion", "other", "unknown"
 //	- OperatorEmail [string]: Contact email of the operator responsible for the PixDispute.
 //	- OperatorPhone [string]: Contact phone number of the operator responsible for the PixDispute.
 //

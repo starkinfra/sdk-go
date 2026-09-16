@@ -41,7 +41,8 @@ var resource = map[string]string{"name": "Ledger"}
 func Create(ledgers []Ledger, user user.User) ([]Ledger, Error.StarkErrors) {
 	//	Create Ledgers
 	//
-	//	Send a slice of Ledger structs for creation at the Stark Infra API
+	//	Send a slice of Ledger structs for creation at the Stark Infra API. You can create up to 100 Ledgers in a
+	//	single request.
 	//
 	//	Parameters (required):
 	//	- ledgers [slice of Ledger structs]: Slice of Ledger structs to be created in the API

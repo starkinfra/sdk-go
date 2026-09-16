@@ -19,8 +19,8 @@ import (
 //	to the Stark Infra API and returns the created struct.
 //
 //	Parameters (required):
-//	- After [time.Time]: Transactions that happened at this date are stored in the PixStatement, must be the same as before. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
-//	- Before [time.Time]: Transactions that happened at this date are stored in the PixStatement, must be the same as after. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
+//	- After [time.Time]: statement window start. For "interchange"/"interchangeTotal" must equal Before and fall on the first day of a past month; for "transaction" may be up to 24 hours before Before. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
+//	- Before [time.Time]: statement window end, subject to the same constraint relative to After. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Type [string]: Type of entities to include in statement. Options: ["interchange", "interchangeTotal", "transaction"}
 //
 //	Attributes (return-only):

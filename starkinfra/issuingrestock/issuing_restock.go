@@ -41,7 +41,8 @@ var resource = map[string]string{"name": "IssuingRestock"}
 func Create(restocks []IssuingRestock, user user.User) ([]IssuingRestock, Error.StarkErrors) {
 	//	Create IssuingRestocks
 	//
-	//	Send a slice of IssuingRestock structs for creation at the Stark Infra API
+	//	Send a slice of IssuingRestock structs for creation at the Stark Infra API. You can create up to 100
+	//	IssuingRestocks in a single request.
 	//
 	//	Parameters (required):
 	//	- restocks [slice of IssuingRestock structs]: Slice of IssuingRestock structs to be created in the API

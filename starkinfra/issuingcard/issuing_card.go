@@ -76,7 +76,8 @@ var resource = map[string]string{"name": "IssuingCard"}
 func Create(cards []IssuingCard, expand map[string]interface{}, user user.User) ([]IssuingCard, Error.StarkErrors) {
 	//	Create IssuingCards
 	//
-	//	Send a slice of IssuingCard structs for creation at the Stark Infra API
+	//	Send a slice of IssuingCard structs for creation at the Stark Infra API. You can create up to 100
+	//	IssuingCards in a single request.
 	//
 	//	Parameters (required):
 	//	- cards [slice of IssuingCard structs]: Slice of IssuingCard structs to be created in the API
@@ -200,7 +201,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//		Parameters (optional):
 	//		- status [string, default nil]: You may block the IssuingCard by passing 'blocked' or activate by passing 'active' in the status
-	//		- pin [string, default nil]: You may unlock your physical card by passing its PIN. This is also the PIN you use to authorize a purchase.
+	//		- pin [string, default nil]: Card PIN, used to unlock a physical card and authorize purchases. A pending physical card must also receive this PIN to be activated: passing it alone activates the card, and setting status to "active" on a pending physical card without a PIN is rejected.
 	//		- displayName [string, default nil]: Card displayed name
 	//		- rules [slice of maps, default nil]: Slice of maps with "amount": int, "currencyCode": string, "id": string, "interval": string, "name": string pairs.
 	//		- tags [slice of strings]: Slice of strings for tagging
@@ -221,7 +222,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 func Cancel(id string, user user.User) (IssuingCard, Error.StarkErrors) {
 	//	Cancel an IssuingCard entity
 	//
-	//	Cancel an IssuingCard entity previously created in the Stark Infra API
+	//	Cancel an IssuingCard entity previously created in the Stark Infra API. This action is irreversible.
 	//
 	//	Parameters (required):
 	//	- id [string]: IssuingCard unique id. ex: "5656565656565656"

@@ -17,8 +17,8 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 //	- Request [PixPullSubscription struct]: PixPullSubscription entity to which the log refers to.
-//	- Type [string]: Type of the PixRequest event which triggered the log creation. ex: "sent", "denied", "failed", "created", "success", "approved", "credited", "refunded", "processing"
-//	- Errors [slice of strings]: Slice of errors linked to this PixRequest event
+//	- Type [string]: Type of the PixPullSubscription event which triggered the log creation. ex: "created", "delivering", "delivered", "approved", "confirmed", "failed", "denied", "canceling", "canceled", "expired"
+//	- Errors [slice of strings]: Slice of errors linked to this PixPullSubscription event
 //	- Created [time.Time]: Creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Log struct {

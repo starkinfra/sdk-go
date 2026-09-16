@@ -48,7 +48,8 @@ var resource = map[string]string{"name": "CreditHolmes"}
 func Create(holmes []CreditHolmes, user user.User) ([]CreditHolmes, Error.StarkErrors) {
 	//	Create CreditHolmes
 	//
-	//	Send a slice of CreditHolmes structs for creation at the Stark Infra API
+	//	Send a slice of CreditHolmes structs for creation at the Stark Infra API. You can create up to 100
+	//	CreditHolmes in a single call.
 	//
 	//	Parameters (required):
 	//	- holmes [slice of CreditHolmes structs]: Slice of CreditHolmes structs to be created in the API

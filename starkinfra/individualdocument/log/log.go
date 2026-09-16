@@ -19,7 +19,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 //	- Document [IndividualDocument struct]: IndividualDocument entity to which the log refers to.
-//	- Errors [slice of strings]: Slice of errors linked to this CreditNote event
+//	- Errors [slice of strings]: Slice of errors linked to this IndividualDocument event
 //	- Type [string]: Type of the IndividualDocument event which triggered the log creation. ex: "blocked", "canceled", "created", "expired", "unblocked", "updated"
 //	- Created [time.Time]: Creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 

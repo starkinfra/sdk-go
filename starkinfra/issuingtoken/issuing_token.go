@@ -183,7 +183,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 func Cancel(id string, user user.User) (IssuingToken, Error.StarkErrors) {
 	//	Cancel an IssuingToken entity
 	//
-	//	Cancel an IssuingToken entity previously created in the Stark Infra API
+	//	Cancel an IssuingToken entity previously created in the Stark Infra API. This action is irreversible.
 	//
 	//	Parameters (required):
 	//	- id [string]: IssuingToken unique id. ex: "5656565656565656"

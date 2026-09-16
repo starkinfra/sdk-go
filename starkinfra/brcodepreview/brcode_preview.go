@@ -18,12 +18,13 @@ import (
 //
 // 	Parameters (optional):
 //	- EndToEndId [string, default ""]: central bank's unique transaction ID. ex: "E79457883202101262140HHX553UPqeq"
+//	- Scheduled [time.Time, default nil]: date the payment is scheduled to be processed. Affects the preview values returned for due dynamic QR Codes. ex: time.Date(2022, 1, 31, 0, 0, 0, 0, time.UTC)
 //
 //	Attributes (return-only):
 //	- AccountNumber [string]: Payment receiver account number. ex: "1234567"
 //	- AccountType [string]: Payment receiver account type. ex: "checking"
 //	- Amount [int]: Value in cents that this payment is expecting to receive. If 0, any value is accepted. ex: 123 (= R$1,23)
-//	- AmountType [string]: amount type of the BR Code. If the amount type is "custom" the BR Code's amount can be changed by the sender at the moment of payment. Options: "fixed" or "custom"
+//	- AmountType [string]: amount type of the BR Code. Options: "fixed" (amount is locked) or "minimum" (the BR Code's amount can be increased by the sender at the moment of payment).
 //	- BankCode [string]: Payment receiver bank code. ex: "20018183"
 //	- BranchCode [string]: Payment receiver branch code. ex: "0001"
 //	- CashAmount [int]: Amount to be withdrawn from the cashier in cents. ex: 1000 (= R$ 10.00)
@@ -38,12 +39,12 @@ import (
 //	- NominalAmount [int]: BR Code emission amount, without fines, fees and discounts. ex: 1234 (= R$ 12.34)
 //	- ReconciliationId [string]: Reconciliation ID linked to this payment. If the brcode is dynamic, the reconciliationId will have from 26 to 35 alphanumeric characters, ex: "cd65c78aeb6543eaaa0170f68bd741ee". If the brcode is static, the ReconciliationId will have up to 25 alphanumeric characters "ah27s53agj6493hjds6836v49"
 //	- ReductionAmount [int]: Reduction value to discount from nominalAmount. ex: 1000
-//	- Scheduled [time.Time]: Date of payment execution. ex: time.Date(2023, 03, 10, 0, 0, 0, 0, time.UTC)
 //	- Status [string]: Payment status. ex: "active", "paid", "canceled" or "unknown"
 //	- TaxId [string]: Payment receiver tax ID. ex: "012.345.678-90"
 //	- Expired [time.Time]: Date/time after which the dynamic QR Code is considered expired. ex: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)
 //	- Data [slice of maps]: Slice of additional data in key/value pairs. ex: []map[string]interface{}{{"key": "additional-info", "value": "order #12345"}}
-//	- Jws [string]: JWS of the dynamic QR Code, returned only when "jws" is passed in the expand query parameter. ex: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."
+//	- Jws [string]: JWS of the dynamic QR Code. Only returned when "jws" is requested via the expand parameter on creation. ex: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."
+// Note: this SDK version does not expose the cityCode or expand input fields documented in the API reference; requests are sent without them.
 
 type BrcodePreview struct {
 	Id               string                   `json:",omitempty"`
@@ -78,12 +79,12 @@ type BrcodePreview struct {
 var resource = map[string]string{"name": "BrcodePreview"}
 
 func Create(previews []BrcodePreview, user user.User) ([]BrcodePreview, Error.StarkErrors) {
-	//	Retrieve BrcodePreviews
+	//	Create BrcodePreviews
 	//
-	//	Process BR Codes before paying them.
+	//	Process BR Codes before paying them. You can preview up to 100 BrcodePreviews in a single request.
 	//
 	//	Parameters (required):
-	//	- previews [slice of BrcodePreview structs]: Slice of BrcodePreview structs to preview. ex: []string{]brcodepreview.BrcodePreview("00020126580014br.gov.bcb.pix0136a629532e-7693-4846-852d-1bbff817b5a8520400005303986540510.005802BR5908T'Challa6009Sao Paulo62090505123456304B14A")
+	//	- previews [slice of BrcodePreview structs]: Slice of BrcodePreview structs to preview (max 100 per request). ex: []string{]brcodepreview.BrcodePreview("00020126580014br.gov.bcb.pix0136a629532e-7693-4846-852d-1bbff817b5a8520400005303986540510.005802BR5908T'Challa6009Sao Paulo62090505123456304B14A")
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

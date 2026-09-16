@@ -12,9 +12,10 @@ import (
 //
 //	A BusinessIdentity represents a company to be validated. It can have several business attachments
 //	attached to it, which are used to validate the identity of the company. Once a business identity is created,
-//	business attachments must be attached to it using the created method of the business attachment resource. When all
+//	business attachments must be attached to it using the create method of the business attachment resource. When all
 //	the required business attachments are attached to a business identity it can be sent to validation by patching its
-//	status to processing.
+//	status to "processing". The structured signing rules extracted by the AI Model are delivered through the
+//	business-identity webhook once the identity reaches "success" status; Rules is empty until then.
 //
 //	When you initialize a BusinessIdentity, the entity will not be automatically
 //	created in the Stark Infra API. The 'create' function sends the objects
@@ -29,7 +30,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the identity is created. ex: "5656565656565656"
 //	- Name [string]: company's name. ex: "Stark Bank S.A."
-//	- TaxIdStatus [string]: tax ID status of the BusinessIdentity. ex: "active"
+//	- TaxIdStatus [string]: bureau status of the CNPJ, normalized from the Receita Federal value. Options: "active" (ATIVA), "blocked" (SUSPENSA), "pending" (INAPTA), "canceled" (BAIXADA), "voided" (NULA).
 //	- InsightTaxId [string]: tax ID retrieved through insights. ex: "20.018.183/0001-80"
 //	- InsightDocumentType [string]: document type retrieved through insights. ex: "cnpj"
 //	- NumPages [int]: number of pages of the BusinessIdentity. ex: 3
@@ -62,7 +63,9 @@ var resource = map[string]string{"name": "BusinessIdentity"}
 func Create(identities []BusinessIdentity, user user.User) ([]BusinessIdentity, Error.StarkErrors) {
 	//	Create BusinessIdentities
 	//
-	//	Send a slice of BusinessIdentity objects for creation at the Stark Infra API
+	//	Send a slice of BusinessIdentity objects for creation at the Stark Infra API. Each entry is created in
+	//	"pending" status. The CNPJ must be valid and active in the official bureau and must return at least one
+	//	representative (sócio); use the returned id as identityId when uploading Business Attachments.
 	//
 	//	Parameters (required):
 	//	- identities [slice of BusinessIdentity structs]: slice of BusinessIdentity objects to be created in the API
@@ -181,7 +184,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Busine
 	//	Parameters (required):
 	//	- id [string]: BusinessIdentity unique id. ex: "6306109539221504"
 	//	- patchData [map[string]interface{}]: map containing the attributes to be updated
-	//		- status [string]: You may send BusinessIdentities to validation by passing 'processing' in the status
+	//		- status [string]: only "processing" is accepted. Triggers the AI Model analysis. The identity must be in "created"/"pending" status and must already have at least one BusinessAttachment associated with it.
 	//		- tags [slice of strings]: slice of strings for reference when searching for BusinessIdentities. ex: []string{"employees", "monthly"}
 	//
 	//	Parameters (optional):
@@ -201,7 +204,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Busine
 func Cancel(id string, user user.User) (BusinessIdentity, Error.StarkErrors) {
 	//	Cancel a BusinessIdentity entity
 	//
-	//	Cancel a BusinessIdentity by passing id.
+	//	Cancel a BusinessIdentity by passing id. Only BusinessIdentities in "created" or "pending" status can be canceled.
 	//
 	//	Parameters (required):
 	//	- id [string]: BusinessIdentity unique id. ex: "6306109539221504"

@@ -57,7 +57,8 @@ var resource = map[string]string{"name": "StaticBrcode"}
 func Create(brcodes []StaticBrcode, user user.User) ([]StaticBrcode, Error.StarkErrors) {
 	//	Create StaticBrcodes
 	//
-	//	Send a slice of StaticBrcode structs for creation at the Stark Infra API
+	//	Send a slice of StaticBrcode structs for creation at the Stark Infra API. You can create up to 100
+	//	StaticBrcodes in a single request.
 	//
 	//	Parameters (required):
 	//	- brcodes [slice of StaticBrcode structs]: Slice of StaticBrcode structs to be created in the API.

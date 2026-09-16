@@ -64,8 +64,10 @@ var resource = map[string]string{"name": "PixClaim"}
 func Create(claim PixClaim, user user.User) (PixClaim, Error.StarkErrors) {
 	//	Create a PixClaim struct
 	//
-	//	Create a PixClaim to request the transfer of a PixKey to an account
-	//	hosted at other Pix participants in the Stark Infra API.
+	//	Create a PixClaim to request the transfer of a PixKey to an account hosted at another Pix participant.
+	//	The API infers the claim Type from the key: an "ownership" claim (changes the key's holder) is only
+	//	possible for a "phone" keyType; a "portability" claim (changes only the linked account) is possible for
+	//	"phone", "email" or "taxId" keyTypes.
 	//
 	//	Parameters (required):
 	//	- claim [PixClaim struct]: PixClaim struct to be created in the API.
@@ -185,15 +187,19 @@ func Page(params map[string]interface{}, user user.User) ([]PixClaim, string, Er
 func Update(id string, patchData map[string]interface{}, user user.User) (PixClaim, Error.StarkErrors) {
 	//	Update PixClaim entity
 	//
-	//	Update a PixClaim parameters by passing id.
+	//	Update a PixClaim by passing id. You must answer an inbound PixClaim within 7 days of its status changing
+	//	to "delivered"; if unanswered, a portability claim is rejected by default and an ownership claim is
+	//	accepted by default, both with reason "defaultBehavior". Only PixClaims with status "delivered" can be
+	//	confirmed — confirming deletes the referenced PixKey from Stark Infra and the Central Bank. Only PixClaims
+	//	with status "delivered" or "confirmed" can be canceled.
 	//
 	//	Parameters (required):
 	//	- id [string]: PixClaim id. ex: '5656565656565656'
-	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
+	//  - patchData [map[string]interface{}]: map containing the attributes to be updated.
 	//		Parameters (required):
-	//		- status [string]: Patched status for Pix Claim. Options: "confirmed" and "canceled"
+	//		- status [string]: Patched status for Pix Claim. Options: "confirmed", "canceled"
 	//		Parameters (optional):
-	//		- reason [string, default: "userRequested"]: Reason why the PixClaim is being patched. Options: "fraud", "userRequested", "accountClosure".
+	//		- reason [string, default "userRequested"]: Reason why the PixClaim is being patched. Options: "fraud", "userRequested", "accountClosure"
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

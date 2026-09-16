@@ -65,7 +65,7 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"canceled", "created", "expired", "failed", "refunded", "registered", "sending", "sent", "signed", "success"}
+	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"created", "failed", "success"}
 	//		- holmesIds [slice of strings, default nil]: Slice of CreditHolmes ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//
@@ -106,7 +106,7 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"canceled", "created", "expired", "failed", "refunded", "registered", "sending", "sent", "signed", "success"}
+	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"created", "failed", "success"}
 	//		- holmesIds [slice of strings, default nil]: Slice of CreditHolmes ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
 	//

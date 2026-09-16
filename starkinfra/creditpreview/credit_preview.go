@@ -28,7 +28,10 @@ var subResource = map[string]string{"name": "CreditPreview"}
 func Create(previews []CreditPreview, user user.User) ([]CreditPreview, Error.StarkErrors) {
 	//	Create CreditPreviews
 	//
-	//	Send a slice of CreditPreview structs for processing in the Stark Infra API
+	//	Send a slice of CreditPreview structs for processing at the Stark Infra API. You can create up to 100
+	//	previews in a single request. For "sac" and "price" credit types, provide exactly one of Count or
+	//	InitialAmount — the other is computed. For every type except "custom", provide exactly one of
+	//	NominalAmount or Amount.
 	//
 	//	Parameters (required):
 	//	- previews [slice of CreditPreview structs]: Slice of CreditPreview structs to be created in the API
