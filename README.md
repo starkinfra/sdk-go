@@ -2387,6 +2387,40 @@ func main() {
 
 ```
 
+### Update an IssuingPurchase
+
+You can update a specific purchase by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    IssuingPurchase "github.com/starkinfra/sdk-go/starkinfra/issuingpurchase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["tags"] = []string{"tony", "stark"}
+    patchData["description"] = "Office Supplies"
+
+    purchase, err := IssuingPurchase.Update("5792731695677440", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(purchase.Id)
+}
+
+```
+
 ### Query IssuingPurchase logs
 
 Logs are pretty important to understand the life cycle of a purchase.

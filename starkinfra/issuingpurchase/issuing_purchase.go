@@ -28,7 +28,7 @@ import (
 //	- MerchantCurrencyCode [string]: Merchant currency code. ex: "USD"
 //	- MerchantCurrencySymbol [string]: Merchant currency symbol. ex: "$"
 //	- MerchantCategoryCode [string]: Merchant category code. ex: "fastFoodRestaurants"
-//	- MerchantCategoryNumber [int]: MCC number of the merchant category. ex: 5814
+//	- MerchantCategoryNumber [string]: MCC number of the merchant category. ex: "5814"
 //	- MerchantCountryCode [string]: Merchant country code. ex: "USA"
 //	- AcquirerId [string]: Acquirer ID. ex: "5656565656565656"
 //	- ProductId [string]: Unique card product number (BIN) registered within the card network. ex: "53810200"
@@ -97,7 +97,7 @@ type IssuingPurchase struct {
 	HolderId               string                 `json:",omitempty"`
 	ZipCode                string                 `json:",omitempty"`
 	Metadata               map[string]interface{} `json:",omitempty"`
-	MerchantCategoryNumber int                    `json:",omitempty"`
+	MerchantCategoryNumber string                 `json:",omitempty"`
 	Confirmed              *time.Time             `json:",omitempty"`
 }
 
@@ -196,6 +196,32 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingPurchase, str
 		return issuingPurchases, cursor, err
 	}
 	return issuingPurchases, cursor, err
+}
+
+func Update(id string, patchData map[string]interface{}, user user.User) (IssuingPurchase, Error.StarkErrors) {
+	//	Update IssuingPurchase entity
+	//
+	//	Update an IssuingPurchase by passing id.
+	//
+	//	Parameters (required):
+	//	- id [string]: IssuingPurchase id. ex: '5656565656565656'
+	//  - patchData [map[string]interface{}]: map containing the attributes to be updated.
+	//		Parameters (optional):
+	//		- description [string, max 140 characters]: new IssuingPurchase description. ex: "Office Supplies"
+	//		- tags [slice of strings]: Slice of strings for tagging. ex: []string{"tony", "stark"}
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
+	//
+	//	Return:
+	//	- target IssuingPurchase with updated attributes
+	var issuingPurchase IssuingPurchase
+	update, err := utils.Patch(resource, id, patchData, user)
+	unmarshalError := json.Unmarshal(update, &issuingPurchase)
+	if unmarshalError != nil {
+		return issuingPurchase, err
+	}
+	return issuingPurchase, err
 }
 
 func Parse(content string, signature string, user user.User) (IssuingPurchase, Error.StarkErrors) {
