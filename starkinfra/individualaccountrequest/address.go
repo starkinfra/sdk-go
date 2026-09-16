@@ -13,6 +13,9 @@ package individualaccountrequest
 //	- City [string]: City. ex: "Sao Paulo"
 //	- State [string]: State (BR 2-letter code). ex: "SP"
 //	- ZipCode [string]: ZIP code (BR CEP). Accepts formatted or digit-only. ex: "05724005"
+//
+//	Parameters (optional):
+//	- Complement [string, default ""]: Address complement. ex: "Apto. 123"
 
 type Address struct {
 	Street       string `json:",omitempty"`
@@ -21,4 +24,5 @@ type Address struct {
 	City         string `json:",omitempty"`
 	State        string `json:",omitempty"`
 	ZipCode      string `json:",omitempty"`
+	Complement   string `json:",omitempty"`
 }

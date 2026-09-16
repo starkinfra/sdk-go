@@ -30,21 +30,23 @@ import (
 //	- Status [string]: Current IndividualAccountRequest status. ex: "created", "processing", "success", "failed", "canceled"
 //	- AccountType [string]: Type of the requested account. Always "individual" for this resource.
 //	- Flags [slice of strings]: Server-side review flags. Empty unless the request triggered a manual-review condition.
+//	- ValidatorLink [string]: Webview link to be delivered to the taker to complete biometrics and document capture.
 //	- Created [time.Time]: Creation datetime for the IndividualAccountRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: Latest update datetime for the IndividualAccountRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IndividualAccountRequest struct {
-	Name        string     `json:",omitempty"`
-	TaxId       string     `json:",omitempty"`
-	Address     Address    `json:",omitempty"`
-	Income      int        `json:",omitempty"`
-	Tags        []string   `json:",omitempty"`
-	Id          string     `json:",omitempty"`
-	Status      string     `json:",omitempty"`
-	AccountType string     `json:",omitempty"`
-	Flags       []string   `json:",omitempty"`
-	Created     *time.Time `json:",omitempty"`
-	Updated     *time.Time `json:",omitempty"`
+	Name          string     `json:",omitempty"`
+	TaxId         string     `json:",omitempty"`
+	Address       Address    `json:",omitempty"`
+	Income        int        `json:",omitempty"`
+	Tags          []string   `json:",omitempty"`
+	Id            string     `json:",omitempty"`
+	Status        string     `json:",omitempty"`
+	AccountType   string     `json:",omitempty"`
+	Flags         []string   `json:",omitempty"`
+	ValidatorLink string     `json:",omitempty"`
+	Created       *time.Time `json:",omitempty"`
+	Updated       *time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "IndividualAccountRequest"}
