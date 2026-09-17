@@ -79,6 +79,7 @@ type CreditNote struct {
 	Amount            int                   `json:",omitempty"`
 	RebateAmount      int                   `json:",omitempty"`
 	Tags              []string              `json:",omitempty"`
+	Expiration        int                   `json:",omitempty"`
 	Rules             []Rule                `json:",omitempty"`
 	DocumentId        string                `json:",omitempty"`
 	Status            string                `json:",omitempty"`
@@ -86,6 +87,7 @@ type CreditNote struct {
 	WorkspaceId       string                `json:",omitempty"`
 	DebtorWorkspaceId string                `json:",omitempty"`
 	TaxAmount         int                   `json:",omitempty"`
+	NominalInterest   float64               `json:",omitempty"`
 	Interest          float64               `json:",omitempty"`
 	Created           *time.Time            `json:",omitempty"`
 	Updated           *time.Time            `json:",omitempty"`
