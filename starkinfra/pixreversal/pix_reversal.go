@@ -116,12 +116,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixReversal, cha
 	//
 	//	Return:
 	//	- channel of PixReversal structs with updated attributes
-	var pixReversal PixReversal
 	reversals := make(chan PixReversal)
 	reversalsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixReversal PixReversal
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixReversal)
 			if err != nil {

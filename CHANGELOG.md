@@ -34,6 +34,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 - PixPullSubscription log parsing when the subscription carries an empty date
+- PullRetryLimit type in PixPullSubscription resource, an explicit 0 was dropped before reaching the API, which requires the field
+- Errors documentation for PixPullSubscription.Log and PixPullRequest.Log, the API returns a slice of {code, message} maps, not strings
+- Query() channels reusing one struct instance across items, so a field absent from one item kept the previous item's value, across every resource with a Query() method
+- IssuingCard and Webhook Get/Query/Update/Delete sharing one package-level struct instance instead of one scoped to each call
 
 ## [1.2.0] - 2026-07-03
 ### Fixed

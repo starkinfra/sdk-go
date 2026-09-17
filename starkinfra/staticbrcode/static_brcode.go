@@ -114,12 +114,12 @@ func Query(params map[string]interface{}, user user.User) (chan StaticBrcode, ch
 	//
 	//	Return:
 	//	- channel of StaticBrcode structs with updated attributes
-	var staticBrcode StaticBrcode
 	brcodes := make(chan StaticBrcode)
 	brcodesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var staticBrcode StaticBrcode
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &staticBrcode)
 			if err != nil {

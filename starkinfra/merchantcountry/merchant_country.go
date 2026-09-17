@@ -40,12 +40,12 @@ func Query(params map[string]interface{}, user user.User) (chan MerchantCountry,
 	//
 	//	Return:
 	//	- channel of MerchantCountry structs with updated attributes
-	var merchantCountry MerchantCountry
 	countries := make(chan MerchantCountry)
 	countriesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var merchantCountry MerchantCountry
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantCountry)
 			if err != nil {

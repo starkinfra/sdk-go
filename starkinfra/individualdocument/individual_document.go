@@ -108,12 +108,12 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualDocume
 	//
 	//	Return:
 	//	- channel of IndividualDocument structs with updated attributes
-	var individualDocument IndividualDocument
 	documents := make(chan IndividualDocument)
 	documentsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var individualDocument IndividualDocument
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualDocument)
 			if err != nil {

@@ -69,12 +69,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	//	Return:
 	//	- channel of Ledger.Log structs with updated attributes
-	var ledgerLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var ledgerLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &ledgerLog)
 			if err != nil {

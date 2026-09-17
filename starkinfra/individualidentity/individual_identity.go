@@ -103,12 +103,12 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualIdenti
 	//
 	//	Return:
 	//	- channel of IndividualIdentity structs with updated attributes
-	var individualIdentity IndividualIdentity
 	identities := make(chan IndividualIdentity)
 	identitiesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var individualIdentity IndividualIdentity
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualIdentity)
 			if err != nil {

@@ -33,12 +33,12 @@ func Query(user user.User) (chan PixDomain, chan Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Channel  of PixDomain structs with updated attributes
-	var pixDomain PixDomain
 	domains := make(chan PixDomain)
 	domainsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
+			var pixDomain PixDomain
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixDomain)
 			if err != nil {

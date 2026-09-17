@@ -140,12 +140,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixChargeback, c
 	//
 	//	Return:
 	//	- channel of PixChargeback structs with updated attributes
-	var pixChargeback PixChargeback
 	chargebacks := make(chan PixChargeback)
 	chargebacksError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixChargeback PixChargeback
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixChargeback)
 			if err != nil {

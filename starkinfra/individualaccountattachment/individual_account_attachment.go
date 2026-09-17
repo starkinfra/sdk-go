@@ -112,12 +112,12 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualAccoun
 	//
 	//	Return:
 	//	- channel of IndividualAccountAttachment structs with updated attributes
-	var individualAccountAttachment IndividualAccountAttachment
 	attachments := make(chan IndividualAccountAttachment)
 	attachmentsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var individualAccountAttachment IndividualAccountAttachment
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualAccountAttachment)
 			if err != nil {

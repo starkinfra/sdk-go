@@ -109,12 +109,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixFraud, chan E
 	//
 	//	Return:
 	//	- channel of PixFraud structs with updated attributes
-	var pixFraud PixFraud
 	frauds := make(chan PixFraud)
 	fraudsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixFraud PixFraud
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixFraud)
 			if err != nil {

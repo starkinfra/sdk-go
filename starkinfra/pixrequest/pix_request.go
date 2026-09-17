@@ -155,12 +155,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixRequest, chan
 	//
 	//	Return:
 	//	- channel of PixRequest structs with updated attributes
-	var pixRequest PixRequest
 	requests := make(chan PixRequest)
 	requestsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixRequest PixRequest
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixRequest)
 			if err != nil {

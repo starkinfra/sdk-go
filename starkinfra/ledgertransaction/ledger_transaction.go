@@ -114,12 +114,12 @@ func Query(params map[string]interface{}, user user.User) (chan LedgerTransactio
 	//
 	//	Return:
 	//	- channel of LedgerTransaction structs with updated attributes
-	var transaction LedgerTransaction
 	transactions := make(chan LedgerTransaction)
 	transactionsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var transaction LedgerTransaction
 			contentByte, _ := json.Marshal(content)			
 			err := json.Unmarshal(contentByte, &transaction)
 			if err != nil {

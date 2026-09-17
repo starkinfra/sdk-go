@@ -115,12 +115,12 @@ func Query(params map[string]interface{}, user user.User) (chan DynamicBrcode, c
 	//
 	//	Return:
 	//	- channel of DynamicBrcode structs with updated attributes
-	var dynamicBrcode DynamicBrcode
 	brcodes := make(chan DynamicBrcode)
 	brcodesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var dynamicBrcode DynamicBrcode
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &dynamicBrcode)
 			if err != nil {

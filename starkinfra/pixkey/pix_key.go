@@ -123,12 +123,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixKey, chan Err
 	//
 	//	Return:
 	//	- channel of PixKey structs with updated attributes
-	var pixKey PixKey
 	keys := make(chan PixKey)
 	keysError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixKey PixKey
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixKey)
 			if err != nil {

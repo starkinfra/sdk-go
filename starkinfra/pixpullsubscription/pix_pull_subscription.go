@@ -189,12 +189,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixPullSubscript
 	//
 	//	Return:
 	//	- channel of PixPullSubscription structs with updated attributes
-	var subscription PixPullSubscription
 	subscriptions := make(chan PixPullSubscription)
 	subscriptionsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var subscription PixPullSubscription
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
 			err := json.Unmarshal([]byte(jsonStr), &subscription)
