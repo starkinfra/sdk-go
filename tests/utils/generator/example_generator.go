@@ -48,6 +48,8 @@ import (
 	Utils "github.com/starkinfra/sdk-go/starkinfra/utils"
 	"github.com/starkinfra/sdk-go/starkinfra/webhook"
 	"github.com/starkinfra/sdk-go/tests/utils"
+	"github.com/starkinfra/sdk-go/starkinfra/individualaccountattachment"
+	"github.com/starkinfra/sdk-go/starkinfra/individualaccountrequest"
 )
 
 func BrcodePreview() []brcodepreview.BrcodePreview {
@@ -832,3 +834,54 @@ func IssuingStockRule() []issuingstockrule.IssuingStockRule {
 
 	return rules
 }
+
+func IndividualAccountRequest() []individualaccountrequest.IndividualAccountRequest {
+
+	requests := []individualaccountrequest.IndividualAccountRequest{
+		{
+			Name:   "Tony Stark",
+			TaxId:  "012.345.678-90",
+			Income: 1000000,
+			Address: individualaccountrequest.Address{
+				Street:       "Rua do Estilo Barroco",
+				Number:       "648",
+				Neighborhood: "Santo Amaro",
+				City:         "Sao Paulo",
+				State:        "SP",
+				ZipCode:      "05724005",
+			},
+			Tags: []string{"employees", "monthly"},
+		},
+	}
+	return requests
+}
+
+func IndividualAccountAttachment() []individualaccountattachment.IndividualAccountAttachment {
+
+	starkinfra.User = utils.ExampleProject
+
+	created, err := individualaccountrequest.Create(IndividualAccountRequest(), nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Println(e.Code, e.Message)
+		}
+	}
+	accountRequestId := created[0].Id
+
+	imageBytes, readErr := os.ReadFile("../utils/identity/identity-front-face.png")
+	if readErr != nil {
+		fmt.Println("IndividualAccountAttachment fixture: could not read identity-front-face.png:", readErr)
+	}
+
+	attachments := []individualaccountattachment.IndividualAccountAttachment{
+		{
+			Type:             "identity-front",
+			ContentType:      "image/png",
+			Content:          base64.StdEncoding.EncodeToString(imageBytes),
+			AccountRequestId: accountRequestId,
+			Tags:             []string{"employees", "monthly"},
+		},
+	}
+	return attachments
+}
+
