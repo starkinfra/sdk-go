@@ -46,9 +46,7 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//	- pixPullSubscription.Log struct that corresponds to the given id.
 	var pixPullSubscriptionLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	jsonStr := string(get)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	unmarshalError := json.Unmarshal([]byte(jsonStr), &pixPullSubscriptionLog)
+	unmarshalError := json.Unmarshal(get, &pixPullSubscriptionLog)
 	if unmarshalError != nil {
 		return pixPullSubscriptionLog, err
 	}
@@ -78,9 +76,7 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			jsonStr := string(contentByte)
-			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-			err := json.Unmarshal([]byte(jsonStr), &pixPullSubscriptionLog)
+			err := json.Unmarshal(contentByte, &pixPullSubscriptionLog)
 			if err != nil {
 				logsErrors <- Error.UnknownError(err.Error())
 				continue
@@ -117,9 +113,7 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	- cursor to retrieve the next page of PixPullSubscription.Log structs
 	var pixPullSubscriptionLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	jsonStr := string(page)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	unmarshalError := json.Unmarshal([]byte(jsonStr), &pixPullSubscriptionLogs)
+	unmarshalError := json.Unmarshal(page, &pixPullSubscriptionLogs)
 	if unmarshalError != nil {
 		return pixPullSubscriptionLogs, cursor, err
 	}

@@ -33,6 +33,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - Description attribute to PixReversal resource
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
+- PixPullSubscription log parsing when the subscription carries an empty date
 
 ## [1.2.0] - 2026-07-03
 ### Fixed
