@@ -26,6 +26,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IssuingTokenActivation resource
 - Due attribute to BrcodePreview resource
 - Expiration and NominalInterest attributes to CreditNote resource
+- WalletAccountScore and WalletDeviceScore attributes to IssuingToken resource
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 
