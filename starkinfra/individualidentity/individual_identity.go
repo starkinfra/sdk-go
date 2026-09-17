@@ -161,7 +161,7 @@ func Update(id string, status string, user user.User) (IndividualIdentity, Error
 	//
 	//	Parameters (required):
 	//	- id [string]: IndividualIdentity unique id. ex: "6306109539221504"
-	//	- status [string]: You may send IndividualDocuments to validation by passing 'processing' in the status
+	//	- status [string]: You may send the IndividualIdentity to validation by passing 'processing' in the status
 	//
 	//	Parameters (optional):
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.

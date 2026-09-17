@@ -18,7 +18,6 @@ import (
 	"github.com/starkinfra/sdk-go/starkinfra/creditpreview"
 	"github.com/starkinfra/sdk-go/starkinfra/creditsigner"
 	"github.com/starkinfra/sdk-go/starkinfra/dynamicbrcode"
-	"github.com/starkinfra/sdk-go/starkinfra/individualdocument"
 	"github.com/starkinfra/sdk-go/starkinfra/individualidentity"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingcard"
 	"github.com/starkinfra/sdk-go/starkinfra/issuingembossingrequest"
@@ -614,21 +613,6 @@ func IndividualIdentity() []individualidentity.IndividualIdentity {
 		},
 	}
 	return identities
-}
-
-func IndividualDocument(identityId, documentType string, bytes []byte) []individualdocument.IndividualDocument {
-
-	documents := []individualdocument.IndividualDocument{
-		{
-			Type:        documentType,
-			ContentType: "image/png",
-			Content:     base64.StdEncoding.EncodeToString(bytes),
-			IdentityId:  identityId,
-			Tags:        []string{"breaking", "bad"},
-		},
-	}
-
-	return documents
 }
 
 func BusinessIdentity() []businessidentity.BusinessIdentity {
