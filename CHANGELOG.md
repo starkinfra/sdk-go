@@ -24,6 +24,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IndividualAccountAttachment resource
 - IndividualAccountAttachmentLog resource
 - IssuingTokenActivation resource
+- Due attribute to BrcodePreview resource
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 
