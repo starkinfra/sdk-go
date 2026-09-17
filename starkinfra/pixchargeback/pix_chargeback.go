@@ -28,6 +28,7 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixChargeback is created. ex: "5656565656565656"
+//	- BacenId [string]: Central Bank ID for this Pix chargeback.
 //	- Analysis [string]: Analysis that led to the result.
 //	- SenderBankCode [string]: BankCode of the Pix participant that created the PixChargeback. ex: "20018183"
 //	- ReceiverBankCode [string]: BankCode of the Pix participant that received the PixChargeback. ex: "20018183"
@@ -53,6 +54,7 @@ type PixChargeback struct {
 	Reason                string     `json:",omitempty"`
 	Description           string     `json:",omitempty"`
 	Tags                  []string   `json:",omitempty"`
+	BacenId               string     `json:",omitempty"`
 	Analysis              string     `json:",omitempty"`
 	SenderBankCode        string     `json:",omitempty"`
 	ReceiverBankCode      string     `json:",omitempty"`
