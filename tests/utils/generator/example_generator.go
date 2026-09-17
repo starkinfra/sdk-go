@@ -704,7 +704,8 @@ func Webhook() webhook.Webhook {
 func PixPullSubscription() []pixpullsubscription.PixPullSubscription {
 
 	installmentStart := time.Now().UTC()
-	
+	pullRetryLimit := 3
+
 	subscriptions := []pixpullsubscription.PixPullSubscription{
 		{
             Amount: 52064,
@@ -714,7 +715,7 @@ func PixPullSubscription() []pixpullsubscription.PixPullSubscription {
             InstallmentEnd: nil,
             InstallmentStart: &installmentStart,
             Interval: "month",
-            PullRetryLimit: 3,
+            PullRetryLimit: &pullRetryLimit,
             ReceiverBankCode: "32160637",
             ReceiverName: "Stark Bank",
             ReceiverTaxId: "39.908.427/0001-28",
