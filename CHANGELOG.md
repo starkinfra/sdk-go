@@ -29,6 +29,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - WalletAccountScore and WalletDeviceScore attributes to IssuingToken resource
 - BacenId attribute to PixChargeback resource
 - BacenId attribute to PixClaim resource
+- BacenId attribute to PixInfraction resource
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 

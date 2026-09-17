@@ -31,6 +31,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixInfraction is created. ex: "5656565656565656"
 //	- FraudId [string]: Id of the Pix Fraud. ex: "5741774970552320"
+//	- BacenId [string]: Id of the infraction at the Brazilian Central Bank.
 //	- CreditedBankCode [string]: BankCode of the credited Pix participant in the reported transaction. ex: "20018183"
 //	- DebitedBankCode [string]: BankCode of the debited Pix participant in the reported transaction. ex: "20018183"
 //	- Flow [string]: Direction of the PixInfraction flow. Options: "out" if you created the PixInfraction, "in" if you received the PixInfraction.
@@ -54,6 +55,7 @@ type PixInfraction struct {
 	FraudType        string     `json:",omitempty"`
 	Id               string     `json:",omitempty"`
 	FraudId          string     `json:",omitempty"`
+	BacenId          string     `json:",omitempty"`
 	CreditedBankCode string     `json:",omitempty"`
 	DebitedBankCode  string     `json:",omitempty"`
 	Flow             string     `json:",omitempty"`
