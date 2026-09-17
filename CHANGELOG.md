@@ -18,13 +18,14 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - CreditSigner.resendToken method
 - Pdf and Payment methods to CreditNote resource
 - Update method to IssuingPurchase resource
-### Fixed
-- MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 - BusinessAccountRequest resource
 - IndividualAccountRequest resource
 - IndividualAccountRequestLog resource
 - IndividualAccountAttachment resource
 - IndividualAccountAttachmentLog resource
+- IssuingTokenActivation resource
+### Fixed
+- MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 
 ## [1.2.0] - 2026-07-03
 ### Fixed
