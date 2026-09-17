@@ -152,6 +152,10 @@ func TestBusinessIdentityUpdate(t *testing.T) {
 		}
 	}
 
+	if len(identityList) == 0 {
+		t.Skip("no BusinessIdentity available in sandbox")
+	}
+
 	var patchData = map[string]interface{}{}
 	patchData["tags"] = []string{"test", "testing"}
 
@@ -192,6 +196,10 @@ func TestBusinessIdentityCancel(t *testing.T) {
 			}
 			identityList = append(identityList, identity)
 		}
+	}
+
+	if len(identityList) == 0 {
+		t.Skip("no BusinessIdentity available in sandbox")
 	}
 
 	identity, err := BusinessIdentity.Cancel(identityList[0].Id, nil)

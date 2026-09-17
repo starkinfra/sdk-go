@@ -6391,7 +6391,7 @@ func main() {
 
 ```
 
-### Get a StaticBrcodes
+### Get a StaticBrcode
 
 After its creation, information on a StaticBrcode may be retrieved by its UUID.
 
@@ -7615,7 +7615,7 @@ func main() {
 
 ```
 
-### Get an CreditHolmes
+### Get a CreditHolmes
 
 After its creation, information on a credit holmes may be retrieved by its id.
 
@@ -7687,7 +7687,7 @@ func main() {
 
 ```
 
-### Get an CreditHolmes log
+### Get a CreditHolmes log
 
 You can also get a specific log by its id.
 
@@ -8707,7 +8707,7 @@ func main() {
 
 ```
 
-### Get an BusinessIdentity
+### Get a BusinessIdentity
 
 After its creation, information on a business identity may be retrieved by its id.
 
@@ -8737,7 +8737,7 @@ func main() {
 
 ```
 
-### Update an BusinessIdentity
+### Update a BusinessIdentity
 
 You can update a specific identity status to "processing" for send it to validation.
 
@@ -8774,7 +8774,7 @@ func main() {
 attachments using the create method of the BusinessAttachment resource. Note that you must reference the business identity
 in the create method of the BusinessAttachment resource by its id.
 
-### Cancel an BusinessIdentity
+### Cancel a BusinessIdentity
 
 You can cancel a business identity before updating its status to processing.
 
@@ -8846,7 +8846,7 @@ func main() {
 
 ```
 
-### Get an BusinessIdentity log
+### Get a BusinessIdentity log
 
 You can also get a specific log by its id.
 
@@ -8962,7 +8962,7 @@ func main() {
 
 ```
 
-### Get an BusinessAttachment
+### Get a BusinessAttachment
 
 After its creation, information on a business attachment may be retrieved by its id.
 
@@ -8992,7 +8992,7 @@ func main() {
 
 ```
 
-### Cancel an BusinessAttachment
+### Cancel a BusinessAttachment
 
 You can cancel a business attachment by its id.
 
@@ -9064,7 +9064,7 @@ func main() {
 
 ```
 
-### Get an BusinessAttachment log
+### Get a BusinessAttachment log
 
 You can also get a specific log by its id.
 

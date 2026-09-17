@@ -142,6 +142,10 @@ func TestLedgerUpdate(t *testing.T) {
 		}
 	}
 
+	if len(ledgerList) == 0 {
+		t.Skip("no Ledger available in sandbox")
+	}
+
 	var patchData = map[string]interface{}{}
 	patchData["tags"] = []string{"account/123", "updated"}
 

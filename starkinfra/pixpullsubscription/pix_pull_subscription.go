@@ -2,12 +2,12 @@ package pixpullsubscription
 
 import (
 	"encoding/json"
+	"fmt"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/core-go/starkcore/utils/api"
 	"github.com/starkinfra/sdk-go/starkinfra/utils"
 	"time"
-	"fmt"
 )
 
 //	PixPullSubscription struct
@@ -83,6 +83,45 @@ type PixPullSubscription struct {
 	Flow                string     `json:",omitempty"`
 }
 
+func (subscription *PixPullSubscription) UnmarshalJSON(data []byte) error {
+	type pixPullSubscriptionAlias PixPullSubscription
+	aux := struct {
+		Due              *string `json:"due,omitempty"`
+		InstallmentStart *string `json:"installmentStart,omitempty"`
+		InstallmentEnd   *string `json:"installmentEnd,omitempty"`
+		*pixPullSubscriptionAlias
+	}{
+		pixPullSubscriptionAlias: (*pixPullSubscriptionAlias)(subscription),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var err error
+	if subscription.Due, err = parseNullableTime(aux.Due); err != nil {
+		return err
+	}
+	if subscription.InstallmentStart, err = parseNullableTime(aux.InstallmentStart); err != nil {
+		return err
+	}
+	if subscription.InstallmentEnd, err = parseNullableTime(aux.InstallmentEnd); err != nil {
+		return err
+	}
+	return nil
+}
+
+func parseNullableTime(raw *string) (*time.Time, error) {
+	if raw == nil || *raw == "" {
+		return nil, nil
+	}
+	parsed, err := time.Parse(time.RFC3339, *raw)
+	if err != nil {
+		return nil, err
+	}
+	return &parsed, nil
+}
+
 var resource = map[string]string{"name": "PixPullSubscription"}
 
 func Create(subscriptions []PixPullSubscription, user user.User) ([]PixPullSubscription, Error.StarkErrors) {
@@ -103,8 +142,6 @@ func Create(subscriptions []PixPullSubscription, user user.User) ([]PixPullSubsc
 	//	- slice of PixPullSubscription structs with updated attributes
 	create, err := utils.Multi(resource, subscriptions, nil, user)
 	jsonStr := string(create)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscriptions)
 	if unmarshalError != nil {
 		return subscriptions, err
@@ -128,8 +165,6 @@ func Get(id string, user user.User) (PixPullSubscription, Error.StarkErrors) {
 	var subscription PixPullSubscription
 	get, err := utils.Get(resource, id, nil, user)
 	jsonStr := string(get)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
 		return subscription, err
@@ -162,8 +197,6 @@ func Query(params map[string]interface{}, user user.User) (chan PixPullSubscript
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
-			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 			err := json.Unmarshal([]byte(jsonStr), &subscription)
 			if err != nil {
 				subscriptionsError <- Error.UnknownError(err.Error())
@@ -203,8 +236,6 @@ func Page(params map[string]interface{}, user user.User) ([]PixPullSubscription,
 	var subscriptions []PixPullSubscription
 	page, cursor, err := utils.Page(resource, params, user)
 	jsonStr := string(page)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscriptions)
 	if unmarshalError != nil {
 		return subscriptions, cursor, err
@@ -233,8 +264,6 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 	var subscription PixPullSubscription
 	update, err := utils.Patch(resource, id, patchData, user)
 	jsonStr := string(update)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
 		return subscription, err
@@ -276,8 +305,6 @@ func Cancel(id string, reason string, user user.User) (PixPullSubscription, Erro
 	}
 	jsonBytes, _ := json.Marshal(data[api.LastName(resource)])
 	jsonStr := string(jsonBytes)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 
 	unmarshalError = json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
@@ -309,8 +336,6 @@ func Parse(content string, signature string, user user.User) (PixPullSubscriptio
 	}
 
 	jsonStr := parsed
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"due":""`, `"due":null`)
-	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"installmentEnd":""`, `"installmentEnd":null`)
 	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscription)
 	if unmarshalError != nil {
 		return subscription, Error.UnknownError(unmarshalError.Error())

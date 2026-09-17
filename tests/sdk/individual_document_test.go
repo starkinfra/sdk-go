@@ -35,6 +35,10 @@ func TestIndividualDocumentPost(t *testing.T) {
 		}
 	}
 
+	if len(identityList) == 0 {
+		t.Skip("no IndividualIdentity available in sandbox")
+	}
+
 	bytesFront, _ := os.ReadFile("../utils/identity/identity-front-face.png")
 	frontDocuments, errFront := IndividualDocument.Create(Example.IndividualDocument(identityList[0].Id, "identity-front", bytesFront), nil)
 	if errFront.Errors != nil {
