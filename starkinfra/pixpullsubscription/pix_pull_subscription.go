@@ -39,7 +39,7 @@ import (
 //  - InstallmentEnd [time.Time]: End of settlements allowed for this Pix Pull Subscription
 //  - ReceiverBankCode [string]: Receiver's bank institution code in Brazil.
 //  - ReferenceCode [string]: Represents the comercial relation. It can be a contract number, order identification or client code.
-//  - PullRetryLimit [int]: Defines if the receiver is able to create Pix Pull Request for retries.
+//  - PullRetryLimit [int, default nil]: Defines if the receiver is able to create Pix Pull Request for retries.
 //  - SenderCityCode [string]:
 //  - SenderFinalName [string]:
 //  - SenderFinalTaxId [string]:
@@ -71,7 +71,7 @@ type PixPullSubscription struct {
 	InstallmentEnd      *time.Time `json:",omitempty"`
 	ReceiverBankCode    string     `json:",omitempty"`
 	ReferenceCode       string     `json:",omitempty"`
-	PullRetryLimit      int        `json:",omitempty"`
+	PullRetryLimit      *int       `json:",omitempty"`
 	SenderCityCode      string     `json:",omitempty"`
 	SenderFinalName     string     `json:",omitempty"`
 	SenderFinalTaxId    string     `json:",omitempty"`
@@ -189,12 +189,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixPullSubscript
 	//
 	//	Return:
 	//	- channel of PixPullSubscription structs with updated attributes
-	var subscription PixPullSubscription
 	subscriptions := make(chan PixPullSubscription)
 	subscriptionsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var subscription PixPullSubscription
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
 			err := json.Unmarshal([]byte(jsonStr), &subscription)

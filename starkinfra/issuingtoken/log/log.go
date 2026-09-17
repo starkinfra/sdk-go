@@ -72,12 +72,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	//	Return:
 	//	- channel of IssuingToken.Log structs with updated attributes
-	var issuingTokenLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingTokenLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingTokenLog)
 			if err != nil {

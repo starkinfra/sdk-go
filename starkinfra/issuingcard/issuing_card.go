@@ -69,8 +69,6 @@ type IssuingCard struct {
 	Created          *time.Time                `json:",omitempty"`
 }
 
-var object IssuingCard
-var objects []IssuingCard
 var resource = map[string]string{"name": "IssuingCard"}
 
 func Create(cards []IssuingCard, expand map[string]interface{}, user user.User) ([]IssuingCard, Error.StarkErrors) {
@@ -110,6 +108,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (IssuingCard,
 	//
 	// 	Return:
 	//  - IssuingCard struct that corresponds to the given id.
+	var object IssuingCard
 	get, err := utils.Get(resource, id, expand, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -143,6 +142,7 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingCard, cha
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var object IssuingCard
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &object)
 			if err != nil {
@@ -183,6 +183,7 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingCard, string,
 	//	Return:
 	//	- slice of IssuingCards structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingCards structs
+	var objects []IssuingCard
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -211,6 +212,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Issuin
 	//
 	//	Return:
 	//	- target IssuingCard with updated attributes
+	var object IssuingCard
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &object)
 	if unmarshalError != nil {
@@ -230,6 +232,7 @@ func Cancel(id string, user user.User) (IssuingCard, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled IssuingCard struct
+	var object IssuingCard
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

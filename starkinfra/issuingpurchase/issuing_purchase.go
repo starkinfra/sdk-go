@@ -144,12 +144,12 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingPurchase,
 	//
 	//	Return:
 	//	- channel of IssuingPurchase structs with updated attributes
-	var issuingPurchase IssuingPurchase
 	purchases := make(chan IssuingPurchase)
 	purchasesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingPurchase IssuingPurchase
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingPurchase)
 			if err != nil {

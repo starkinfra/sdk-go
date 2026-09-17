@@ -45,12 +45,12 @@ func Query(params map[string]interface{}, user user.User) (chan MerchantCategory
 	//
 	//	Return:
 	//	- channel of MerchantCategory structs with updated attributes
-	var merchantCategory MerchantCategory
 	categories := make(chan MerchantCategory)
 	categoriesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var merchantCategory MerchantCategory
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantCategory)
 			if err != nil {

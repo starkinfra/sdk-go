@@ -128,12 +128,12 @@ func Query(params map[string]interface{}, user user.User) (chan PixInternalTrans
 	//
 	//	Return:
 	//	- channel of PixInternalTransactionReport structs with updated attributes
-	var pixInternalTransactionReport PixInternalTransactionReport
 	reports := make(chan PixInternalTransactionReport)
 	reportsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var pixInternalTransactionReport PixInternalTransactionReport
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &pixInternalTransactionReport)
 			if err != nil {

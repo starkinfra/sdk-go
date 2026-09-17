@@ -70,12 +70,12 @@ func Query(params map[string]interface{}, user user.User) (chan Attempt, chan Er
 	//
 	//	Return:
 	//	- channel of Event.Attempt structs with updated attributes
-	var attempt Attempt
 	attempts := make(chan Attempt)
 	attemptsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var attempt Attempt
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &attempt)
 			if err != nil {

@@ -113,12 +113,12 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualAccoun
 	//
 	//	Return:
 	//	- channel of IndividualAccountRequest structs with updated attributes
-	var individualAccountRequest IndividualAccountRequest
 	requests := make(chan IndividualAccountRequest)
 	requestsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var individualAccountRequest IndividualAccountRequest
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &individualAccountRequest)
 			if err != nil {

@@ -28,8 +28,6 @@ type Webhook struct {
 	Id            string   `json:",omitempty"`
 }
 
-var object Webhook
-var objects []Webhook
 var resource = map[string]string{"name": "Webhook"}
 
 func Create(webhook Webhook, user user.User) (Webhook, Error.StarkErrors) {
@@ -67,6 +65,7 @@ func Get(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- webhook struct that corresponds to the given id.
+	var object Webhook
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -92,6 +91,7 @@ func Query(params map[string]interface{}, user user.User) (chan Webhook, chan Er
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var object Webhook
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &object)
 			if err != nil {
@@ -124,6 +124,7 @@ func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Err
 	//	Return:
 	//	- slice of Webhook structs with updated attributes
 	//	- cursor to retrieve the next page of Webhook structs
+	var objects []Webhook
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -145,6 +146,7 @@ func Delete(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Webhook struct
+	var object Webhook
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

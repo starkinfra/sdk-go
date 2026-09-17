@@ -63,12 +63,12 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingTokenDesi
 	//
 	//	Return:
 	//	- channel of IssuingTokenDesign structs with updated attributes
-	var issuingTokenDesign IssuingTokenDesign
 	designs := make(chan IssuingTokenDesign)
 	designsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingTokenDesign IssuingTokenDesign
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingTokenDesign)
 			if err != nil {

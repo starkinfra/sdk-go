@@ -66,12 +66,12 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingDesign, c
 	//
 	//	Return:
 	//	- channel of IssuingDesign structs with updated attributes
-	var issuingDesign IssuingDesign
 	designs := make(chan IssuingDesign)
 	designsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingDesign IssuingDesign
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingDesign)
 			if err != nil {

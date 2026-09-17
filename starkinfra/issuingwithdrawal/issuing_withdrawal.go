@@ -101,12 +101,12 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingWithdrawa
 	//
 	//	Return:
 	//	- channel of IssuingWithdrawal structs with updated attributes
-	var issuingWithdrawal IssuingWithdrawal
 	withdrawals := make(chan IssuingWithdrawal)
 	withdrawalsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingWithdrawal IssuingWithdrawal
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingWithdrawal)
 			if err != nil {

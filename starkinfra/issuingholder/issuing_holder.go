@@ -107,12 +107,12 @@ func Query(params map[string]interface{}, user user.User) (chan IssuingHolder, c
 	//
 	//	Return:
 	//	- channel of IssuingHolder structs with updated attributes
-	var issuingHolder IssuingHolder
 	holders := make(chan IssuingHolder)
 	holdersError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var issuingHolder IssuingHolder
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &issuingHolder)
 			if err != nil {

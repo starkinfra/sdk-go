@@ -123,12 +123,12 @@ func Query(params map[string]interface{}, user user.User) (chan BusinessIdentity
 	//
 	//	Return:
 	//	- channel of BusinessIdentity structs with updated attributes
-	var businessIdentity BusinessIdentity
 	identities := make(chan BusinessIdentity)
 	identitiesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var businessIdentity BusinessIdentity
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &businessIdentity)
 			if err != nil {

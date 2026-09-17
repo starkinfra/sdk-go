@@ -120,12 +120,12 @@ func Query(params map[string]interface{}, user user.User) (chan BusinessAttachme
 	//
 	//	Return:
 	//	- channel of BusinessAttachment structs with updated attributes
-	var businessAttachment BusinessAttachment
 	attachments := make(chan BusinessAttachment)
 	attachmentsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var businessAttachment BusinessAttachment
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &businessAttachment)
 			if err != nil {

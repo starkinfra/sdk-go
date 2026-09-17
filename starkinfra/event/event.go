@@ -85,12 +85,12 @@ func Query(params map[string]interface{}, user user.User) (chan Event, chan Erro
 	//
 	//	Return:
 	//	- channel of Event structs with updated attributes
-	var event Event
 	events := make(chan Event)
 	eventsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var event Event
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &event)
 			if err != nil {
