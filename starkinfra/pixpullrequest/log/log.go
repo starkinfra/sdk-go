@@ -18,7 +18,7 @@ import (
 //	- Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 //	- Request [PixPullRequest struct]: PixPullRequest entity to which the log refers to.
 //	- Type [string]: Type of the PixPullRequest event which triggered the log creation. ex: "created", "sent", "scheduled", "denied", "success", "failed", "canceling", "canceled", "expired"
-//	- Errors [slice of strings]: Slice of errors linked to this PixPullRequest event
+//	- Errors [slice of {code, message} maps]: Slice of errors linked to this PixPullRequest event
 //	- Description [string]: Description of the log event. ex: "The Pix Pull Request was settled."
 //  - Reason [string]: Reason for the log event. ex: "The Pix Pull Request was settled."
 //	- Created [time.Time]: Creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
