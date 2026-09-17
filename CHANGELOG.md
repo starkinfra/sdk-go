@@ -38,6 +38,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - Errors documentation for PixPullSubscription.Log and PixPullRequest.Log, the API returns a slice of {code, message} maps, not strings
 - Query() channels reusing one struct instance across items, so a field absent from one item kept the previous item's value, across every resource with a Query() method
 - IssuingCard and Webhook Get/Query/Page/Update/Delete sharing one package-level struct instance instead of one scoped to each call
+### Removed
+- IndividualDocument resource and its Log: no API route serves them
 
 ## [1.2.0] - 2026-07-03
 ### Fixed
