@@ -143,6 +143,10 @@ func TestIndividualIdentityUpdate(t *testing.T) {
 	}
 
 
+	if len(identityList) == 0 {
+		t.Skip("no IndividualIdentity available in sandbox")
+	}
+
 	identity, err := IndividualIdentity.Update(identityList[0].Id, "processing", nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
@@ -181,6 +185,10 @@ func TestIndividualIdentityCancel(t *testing.T) {
 			}
 			identityList = append(identityList, identity)
 		}
+	}
+
+	if len(identityList) == 0 {
+		t.Skip("no IndividualIdentity available in sandbox")
 	}
 
 	identity, err := IndividualIdentity.Cancel(identityList[0].Id, nil)
