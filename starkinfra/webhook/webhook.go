@@ -28,7 +28,6 @@ type Webhook struct {
 	Id            string   `json:",omitempty"`
 }
 
-var objects []Webhook
 var resource = map[string]string{"name": "Webhook"}
 
 func Create(webhook Webhook, user user.User) (Webhook, Error.StarkErrors) {
@@ -125,6 +124,7 @@ func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Err
 	//	Return:
 	//	- slice of Webhook structs with updated attributes
 	//	- cursor to retrieve the next page of Webhook structs
+	var objects []Webhook
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

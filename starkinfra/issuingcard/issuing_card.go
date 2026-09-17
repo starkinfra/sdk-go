@@ -69,7 +69,6 @@ type IssuingCard struct {
 	Created          *time.Time                `json:",omitempty"`
 }
 
-var objects []IssuingCard
 var resource = map[string]string{"name": "IssuingCard"}
 
 func Create(cards []IssuingCard, expand map[string]interface{}, user user.User) ([]IssuingCard, Error.StarkErrors) {
@@ -184,6 +183,7 @@ func Page(params map[string]interface{}, user user.User) ([]IssuingCard, string,
 	//	Return:
 	//	- slice of IssuingCards structs with updated attributes
 	//	- cursor to retrieve the next page of IssuingCards structs
+	var objects []IssuingCard
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
