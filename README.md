@@ -56,7 +56,8 @@ This SDK version is compatible with the Stark Infra API v2.
         - [PixFraud](#create-a-pixfraud): Create a Pix Fraud 
         - [PixKeyHolmes](#create-a-pixkeyholmes): Investigate the registration status of a Pix Key
         - [PixInternalTransactionReport](#create-a-pixinternaltransactionreport): Report internal (non-SPI) transactions to the Central Bank
-        - [PixPullSubscription](#process-inbound-pixpullsubscription-events): Set up recurring Pix debit authorizations
+        - [PixPullSubscription](#create-pixpullsubscriptions): Set up recurring Pix debit authorizations
+        - [PixPullRequest](#create-pixpullrequests): Trigger automatic Pix debits against a subscription
         - [PixUser](#get-a-pixuser): Get fraud statistics of a user
         - [PixChargeback](#create-pixchargebacks): Create Pix Chargeback requests
         - [PixDomain](#query-pixdomains): View registered SPI participants certificates
@@ -5426,6 +5427,274 @@ func main() {
 
 ```
 
+### Create PixPullSubscriptions
+
+You can create recurring Pix debit authorizations to allow a receiver to pull a series of Pix payments from a sender.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+    "time"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    installmentStart := time.Date(2026, 04, 01, 12, 0, 0, 0, time.UTC)
+
+    subscriptions, err := PixPullSubscription.Create(
+        []PixPullSubscription.PixPullSubscription{
+            {
+                BacenId:             "RR2017032900000000000000003",
+                ExternalId:          "my-subscription-001",
+                InstallmentStart:    &installmentStart,
+                Interval:            "month",
+                ReceiverName:        "Edward Stark",
+                ReceiverTaxId:       "20.018.183/0001-80",
+                ReceiverBankCode:    "20018183",
+                ReferenceCode:       "contract-202604",
+                SenderAccountNumber: "876543-2",
+                SenderBankCode:      "20018183",
+                SenderBranchCode:    "1357-9",
+                SenderCityCode:      "3550308",
+                SenderTaxId:         "01234567890",
+                Type:                "push",
+                Amount:              11234,
+                Description:         "Monthly subscription",
+                Tags:                []string{"employees", "monthly"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, subscription := range subscriptions {
+        fmt.Println(subscription.Id)
+    }
+}
+
+```
+
+### Query PixPullSubscriptions
+
+You can query multiple PixPullSubscriptions according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+    params["after"] = "2026-01-01"
+    params["before"] = "2026-04-30"
+    params["status"] = "active"
+    params["tags"] = []string{"monthly"}
+
+    subscriptions, errorChannel := PixPullSubscription.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case subscription, ok := <-subscriptions:
+            if !ok {
+                break loop
+            }
+            fmt.Println(subscription)
+        }
+    }
+}
+
+```
+
+### Get a PixPullSubscription
+
+After its creation, information on a PixPullSubscription may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    subscription, err := PixPullSubscription.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(subscription)
+}
+
+```
+
+### Update a PixPullSubscription
+
+You can update a PixPullSubscription by passing its id. When patching `status` to `"confirmed"`, `senderCityCode` MUST be present in the patch.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "confirmed"
+    patchData["senderCityCode"] = "3550308"
+
+    subscription, err := PixPullSubscription.Update("5656565656565656", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(subscription)
+}
+
+```
+
+### Cancel a PixPullSubscription
+
+You can cancel a PixPullSubscription by passing its id and a reason.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscription "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    subscription, err := PixPullSubscription.Cancel("5656565656565656", "accountClosed", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(subscription)
+}
+
+```
+
+### Query PixPullSubscription logs
+
+You can query PixPullSubscription logs to better understand PixPullSubscription life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscriptionLog "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 50
+
+    logs, errorChannel := PixPullSubscriptionLog.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a PixPullSubscription log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullSubscriptionLog "github.com/starkinfra/sdk-go/starkinfra/pixpullsubscription/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := PixPullSubscriptionLog.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log)
+}
+
+```
+
 ### Process inbound PixPullSubscription events
 
 Inbound PixPullSubscription events will be POSTed at your registered endpoint. You can use the `Parse` function
@@ -5456,6 +5725,266 @@ func main() {
     }
 
     fmt.Printf("%+v", subscription)
+}
+
+```
+
+### Create PixPullRequests
+
+You can create PixPullRequests to trigger automatic debits against an active PixPullSubscription.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequest "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+    "time"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    due := time.Date(2026, 04, 15, 12, 0, 0, 0, time.UTC)
+
+    requests, err := PixPullRequest.Create(
+        []PixPullRequest.PixPullRequest{
+            {
+                Amount:                11234,
+                Due:                   &due,
+                EndToEndId:            "E00002649202201172211u34srod19le",
+                ReceiverAccountNumber: "876543-2",
+                ReceiverAccountType:   "checking",
+                ReceiverBankCode:      "20018183",
+                ReconciliationId:      "cycle-202604",
+                SubscriptionId:        "5656565656565656",
+                Tags:                  []string{"monthly"},
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    for _, request := range requests {
+        fmt.Println(request.Id)
+    }
+}
+
+```
+
+### Query PixPullRequests
+
+You can query multiple PixPullRequests according to filters.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequest "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 10
+    params["after"] = "2026-01-01"
+    params["before"] = "2026-04-30"
+    params["status"] = "created"
+    params["subscriptionIds"] = []string{"5656565656565656"}
+
+    requests, errorChannel := PixPullRequest.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case request, ok := <-requests:
+            if !ok {
+                break loop
+            }
+            fmt.Println(request)
+        }
+    }
+}
+
+```
+
+### Get a PixPullRequest
+
+After its creation, information on a PixPullRequest may be retrieved by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequest "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := PixPullRequest.Get("5656565656565656", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(request)
+}
+
+```
+
+### Update a PixPullRequest
+
+You can update a PixPullRequest to change its status to `"scheduled"` or `"denied"`. When denying, `reason` is required.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequest "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["status"] = "denied"
+    patchData["reason"] = "senderAccountClosed"
+
+    request, err := PixPullRequest.Update("5656565656565656", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(request)
+}
+
+```
+
+### Cancel a PixPullRequest
+
+You can cancel a PixPullRequest by passing its id and a reason.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequest "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    request, err := PixPullRequest.Cancel("5656565656565656", "senderUserRequested", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(request)
+}
+
+```
+
+### Query PixPullRequest logs
+
+You can query PixPullRequest logs to better understand PixPullRequest life cycles.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["limit"] = 50
+
+    logs, errorChannel := PixPullRequestLog.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case log, ok := <-logs:
+            if !ok {
+                break loop
+            }
+            fmt.Println(log)
+        }
+    }
+}
+
+```
+
+### Get a PixPullRequest log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    PixPullRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixpullrequest/log"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    log, err := PixPullRequestLog.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+    }
+
+    fmt.Println(log)
 }
 
 ```
