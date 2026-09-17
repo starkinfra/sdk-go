@@ -241,7 +241,9 @@ loop:
 	for _, infraction := range infractionList {
 		var amount int = infraction.Amount
 		var disputeId string = infraction.DisputeId
+		var bacenId string = infraction.BacenId
 		_ = amount
 		_ = disputeId
+		_ = bacenId
 	}
 }

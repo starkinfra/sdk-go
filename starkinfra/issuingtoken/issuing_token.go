@@ -18,6 +18,8 @@ import (
 //	- WalletId [string]: Wallet provider which the token is bounded to. ex: "google"
 //	- WalletName [string]: Wallet name. ex: "GOOGLE"
 //	- MerchantId [string]: Merchant unique id. ex: "5656565656565656"
+//	- WalletAccountScore [float64]: Account score informed by the digital wallet.
+//	- WalletDeviceScore [float64]: Device score informed by the digital wallet.
 //	- Updated [time.Time]: Latest update datetime for the IssuingToken. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: Creation datetime for the IssuingToken. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //
@@ -53,6 +55,8 @@ type IssuingToken struct {
 	DeviceOsVersion    string     `json:",omitempty"`
 	DeviceImei         string     `json:",omitempty"`
 	WalletInstanceId   string     `json:",omitempty"`
+	WalletAccountScore float64    `json:",omitempty"`
+	WalletDeviceScore  float64    `json:",omitempty"`
 	Updated            *time.Time `json:",omitempty"`
 	Created            *time.Time `json:",omitempty"`
 }

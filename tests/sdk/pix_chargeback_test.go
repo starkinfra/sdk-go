@@ -154,12 +154,14 @@ loop:
 	for _, chargeback := range chargebackList {
 		var isMonitoringRequired bool = chargeback.IsMonitoringRequired
 		_ = isMonitoringRequired
+		var bacenId string = chargeback.BacenId
 		var disputeId string = chargeback.DisputeId
 		var reversalAccountNumber string = chargeback.ReversalAccountNumber
 		var reversalAccountType string = chargeback.ReversalAccountType
 		var reversalBankCode string = chargeback.ReversalBankCode
 		var reversalBranchCode string = chargeback.ReversalBranchCode
 		var reversalTaxId string = chargeback.ReversalTaxId
+		_ = bacenId
 		_ = disputeId
 		_ = reversalAccountNumber
 		_ = reversalAccountType

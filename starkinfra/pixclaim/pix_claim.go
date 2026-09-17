@@ -30,6 +30,7 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixClaim is created. ex: "5656565656565656"
+//	- BacenId [string]: Central Bank ID for this Pix claim.
 //	- Status [string]: Current PixClaim status. Options: "created", "failed", "delivered", "confirmed", "success", "canceled"
 //	- Type [string]: Type of Pix Claim. Options: "ownership", "portability".
 //	- KeyType [string]: KeyType of the claimed PixKey. Options: "CPF", "CNPJ", "phone" or "email"
@@ -49,6 +50,7 @@ type PixClaim struct {
 	KeyId           string     `json:",omitempty"`
 	Tags            []string   `json:",omitempty"`
 	Id              string     `json:",omitempty"`
+	BacenId         string     `json:",omitempty"`
 	Status          string     `json:",omitempty"`
 	Type            string     `json:",omitempty"`
 	KeyType         string     `json:",omitempty"`

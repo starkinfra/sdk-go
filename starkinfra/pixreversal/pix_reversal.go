@@ -31,22 +31,24 @@ import (
 //	- Fee [string]: Fee charged by this PixReversal. ex: 200 (= R$ 2.00)
 //	- Status [string]: Current PixReversal status. ex: "created", "processing", "success", "failed"
 //	- Flow [string]: Direction of money flow. ex: "in" or "out"
+//	- Description [string]: Description of the reversal.
 //	- Created [time.Time]: Creation datetime for the PixReversal. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: Latest update datetime for the PixReversal. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type PixReversal struct {
-	Amount     int        `json:",omitempty"`
-	ExternalId string     `json:",omitempty"`
-	EndToEndId string     `json:",omitempty"`
-	Reason     string     `json:",omitempty"`
-	Tags       []string   `json:",omitempty"`
-	Id         string     `json:",omitempty"`
-	ReturnId   string     `json:",omitempty"`
-	Fee        int        `json:",omitempty"`
-	Status     string     `json:",omitempty"`
-	Flow       string     `json:",omitempty"`
-	Created    *time.Time `json:",omitempty"`
-	Updated    *time.Time `json:",omitempty"`
+	Amount      int        `json:",omitempty"`
+	ExternalId  string     `json:",omitempty"`
+	EndToEndId  string     `json:",omitempty"`
+	Reason      string     `json:",omitempty"`
+	Tags        []string   `json:",omitempty"`
+	Id          string     `json:",omitempty"`
+	ReturnId    string     `json:",omitempty"`
+	Fee         int        `json:",omitempty"`
+	Status      string     `json:",omitempty"`
+	Flow        string     `json:",omitempty"`
+	Description string     `json:",omitempty"`
+	Created     *time.Time `json:",omitempty"`
+	Updated     *time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "PixReversal"}
@@ -190,7 +192,7 @@ func Parse(content string, signature string, user user.User) (PixReversal, Error
 	if err.Errors != nil {
 		return pixReversal, err
 	}
-	
+
 	unmarshalError := json.Unmarshal([]byte(parsed), &pixReversal)
 	if unmarshalError != nil {
 		return pixReversal, Error.UnknownError(unmarshalError.Error())
