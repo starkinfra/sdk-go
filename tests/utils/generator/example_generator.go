@@ -687,14 +687,14 @@ func Webhook() webhook.Webhook {
 
 func PixPullSubscription() []pixpullsubscription.PixPullSubscription {
 
-	installmentStart := time.Now().UTC()
+	installmentStart := time.Now().UTC().AddDate(0, 0, 7)
 	pullRetryLimit := 3
 
 	subscriptions := []pixpullsubscription.PixPullSubscription{
 		{
             Amount: 52064,
             AmountMinLimit: 0,
-            BacenId: PixPullSubscriptionBacenId("32160637"),
+            BacenId: Utils.PixSubscriptionBacenId("32160637", "RR"),
             Description: "A Lannister always pays his debts",
             InstallmentEnd: nil,
             InstallmentStart: &installmentStart,
