@@ -78,6 +78,14 @@ This SDK version is compatible with the Stark Infra API v2.
         - [BusinessIdentity](#create-businessidentities): Create business identities
         - [BusinessAttachment](#create-businessattachments): Create business attachments
         - [BusinessAccountRequest](#create-businessaccountrequests): Open a Stark Infra account for a company
+    - [AI](#ai)
+        - [AiKnowledgeBase](#create-an-aiknowledgebase): Turn a website into knowledge your agents can answer from
+        - [AiVoice](#create-an-aivoice): Clone a voice from a recording
+        - [AiSpeech](#create-an-aispeech): Read a text out loud with a cloned voice
+        - [AiTranscript](#create-an-aitranscript): Turn a recording into text
+        - [AiAgent](#create-an-aiagent): Configure the assistant that answers your chats
+        - [AiChat](#create-an-aichat): Hold a conversation with an agent
+        - [AiMessage](#create-an-aimessage): Send a message and receive the agent's answer
     - [Webhook](#webhook):
         - [Webhook](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
         - [WebhookEvents](#process-webhook-events): Manage Webhook events
@@ -9114,6 +9122,1304 @@ func main() {
     }
 
     fmt.Println(log.Id)
+}
+
+```
+
+## AI
+
+### Create an AiKnowledgeBase
+
+An AiKnowledgeBase turns a website into material an agent can read. Stark Infra crawls the root URL, follows its
+links, converts every page to Markdown and indexes it. The call returns at once with the base in "processing" status.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    isRecursive := false
+
+    knowledgeBase, err := AiKnowledgeBase.Create(
+        AiKnowledgeBase.AiKnowledgeBase{
+            Name:        "Product Documentation",
+            RootUrl:     "https://docs.starkinfra.com",
+            IsRecursive: &isRecursive,
+            Tags:        []string{"support", "public"},
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(knowledgeBase)
+}
+
+```
+
+### Get an AiKnowledgeBase
+
+Poll a knowledge base by its id until its status leaves "processing".
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    knowledgeBase, err := AiKnowledgeBase.Get("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(knowledgeBase)
+}
+
+```
+
+### Query AiKnowledgeBases
+
+You can list your knowledge bases, optionally filtered by ids, by a substring of the name or by status. The SDK
+follows the cursor for you until the list ends or `limit` is reached.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var params = map[string]interface{}{}
+    params["name"] = "documentation"
+    params["status"] = "success"
+
+    knowledgeBases, errorChannel := AiKnowledgeBase.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case knowledgeBase, ok := <-knowledgeBases:
+            if !ok {
+                break loop
+            }
+            fmt.Println(knowledgeBase)
+        }
+    }
+}
+
+```
+
+### Get paged AiKnowledgeBases
+
+To manually page your knowledge bases, use the Page function. It returns up to 100 knowledge bases and the cursor to the next page, which is empty on the last one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+    params["status"] = "success"
+
+    for {
+        knowledgeBases, cursor, err := AiKnowledgeBase.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, knowledgeBase := range knowledgeBases {
+            fmt.Println(knowledgeBase)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Update an AiKnowledgeBase
+
+Rename a knowledge base, retag it or change whether its crawl is recursive. The root URL cannot be changed.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    var patchData = map[string]interface{}{}
+    patchData["name"] = "Public Documentation"
+    patchData["tags"] = []string{"support"}
+
+    knowledgeBase, err := AiKnowledgeBase.Update("5155165527080960", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(knowledgeBase)
+}
+
+```
+
+### List the pages of an AiKnowledgeBase
+
+Get every page the crawler has seen, grouped by host, with the status of each one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    hosts, err := AiKnowledgeBase.Hosts("5155165527080960", nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(hosts)
+}
+
+```
+
+### Delete AiKnowledgeBases
+
+Delete up to 100 knowledge bases at once. Agents that still reference a deleted base simply retrieve nothing from it.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiKnowledgeBase "github.com/starkinfra/sdk-go/starkinfra/aiknowledgebase"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    knowledgeBases, err := AiKnowledgeBase.Delete([]string{"5155165527080960", "4545454545454545"}, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, knowledgeBase := range knowledgeBases {
+        fmt.Println(knowledgeBase)
+    }
+}
+
+```
+
+### Create an AiVoice
+
+An AiVoice is a voice cloned from a recording you upload. Cloning is asynchronous: the call returns at once with the
+voice in "processing" status, and it can speak once it reaches "success". The sandbox currently answers 500 when
+a voice is deleted, so create them sparingly.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiVoice "github.com/starkinfra/sdk-go/starkinfra/aivoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    voice, err := AiVoice.Create(
+        AiVoice.AiVoice{
+            Audio:       "SUQzBAAAAAAA",
+            Name:        "Helena",
+            Description: "Calm voice",
+            Language:    "portuguese",
+            Gender:      "female",
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(voice)
+}
+
+```
+
+### Query AiVoices
+
+You can list your voices. The SDK follows the cursor for you until the list ends or `limit` is reached.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiVoice "github.com/starkinfra/sdk-go/starkinfra/aivoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 10
+
+    voices, errorChannel := AiVoice.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case voice, ok := <-voices:
+            if !ok {
+                break loop
+            }
+            fmt.Println(voice)
+        }
+    }
+}
+
+```
+
+### Get paged AiVoices
+
+To manually page your voices, use the Page function. It returns up to 100 voices and the cursor to the next page, which is empty on the last one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiVoice "github.com/starkinfra/sdk-go/starkinfra/aivoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+
+    for {
+        voices, cursor, err := AiVoice.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, voice := range voices {
+            fmt.Println(voice)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Delete AiVoices
+
+Delete up to 100 voices at once.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiVoice "github.com/starkinfra/sdk-go/starkinfra/aivoice"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    voices, err := AiVoice.Delete([]string{"5155165527080960", "4545454545454545"}, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, voice := range voices {
+        fmt.Println(voice)
+    }
+}
+
+```
+
+### Create an AiSpeech
+
+An AiSpeech is one text read out loud by an AiVoice in "success" status. The audio is synthesized during the call
+and comes back as a base64 MP3.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiSpeech "github.com/starkinfra/sdk-go/starkinfra/aispeech"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    speech, err := AiSpeech.Create(
+        AiSpeech.AiSpeech{
+            VoiceId: "5155165527080960",
+            Text:    "Hello, how can I help you?",
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(speech)
+}
+
+```
+
+### Get an AiSpeech
+
+Retrieve a speech by its id. The audio comes with it. Use `expand` to receive the voice name.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiSpeech "github.com/starkinfra/sdk-go/starkinfra/aispeech"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{
+        "expand": []string{"voiceName"},
+    }
+
+    speech, err := AiSpeech.Get("5155165527080960", params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(speech)
+}
+
+```
+
+### Query AiSpeeches
+
+You can list your speeches. The audio is left out of the results. The SDK follows the cursor for you until the list
+ends or `limit` is reached. Use `expand` to receive the voice name.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiSpeech "github.com/starkinfra/sdk-go/starkinfra/aispeech"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 10
+    params["expand"] = []string{"voiceName"}
+
+    speeches, errorChannel := AiSpeech.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case speech, ok := <-speeches:
+            if !ok {
+                break loop
+            }
+            fmt.Println(speech)
+        }
+    }
+}
+
+```
+
+### Get paged AiSpeeches
+
+To manually page your speeches, use the Page function. It returns up to 100 speeches, without the audio, and the cursor to the next page, which is empty on the last one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiSpeech "github.com/starkinfra/sdk-go/starkinfra/aispeech"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+
+    for {
+        speeches, cursor, err := AiSpeech.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, speech := range speeches {
+            fmt.Println(speech)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Create an AiTranscript
+
+An AiTranscript is the text of an audio file you upload. The audio is transcribed during the call.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiTranscript "github.com/starkinfra/sdk-go/starkinfra/aitranscript"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    transcript, err := AiTranscript.Create(
+        AiTranscript.AiTranscript{
+            Audio: "SUQzBAAAAAAA",
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(transcript)
+}
+
+```
+
+### Query AiTranscripts
+
+You can list your transcripts. The SDK follows the cursor for you until the list ends or `limit` is reached.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiTranscript "github.com/starkinfra/sdk-go/starkinfra/aitranscript"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 10
+
+    transcripts, errorChannel := AiTranscript.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case transcript, ok := <-transcripts:
+            if !ok {
+                break loop
+            }
+            fmt.Println(transcript)
+        }
+    }
+}
+
+```
+
+### Get paged AiTranscripts
+
+To manually page your transcripts, use the Page function. It returns up to 100 transcripts and the cursor to the next page, which is empty on the last one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiTranscript "github.com/starkinfra/sdk-go/starkinfra/aitranscript"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+
+    for {
+        transcripts, cursor, err := AiTranscript.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, transcript := range transcripts {
+            fmt.Println(transcript)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Create an AiAgent
+
+An AiAgent is the configuration of an assistant: the model, its instructions, the knowledge bases it may consult and
+the voice it speaks with. The keys of `MetadataSchema` are yours and are sent exactly as written.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    agent, err := AiAgent.Create(
+        AiAgent.AiAgent{
+            Name:             "Support assistant",
+            Model:            "bender-1.0",
+            SystemPrompt:     "Answer in one short sentence.",
+            KnowledgeBaseIds: []string{"5155165527080960"},
+            MetadataSchema: map[string]interface{}{
+                "order_id": map[string]interface{}{
+                    "type":        "string",
+                    "description": "Order the customer mentions",
+                },
+            },
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(agent)
+}
+
+```
+
+### Get an AiAgent
+
+Retrieve an agent by its id. Use `expand` to receive the knowledge bases themselves instead of only their ids.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{
+        "expand": []string{"knowledgeBases"},
+    }
+
+    agent, err := AiAgent.Get("5155165527080960", params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(agent)
+}
+
+```
+
+### Query AiAgents
+
+You can list your agents. The SDK follows the cursor for you until the list ends or `limit` is reached. Use `expand`
+to receive the knowledge bases themselves.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 10
+    params["expand"] = []string{"knowledgeBases"}
+
+    agents, errorChannel := AiAgent.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case agent, ok := <-agents:
+            if !ok {
+                break loop
+            }
+            fmt.Println(agent)
+        }
+    }
+}
+
+```
+
+### Get paged AiAgents
+
+To manually page your agents, use the Page function. It returns up to 100 agents and the cursor to the next page, which is empty on the last one.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+    params["expand"] = []string{"knowledgeBases"}
+
+    for {
+        agents, cursor, err := AiAgent.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, agent := range agents {
+            fmt.Println(agent)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Update an AiAgent
+
+All six attributes go in the request and the API keeps what you do not send. Clear a field on purpose with `""` for
+the strings, `[]string{}` for `knowledgeBaseIds` or an empty map for `metadataSchema`. The keys of `metadataSchema` are
+yours and are sent exactly as written.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    patchData := map[string]interface{}{}
+    patchData["name"] = "Renamed assistant"
+    patchData["systemPrompt"] = "Answer in two short sentences."
+    patchData["knowledgeBaseIds"] = []string{}
+
+    agent, err := AiAgent.Update("5155165527080960", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(agent)
+}
+
+```
+
+### Delete AiAgents
+
+Delete up to 100 agents at once.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiAgent "github.com/starkinfra/sdk-go/starkinfra/aiagent"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    agents, err := AiAgent.Delete([]string{"5155165527080960", "4545454545454545"}, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, agent := range agents {
+        fmt.Println(agent)
+    }
+}
+
+```
+
+### Create an AiChat
+
+An AiChat is one conversation thread with an AiAgent. When you give no title, the first message posted to the chat
+generates one. `Tags` help you find the chat later and `Context` is data about the person on the other side that the
+agent reads before every reply. The keys of `Context` are yours and are sent exactly as written.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    chat, err := AiChat.Create(
+        AiChat.AiChat{
+            AgentId: "5155165527080960",
+            Title:   "Order 123",
+            Tags:    []string{"customer-123", "whatsapp"},
+            Context: map[string]interface{}{"customer_name": "Ana", "balance": 1520.33},
+        }, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(chat)
+}
+
+```
+
+### Get an AiChat
+
+Retrieve a chat by its id. Use `expand` to receive the name of its agent.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{
+        "expand": []string{"agentName"},
+    }
+
+    chat, err := AiChat.Get("5155165527080960", params, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(chat)
+}
+
+```
+
+### Query AiChats
+
+You can list your chats, optionally filtered by `tags`. The SDK follows the cursor for you until the list ends or
+`limit` is reached. Use `expand` to receive the name of the agent.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 10
+    params["tags"] = []string{"customer-123"}
+    params["expand"] = []string{"agentName"}
+
+    chats, errorChannel := AiChat.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case chat, ok := <-chats:
+            if !ok {
+                break loop
+            }
+            fmt.Println(chat)
+        }
+    }
+}
+
+```
+
+### Get paged AiChats
+
+To manually page your chats, use the Page function. It returns up to 100 chats and the cursor to the next page, which is empty on the last one. `tags` is sent comma-separated.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["limit"] = 5
+    params["tags"] = []string{"customer-123"}
+
+    for {
+        chats, cursor, err := AiChat.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, chat := range chats {
+            fmt.Println(chat)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
+}
+
+```
+
+### Update an AiChat
+
+Change the title, the agent that answers from now on, the tags or the context of a chat. All four go in the request
+and the API keeps what you do not send. Tags and context replace the current value as a whole; clear them with
+`[]string{}` and an empty map.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    patchData := map[string]interface{}{}
+    patchData["title"] = "Order 123 - resolved"
+    patchData["tags"] = []string{"customer-123", "resolved"}
+    patchData["context"] = map[string]interface{}{"customer_name": "Ana", "balance": 0}
+
+    chat, err := AiChat.Update("5155165527080960", patchData, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    fmt.Println(chat)
+}
+
+```
+
+### Delete AiChats
+
+Delete up to 100 chats at once, with their messages.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiChat "github.com/starkinfra/sdk-go/starkinfra/aichat"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    chats, err := AiChat.Delete([]string{"5155165527080960", "4545454545454545"}, nil)
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, chat := range chats {
+        fmt.Println(chat)
+    }
+}
+
+```
+
+### Create an AiMessage
+
+Post what the user said to a chat. The call waits for the agent, which takes a few seconds, and returns the user's
+message followed by the agent's answer. Pass `"chatName"` as expand to receive the chat title on every message,
+useful on the first turn, when the title is generated. The keys of `Metadata` are the ones declared by the agent.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiMessage "github.com/starkinfra/sdk-go/starkinfra/aimessage"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    messages, err := AiMessage.Create(
+        AiMessage.AiMessage{
+            ChatId: "5155165527080960",
+            Text:   "What is the status of order 123?",
+        },
+        []string{"chatName"},
+        nil,
+    )
+    if err.Errors != nil {
+        for _, e := range err.Errors {
+            fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+        return
+    }
+
+    for _, message := range messages {
+        fmt.Println(message)
+    }
+}
+
+```
+
+### Query AiMessages
+
+You can list the messages of a chat, following the cursor until the history ends or `limit` is reached. `chatId` is
+optional: without it, the messages of every chat in the workspace are returned.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiMessage "github.com/starkinfra/sdk-go/starkinfra/aimessage"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["chatId"] = "5155165527080960"
+    params["limit"] = 10
+
+    messages, errorChannel := AiMessage.Query(params, nil)
+    loop:
+    for {
+        select {
+        case err := <-errorChannel:
+            if err.Errors != nil {
+                for _, e := range err.Errors {
+                    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+                }
+            }
+        case message, ok := <-messages:
+            if !ok {
+                break loop
+            }
+            fmt.Println(message)
+        }
+    }
+}
+
+```
+
+### Page AiMessages
+
+To manually page the messages of a chat, use the Page function. It returns up to 100 messages and the cursor to the
+next page, which is empty on the last one. `chatId` is optional: omit it to page the whole workspace history.
+
+```golang
+package main
+
+import (
+    "fmt"
+    "github.com/starkinfra/sdk-go/starkinfra"
+    AiMessage "github.com/starkinfra/sdk-go/starkinfra/aimessage"
+    "github.com/starkinfra/sdk-go/tests/utils"
+)
+
+func main() {
+
+    starkinfra.User = utils.ExampleProject
+
+    params := map[string]interface{}{}
+    params["chatId"] = "5155165527080960"
+    params["limit"] = 5
+
+    for {
+        messages, cursor, err := AiMessage.Page(params, nil)
+        if err.Errors != nil {
+            for _, e := range err.Errors {
+                fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+            }
+            return
+        }
+
+        for _, message := range messages {
+            fmt.Println(message)
+        }
+
+        if cursor == "" {
+            break
+        }
+        params["cursor"] = cursor
+    }
 }
 
 ```
