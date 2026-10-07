@@ -64,6 +64,28 @@ func Create(holmes []PixKeyHolmes, user user.User) ([]PixKeyHolmes, Error.StarkE
 	return holmes, err
 }
 
+func Get(id string, user user.User) (PixKeyHolmes, Error.StarkErrors) {
+	//	Retrieve a specific PixKeyHolmes
+	//
+	//	Receive a single PixKeyHolmes struct previously created in the Stark Infra API by its id
+	//
+	//	Parameters (required):
+	//	- id [string]: Struct unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
+	//
+	//	Return:
+	//	- PixKeyHolmes struct that corresponds to the given id.
+	var pixKeyHolmes PixKeyHolmes
+	get, err := utils.Get(resource, id, nil, user)
+	unmarshalError := json.Unmarshal(get, &pixKeyHolmes)
+	if unmarshalError != nil {
+		return pixKeyHolmes, err
+	}
+	return pixKeyHolmes, err
+}
+
 func Query(params map[string]interface{}, user user.User) (chan PixKeyHolmes, chan Error.StarkErrors) {
 	//	Retrieve PixKeyHolmes
 	//
