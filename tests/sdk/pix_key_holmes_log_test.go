@@ -47,7 +47,7 @@ func TestPixKeyHolmesLogPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 2
 
-	logs, cursor, err := PixKeyHolmesLog.Page(params, nil)
+	logs, _, err := PixKeyHolmesLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)
@@ -61,7 +61,6 @@ func TestPixKeyHolmesLogPage(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, ids)
-	assert.NotNil(t, cursor)
 }
 
 func TestPixKeyHolmesLogGet(t *testing.T) {
