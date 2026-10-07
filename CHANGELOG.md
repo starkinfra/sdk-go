@@ -14,6 +14,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Added
+- PixKeyHolmes.Log sub-resource
+- PixKeyHolmes Get function
 - PixPullSubscription.parse method
 - CreditSigner.resendToken method
 - Pdf and Payment methods to CreditNote resource

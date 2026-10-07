@@ -26,7 +26,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixKeyHolmes is created. ex: "5656565656565656"
 //	- Result [string]: Result of the investigation after the case is solved. ex: "registered", "unregistered"
-//	- Status [string]: Current status of the PixKeyHolmes. ex: "created", "solving", "solved", "failed"
+//	- Status [string]: Current status of the PixKeyHolmes. ex: "solving", "solved"
 //	- Created [time.Time]: Creation datetime for the PixKeyHolmes. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: Latest update datetime for the PixKeyHolmes. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
@@ -64,6 +64,28 @@ func Create(holmes []PixKeyHolmes, user user.User) ([]PixKeyHolmes, Error.StarkE
 	return holmes, err
 }
 
+func Get(id string, user user.User) (PixKeyHolmes, Error.StarkErrors) {
+	//	Retrieve a specific PixKeyHolmes
+	//
+	//	Receive a single PixKeyHolmes struct previously created in the Stark Infra API by its id
+	//
+	//	Parameters (required):
+	//	- id [string]: Struct unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
+	//
+	//	Return:
+	//	- PixKeyHolmes struct that corresponds to the given id.
+	var pixKeyHolmes PixKeyHolmes
+	get, err := utils.Get(resource, id, nil, user)
+	unmarshalError := json.Unmarshal(get, &pixKeyHolmes)
+	if unmarshalError != nil {
+		return pixKeyHolmes, err
+	}
+	return pixKeyHolmes, err
+}
+
 func Query(params map[string]interface{}, user user.User) (chan PixKeyHolmes, chan Error.StarkErrors) {
 	//	Retrieve PixKeyHolmes
 	//
@@ -74,7 +96,7 @@ func Query(params map[string]interface{}, user user.User) (chan PixKeyHolmes, ch
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. The live API accepts only "solved" or "solving" as filter values. ex: []string{"solved", "solving"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. The live API accepts only "solved" or "solving" as filter values. ex: []string{"solving", "solved"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"tony", "stark"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
@@ -116,7 +138,7 @@ func Page(params map[string]interface{}, user user.User) ([]PixKeyHolmes, string
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. Max = 100. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date.  ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. The live API accepts only "solved" or "solving" as filter values. ex: []string{"solved", "solving"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. The live API accepts only "solved" or "solving" as filter values. ex: []string{"solving", "solved"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"tony", "stark"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call.
