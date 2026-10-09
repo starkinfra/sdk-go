@@ -105,3 +105,10 @@ func DeleteRaw(path string, user user.User, prefix string, throwError bool) (req
 	}
 	return rest.DeleteRaw(starkinfra.SdkVersion, starkinfra.Host, starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, path, user, prefix, throwError)
 }
+
+func DeleteQuery(path string, query map[string]interface{}, user user.User, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
+	if user == nil {
+		user = starkinfra.User
+	}
+	return request.Fetch(starkinfra.Host, starkinfra.SdkVersion, user, "DELETE", path, "", starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, query, prefix, throwError)
+}
