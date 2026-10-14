@@ -30,7 +30,7 @@ func Create(previews []CreditPreview, user user.User) ([]CreditPreview, Error.St
 	//
 	//	Send a slice of CreditPreview structs for processing at the Stark Infra API. You can create up to 100
 	//	previews in a single request. For "sac" and "price" credit types, provide exactly one of Count or
-	//	InitialAmount — the other is computed. For every type except "custom", provide exactly one of
+	//	InitialAmount — the other is computed. For every type, including "custom", provide exactly one of
 	//	NominalAmount or Amount.
 	//
 	//	Parameters (required):
