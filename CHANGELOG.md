@@ -31,6 +31,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - BacenId attribute to PixClaim resource
 - BacenId attribute to PixInfraction resource
 - Description attribute to PixReversal resource
+### Changed
+- NominalAmount and Amount parameters to conditionally required to CreditNotePreview sub-resource
 ### Fixed
 - MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 - PixPullSubscription log parsing when the subscription carries an empty date
