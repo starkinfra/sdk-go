@@ -15,7 +15,7 @@ func TestPixSubscriptionBacenId(t *testing.T) {
 
 	assert.Len(t, bacenId, 29)
 	assert.Regexp(t, regexp.MustCompile(`^RR32160637\d{8}[a-zA-Z0-9]{11}$`), bacenId)
-	assert.Equal(t, time.Now().Format("20060102"), bacenId[10:18])
+	assert.Equal(t, time.Now().UTC().Format("20060102"), bacenId[10:18])
 }
 
 func TestPixSubscriptionBacenIdRandomPartDiffers(t *testing.T) {
@@ -35,4 +35,13 @@ func TestEndToEndIdAndReturnIdKeepMinutePrecision(t *testing.T) {
 	assert.Len(t, returnId, 32)
 	assert.Regexp(t, regexp.MustCompile(`^E32160637\d{12}[a-zA-Z0-9]{11}$`), endToEndId)
 	assert.Regexp(t, regexp.MustCompile(`^D32160637\d{12}[a-zA-Z0-9]{11}$`), returnId)
+}
+
+func TestEndToEndIdAndReturnIdUseUtc(t *testing.T) {
+
+	for _, bacenId := range []string{Utils.EndToEndId("32160637"), Utils.ReturnId("32160637")} {
+		generated, err := time.Parse("200601021504", bacenId[9:21])
+		assert.Nil(t, err)
+		assert.LessOrEqual(t, time.Since(generated).Abs(), 2*time.Minute)
+	}
 }
