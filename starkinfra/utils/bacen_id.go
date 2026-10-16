@@ -12,6 +12,14 @@ var Chars = []string{
 	"0", "1", "2","3", "4", "5", "6", "7", "8", "9",
 }
 
+// BacenId generates a random bacenId based on your bank code (ISPB).
+// The datetime stamp (yyyyMMddHHmm) is always generated in UTC, regardless of the machine timezone.
+//
+// Parameters (required):
+// - bankCode [string]: Your bank code (ISPB). ex: "20018183"
+//
+// Return:
+// - Random bacenId composed of the bank code, the current UTC datetime and 11 random characters.
 func BacenId(bankCode string) string {
 	return bacenIdWithLayout(bankCode, "200601021504")
 }
@@ -23,7 +31,7 @@ func bacenIdWithLayout(bankCode string, dateLayout string) string {
 		random := fmt.Sprintf("%v", Chars[rand.Intn(len(Chars))])
 		randomString += random
 	}
-	return fmt.Sprintf("%v%v%v", bankCode, time.Now().Format(dateLayout), randomString)
+	return fmt.Sprintf("%v%v%v", bankCode, time.Now().UTC().Format(dateLayout), randomString)
 }
 
 func BankCode(BankCode string) string {
@@ -41,7 +49,7 @@ func BankCode(BankCode string) string {
 
 	return fmt.Sprintf("%v%v%v",
 		BankCode,
-		time.Now().Format("200601021504"),
+		time.Now().UTC().Format("200601021504"),
 		randomString,
 	)
 }
