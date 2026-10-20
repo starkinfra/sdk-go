@@ -77,3 +77,30 @@ func TestPixKeyHolmesPage(t *testing.T) {
 
 	assert.NotNil(t, cursor)
 }
+
+func TestPixKeyHolmesGet(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	var params = map[string]interface{}{}
+	params["limit"] = 1
+
+	holmes, _, err := PixKeyHolmes.Page(params, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+	if len(holmes) == 0 {
+		t.Fatal("no PixKeyHolmes available")
+	}
+
+	sherlock, err := PixKeyHolmes.Get(holmes[0].Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	assert.Equal(t, holmes[0].Id, sherlock.Id)
+}
