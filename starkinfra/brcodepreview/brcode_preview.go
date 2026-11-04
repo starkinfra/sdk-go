@@ -41,6 +41,7 @@ import (
 //	- ReductionAmount [int]: Reduction value to discount from nominalAmount. ex: 1000
 //	- Status [string]: Payment status. ex: "active", "paid", "canceled" or "unknown"
 //	- TaxId [string]: Payment receiver tax ID. ex: "012.345.678-90"
+//	- Description [string]: Description of the payment. ex: "Payment for order #1234"
 //	- Due [time.Time]: BR Code due date. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC)
 //	- Expired [time.Time]: Date/time after which the dynamic QR Code is considered expired. ex: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)
 //	- Data [slice of maps]: Slice of additional data in key/value pairs. ex: []map[string]interface{}{{"key": "additional-info", "value": "order #12345"}}
@@ -72,6 +73,7 @@ type BrcodePreview struct {
 	Status           string                   `json:",omitempty"`
 	TaxId            string                   `json:",omitempty"`
 	Subscription     *Subscription            `json:",omitempty"`
+	Description      string                   `json:",omitempty"`
 	Due              *time.Time               `json:",omitempty"`
 	Expired          *time.Time               `json:",omitempty"`
 	Data             []map[string]interface{} `json:",omitempty"`
