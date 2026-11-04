@@ -42,7 +42,7 @@ import (
 //	Parameters (optional):
 //	- RebateAmount [int, default 0]: Credit analysis fee deducted from lent amount. ex: 1234 (= R$ 112.34)
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for CreditNotes. ex: []string{"employees", "monthly"}
-//	- Expiration [int, default default 604800 (7 days)]: Time interval in seconds between due date and expiration date. ex: 123456789
+//	- Expiration [*int, default 604800 (7 days)]: Time interval in seconds between due date and expiration date. 0 is a valid value. ex: 123456789
 //	- Rules [slice of CreditNote.Rule structs, default nil]: Slice of CreditNote.Rule structs that modify the CreditNote behavior. ex: []creditnote.Rule{{Key: "invoiceCreationMode", Value: "scheduled"}}
 //
 //	Attributes (return-only):
@@ -79,7 +79,7 @@ type CreditNote struct {
 	Amount            int                   `json:",omitempty"`
 	RebateAmount      int                   `json:",omitempty"`
 	Tags              []string              `json:",omitempty"`
-	Expiration        int                   `json:",omitempty"`
+	Expiration        *int                  `json:",omitempty"`
 	Rules             []Rule                `json:",omitempty"`
 	DocumentId        string                `json:",omitempty"`
 	Status            string                `json:",omitempty"`
