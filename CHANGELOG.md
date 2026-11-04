@@ -31,10 +31,12 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - BacenId attribute to PixClaim resource
 - BacenId attribute to PixInfraction resource
 - Description attribute to PixReversal resource
+### Changed
+- Expiration, Fine and Interest types in CreditNote.Invoice resource, from int and float64 to *int and *float64: an explicit 0 was dropped before reaching the API, which applied its non-zero default instead
+- PullRetryLimit type in PixPullSubscription resource, from int to *int: an explicit 0 was dropped before reaching the API, which requires the field
+- MerchantCategoryNumber type in IssuingPurchase resource, from int to string: the API returns a string
 ### Fixed
-- MerchantCategoryNumber type in IssuingPurchase resource, the API returns a string
 - PixPullSubscription log parsing when the subscription carries an empty date
-- PullRetryLimit type in PixPullSubscription resource, an explicit 0 was dropped before reaching the API, which requires the field
 - Errors documentation for PixPullSubscription.Log and PixPullRequest.Log, the API returns a slice of {code, message} maps, not strings
 - Query() channels reusing one struct instance across items, so a field absent from one item kept the previous item's value, across every resource with a Query() method
 - IssuingCard and Webhook Get/Query/Page/Update/Delete sharing one package-level struct instance instead of one scoped to each call
