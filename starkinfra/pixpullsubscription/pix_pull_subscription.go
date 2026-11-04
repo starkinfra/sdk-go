@@ -39,7 +39,7 @@ import (
 //  - InstallmentEnd [time.Time]: End of settlements allowed for this Pix Pull Subscription
 //  - ReceiverBankCode [string]: Receiver's bank institution code in Brazil.
 //  - ReferenceCode [string]: Represents the comercial relation. It can be a contract number, order identification or client code.
-//  - PullRetryLimit [int, default nil]: Defines if the receiver is able to create Pix Pull Request for retries.
+//  - PullRetryLimit [int, default nil]: Number of retries the receiver may attempt for a failed pull. Options: 0 (retries not allowed) or 3 (up to 3 retries inside 7 days). A nil pointer omits the field; point to 0 to disable retries. ex: 3
 //  - SenderCityCode [string]:
 //  - SenderFinalName [string]:
 //  - SenderFinalTaxId [string]:
