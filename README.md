@@ -7770,7 +7770,7 @@ func main() {
 
 **Note**: Instead of using IndividualIdentity objects, you can also pass each element in dictionary format
 
-### Query IndividualIdentity
+### Query IndividualIdentities
 
 You can query multiple individual identities according to filters.
 
@@ -8465,7 +8465,7 @@ func main() {
 
 **Note**: Instead of using BusinessIdentity objects, you can also pass each element in dictionary format
 
-### Query BusinessIdentity
+### Query BusinessIdentities
 
 You can query multiple business identities according to filters.
 
@@ -8720,7 +8720,7 @@ func main() {
 
 **Note**: Instead of using BusinessAttachment objects, you can also pass each element in dictionary format
 
-### Query BusinessAttachment
+### Query BusinessAttachments
 
 You can query multiple business attachments according to filters.
 
