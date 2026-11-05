@@ -32,7 +32,7 @@ import (
 //	- Analysis [string]: Analysis that led to the result.
 //	- SenderBankCode [string]: BankCode of the Pix participant that created the PixChargeback. ex: "20018183"
 //	- ReceiverBankCode [string]: BankCode of the Pix participant that received the PixChargeback. ex: "20018183"
-//	- RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "noBalance", "accountClosed", "invalidRequest", "unableToReverse"
+//	- RejectionReason [string]: Reason for the rejection of the Pix chargeback. Options: "other", "noBalance", "accountClosed", "invalidRequest"
 //	- ReversalReferenceId [string]: ReturnId or endToEndId of the reversal transaction. ex: "D20018183202202030109X3OoBHG74wo"
 //	- Result [string]: Result after the analysis of the PixChargeback by the receiving party. Options: "rejected", "accepted", "partiallyAccepted"
 //	- Flow [string]: Direction of the Pix Chargeback. Options: "in" for received chargebacks, "out" for chargebacks you requested
