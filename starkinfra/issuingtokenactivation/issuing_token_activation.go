@@ -11,6 +11,8 @@ import (
 //
 //	The IssuingTokenActivation struct displays the necessary information to proceed with the card tokenization.
 //	You will receive this struct at your registered URL to notify you which method your user want to receive the activation code.
+//	The POST request must be answered with no content, within 2 seconds, and with an HTTP status code 200.
+//	After that, you may generate the activation code and send it to the cardholder.
 //
 //	Attributes (return-only):
 //	- CardId [string]: Card ID which the token is bounded to. ex: "5656565656565656"

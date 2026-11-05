@@ -5642,6 +5642,9 @@ func main() {
 
     var params = map[string]interface{}{}
     params["limit"] = 50
+    params["after"] = "2026-01-01"
+    params["before"] = "2026-04-30"
+    params["subscriptionIds"] = []string{"5656565656565656"}
 
     logs, errorChannel := PixPullSubscriptionLog.Query(params, nil)
     loop:
@@ -5936,6 +5939,7 @@ func main() {
 
     var params = map[string]interface{}{}
     params["limit"] = 50
+    params["requestIds"] = []string{"5656565656565656"}
 
     logs, errorChannel := PixPullRequestLog.Query(params, nil)
     loop:
