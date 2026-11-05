@@ -202,7 +202,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (PixPul
 	//	A Pix Pull Request can be updated to change the status to "scheduled" or "denied"
 	//
 	//  Parameters (required):
-	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"status": "approved", "senderCityCode": "3550308"}
+	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"status": "scheduled"}
 	//		Parameters (required):
 	//		- status [string]: New status of the Pix Pull Request. Options: "scheduled", "denied"
 	//		Parameters (conditionally required):

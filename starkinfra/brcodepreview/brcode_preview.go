@@ -24,7 +24,7 @@ import (
 //	- AccountNumber [string]: Payment receiver account number. ex: "1234567"
 //	- AccountType [string]: Payment receiver account type. ex: "checking"
 //	- Amount [int]: Value in cents that this payment is expecting to receive. If 0, any value is accepted. ex: 123 (= R$1,23)
-//	- AmountType [string]: amount type of the BR Code. Options: "fixed" (amount is locked) or "minimum" (the BR Code's amount can be increased by the sender at the moment of payment).
+//	- AmountType [string]: amount type of the BR Code. If the amount type is "custom" the BR Code's amount can be changed by the sender at the moment of payment. Options: "fixed" or "custom"
 //	- BankCode [string]: Payment receiver bank code. ex: "20018183"
 //	- BranchCode [string]: Payment receiver branch code. ex: "0001"
 //	- CashAmount [int]: Amount to be withdrawn from the cashier in cents. ex: 1000 (= R$ 10.00)
@@ -45,7 +45,7 @@ import (
 //	- Due [time.Time]: BR Code due date. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC)
 //	- Expired [time.Time]: Date/time after which the dynamic QR Code is considered expired. ex: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)
 //	- Data [slice of maps]: Slice of additional data in key/value pairs. ex: []map[string]interface{}{{"key": "additional-info", "value": "order #12345"}}
-//	- Jws [string]: JWS of the dynamic QR Code. Only returned when "jws" is requested via the expand parameter on creation. ex: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."
+//	- Jws [string]: JWS of the dynamic QR Code. The API only returns it when "jws" is requested via the expand parameter, which this SDK version does not expose, so this field is always empty. ex: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."
 // Note: this SDK version does not expose the cityCode or expand input fields documented in the API reference; requests are sent without them.
 
 type BrcodePreview struct {
