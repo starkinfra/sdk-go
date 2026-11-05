@@ -25,6 +25,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IndividualAccountAttachmentLog resource
 - IssuingTokenActivation resource
 - Due attribute to BrcodePreview resource
+- Description attribute to BrcodePreview resource
 - Expiration and NominalInterest attributes to CreditNote resource
 - WalletAccountScore and WalletDeviceScore attributes to IssuingToken resource
 - BacenId attribute to PixChargeback resource
