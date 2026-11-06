@@ -5,8 +5,10 @@ import (
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	BusinessIdentityLog "github.com/starkinfra/sdk-go/starkinfra/businessidentity/log"
+	CreditHolmesLog "github.com/starkinfra/sdk-go/starkinfra/creditholmes/log"
 	CreditNoteLog "github.com/starkinfra/sdk-go/starkinfra/creditnote/log"
 	IssuingCardLog "github.com/starkinfra/sdk-go/starkinfra/issuingcard/log"
+	IssuingHolderLog "github.com/starkinfra/sdk-go/starkinfra/issuingholder/log"
 	IssuingInvoiceLog "github.com/starkinfra/sdk-go/starkinfra/issuinginvoice/log"
 	IssuingPurchaseLog "github.com/starkinfra/sdk-go/starkinfra/issuingpurchase/log"
 	IssuingTokenLog "github.com/starkinfra/sdk-go/starkinfra/issuingtoken/log"
@@ -14,6 +16,7 @@ import (
 	PixClaimLog "github.com/starkinfra/sdk-go/starkinfra/pixclaim/log"
 	PixDisputeLog "github.com/starkinfra/sdk-go/starkinfra/pixdispute/log"
 	PixInfractionLog "github.com/starkinfra/sdk-go/starkinfra/pixinfraction/log"
+	PixInternalTransactionReportLog "github.com/starkinfra/sdk-go/starkinfra/pixinternaltransactionreport/log"
 	PixKeyLog "github.com/starkinfra/sdk-go/starkinfra/pixkey/log"
 	PixRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixrequest/log"
 	PixReversalLog "github.com/starkinfra/sdk-go/starkinfra/pixreversal/log"
@@ -392,6 +395,36 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "pix-pull-request" {
 		var log PixPullRequestLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "credit-holmes" {
+		var log CreditHolmesLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "issuing-holder" {
+		var log IssuingHolderLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		err := json.Unmarshal(marshal, &log)
+		if err != nil {
+			return e, Error.UnknownError(err.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "pix-internal-transaction-report" {
+		var log PixInternalTransactionReportLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		err := json.Unmarshal(marshal, &log)
 		if err != nil {

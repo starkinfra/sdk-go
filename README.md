@@ -9272,6 +9272,7 @@ import (
     "fmt"
     "github.com/starkinfra/sdk-go/starkinfra"
     Event "github.com/starkinfra/sdk-go/starkinfra/event"
+    PixRequestLog "github.com/starkinfra/sdk-go/starkinfra/pixrequest/log"
     "github.com/starkinfra/sdk-go/tests/utils"
 )
 
@@ -9292,9 +9293,18 @@ func main() {
 		}
 	}
 
-    if event.Subscription == "pix-request" {
-        fmt.Println(event.Log)
-    } else if event.Subscription == "pix-reversal" {
+    // Parse returns Log as a raw map; ParseLog converts it into the subscription's Log struct
+    event, err = event.ParseLog()
+    if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+    if event.Subscription == "pix-request.in" || event.Subscription == "pix-request.out" {
+        log := event.Log.(PixRequestLog.Log)
+        fmt.Println(log.Request.Id)
+    } else if event.Subscription == "pix-reversal.in" || event.Subscription == "pix-reversal.out" {
         fmt.Println(event.Log)
     } else if event.Subscription == "issuing-card" {
         fmt.Println(event.Log)

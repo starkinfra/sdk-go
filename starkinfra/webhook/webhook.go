@@ -12,8 +12,8 @@ import (
 //	A Webhook is used to subscribe to notification events on a user-selected endpoint.
 //	Currently, available services for subscription are: pix-request, pix-reversal, pix-pull-subscription,
 //	pix-pull-request, pix-internal-transaction-report, pix-key, pix-key-holmes, pix-claim, pix-infraction,
-//	pix-chargeback, pix-dispute, issuing-card, issuing-holder, issuing-purchase, issuing-invoice, credit-note,
-//	credit-holmes.
+//	pix-chargeback, pix-dispute, issuing-card, issuing-holder, issuing-purchase, issuing-invoice,
+//	issuing-token, credit-note, credit-holmes, business-identity.
 //
 //	Parameters (required):
 //	- Url [string]: Url that will be notified when an event occurs.
