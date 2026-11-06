@@ -65,7 +65,7 @@ func Create(identities []BusinessIdentity, user user.User) ([]BusinessIdentity, 
 	//
 	//	Send a slice of BusinessIdentity objects for creation at the Stark Infra API. Each entry is created in
 	//	"pending" status. The CNPJ must be valid and active in the official bureau and must return at least one
-	//	representative (sócio); use the returned id as identityId when uploading Business Attachments.
+	//	representative (sócio); use the returned id as BusinessIdentityId when creating BusinessAttachments.
 	//
 	//	Parameters (required):
 	//	- identities [slice of BusinessIdentity structs]: slice of BusinessIdentity objects to be created in the API
