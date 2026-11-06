@@ -12,13 +12,13 @@ import (
 //	IndividualAccountAttachment struct
 //
 //	Supporting document (identity, driver's license, selfie) attached to an IndividualAccountRequest
-//	for the account-approval flow. The caller uploads the raw image bytes and a MIME content type;
-//	Create encodes them into a data: URL client-side before sending. This resource references its
-//	parent request by AccountRequestId.
+//	for the account-approval flow. The caller provides the base64-encoded image and a MIME content type;
+//	Create wraps them into a data: URL client-side before sending. The SDK does not base64-encode
+//	Content. This resource references its parent request by AccountRequestId.
 //
 //	Parameters (required):
 //	- Type [string]: Type of the IndividualAccountAttachment. Options: "drivers-license-front", "drivers-license-back", "identity-front", "identity-back", "selfie"
-//	- Content [string]: Raw image bytes (binary) at constructor time. After Create, becomes the data:<contentType>;base64,<payload> URL sent on the wire.
+//	- Content [string]: Base64-encoded file content, encoded by the caller. ex: base64.StdEncoding.EncodeToString(imageBytes). After Create, becomes the data:<contentType>;base64,<payload> URL sent on the wire.
 //	- ContentType [string]: MIME type of Content. ex: "image/png", "image/jpeg". Input-only — consumed client-side to build the data: URL; never sent as its own wire field.
 //	- AccountRequestId [string]: Id of the parent IndividualAccountRequest. ex: "5189530608992256"
 //
@@ -27,7 +27,7 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the IndividualAccountAttachment is created. ex: "5656565656565656"
-//	- Status [string]: Current IndividualAccountAttachment status. ex: "created", "success", "failed", "deleted"
+//	- Status [string]: Current IndividualAccountAttachment status. ex: "created", "canceled", "processing", "success", "failed", "deleted"
 //	- Created [time.Time]: Creation datetime for the IndividualAccountAttachment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IndividualAccountAttachment struct {
@@ -47,9 +47,9 @@ func Create(attachments []IndividualAccountAttachment, user user.User) ([]Indivi
 	//	Create IndividualAccountAttachments
 	//
 	//	Send a slice of IndividualAccountAttachment structs for creation at the Stark Infra API.
-	//	Each attachment's Content + ContentType are encoded into a data:<contentType>;base64,<payload>
-	//	URL client-side before serialization, and ContentType is then blanked so it is never sent as its
-	//	own wire field.
+	//	Each attachment's already base64-encoded Content is prefixed with its ContentType into a
+	//	data:<contentType>;base64,<payload> URL client-side before serialization, and ContentType is then
+	//	blanked so it is never sent as its own wire field. Content is not base64-encoded by the SDK.
 	//
 	//	Parameters (required):
 	//	- attachments [slice of IndividualAccountAttachment structs]: slice of IndividualAccountAttachment structs to be created in the API
@@ -105,7 +105,7 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualAccoun
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "success", "failed", "deleted"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "canceled", "processing", "success", "failed", "deleted"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -147,7 +147,7 @@ func Page(params map[string]interface{}, user user.User) ([]IndividualAccountAtt
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. Max = 100. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "success", "failed", "deleted"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "canceled", "processing", "success", "failed", "deleted"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
