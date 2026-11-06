@@ -12,7 +12,8 @@ import (
 //
 //	Request to open a Stark Infra account for an individual. The caller submits the individual's
 //	identifying data and income, and the API runs the approval flow asynchronously — moving the
-//	request through "created" -> "processing" -> ("success" | "failed" | "canceled").
+//	request through "created" -> "processing" -> ("approved" | "denied"). Every transition
+//	produces an IndividualAccountRequest Log.
 //	Supporting documents are uploaded as IndividualAccountAttachment and reference this request
 //	by its id.
 //
@@ -28,7 +29,7 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the IndividualAccountRequest is created. ex: "5189530608992256"
-//	- Status [string]: Current IndividualAccountRequest status. Options: "created", "processing", "approved", "denied", "failed"
+//	- Status [string]: Current IndividualAccountRequest status. Options: "created", "processing", "denied", "approved"
 //	- AccountType [string]: Type of the requested account. Always "individual" for this resource.
 //	- Flags [slice of maps]: Flags raised by the KYC pipeline, populated when the request is denied. Each flag has a code and a message. ex: []map[string]interface{}{{"code": "bureauValidation", "message": "..."}}
 //	- ValidatorLink [string]: Webview link to be delivered to the taker to complete biometrics and document capture.
@@ -106,7 +107,7 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualAccoun
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "processing", "success", "failed", "canceled"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "processing", "denied", "approved"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5189530608992256", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -148,7 +149,7 @@ func Page(params map[string]interface{}, user user.User) ([]IndividualAccountReq
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. Max = 100. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "processing", "success", "failed", "canceled"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "processing", "denied", "approved"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5189530608992256", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call

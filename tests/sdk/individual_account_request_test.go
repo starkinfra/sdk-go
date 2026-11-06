@@ -141,7 +141,7 @@ func TestIndividualAccountRequestInfoGet(t *testing.T) {
 			}
 		}
 		assert.NotNil(t, getRequest.Id)
-		assert.Contains(t, []string{"approved", "created", "denied", "processing", "updated"}, getRequest.Status)
+		assert.Contains(t, []string{"approved", "created", "denied", "processing"}, getRequest.Status)
 		assert.NotNil(t, getRequest.Created)
 	}
 

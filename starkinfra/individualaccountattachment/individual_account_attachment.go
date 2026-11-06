@@ -27,7 +27,7 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the IndividualAccountAttachment is created. ex: "5656565656565656"
-//	- Status [string]: Current IndividualAccountAttachment status. ex: "created", "success", "failed", "deleted"
+//	- Status [string]: Current IndividualAccountAttachment status. ex: "created", "canceled", "processing", "success", "failed", "deleted"
 //	- Created [time.Time]: Creation datetime for the IndividualAccountAttachment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type IndividualAccountAttachment struct {
@@ -105,7 +105,7 @@ func Query(params map[string]interface{}, user user.User) (chan IndividualAccoun
 	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "success", "failed", "deleted"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "canceled", "processing", "success", "failed", "deleted"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
@@ -147,7 +147,7 @@ func Page(params map[string]interface{}, user user.User) ([]IndividualAccountAtt
 	//		- limit [int, default 100]: Maximum number of structs to be retrieved. Max = 100. ex: 35
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2020-03-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date.  ex: "2022-11-10"
-	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "success", "failed", "deleted"}
+	//		- status [slice of strings, default nil]: Filter for status of retrieved structs. ex: []string{"created", "canceled", "processing", "success", "failed", "deleted"}
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"employees", "monthly"}
 	//		- ids [slice of strings, default nil]: Slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkinfra.User was set before function call
