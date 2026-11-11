@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/starkinfra/core-go/starkcore/utils/api"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	PixRequest "github.com/starkinfra/sdk-go/starkinfra/pixrequest"
 	"github.com/starkinfra/sdk-go/tests/utils"
@@ -24,6 +25,21 @@ func TestPixRequestPost(t *testing.T) {
 	for _, request := range requests {
 		assert.NotNil(t, request.Id)
 	}
+}
+
+func TestPixRequestPostWithDisputeId(t *testing.T) {
+
+	request := Example.PixRequest()[0]
+	request.EndToEndId = "E20018183202202161723Y4cqxlfLFcm"
+	request.Reason = "fraud"
+	request.DisputeId = "5656565656565656"
+
+	payload := api.ApiJson(request, map[string]string{"name": "PixRequest"}).(map[string]interface{})
+
+	assert.Equal(t, "fraud", request.Reason)
+	assert.Equal(t, "5656565656565656", request.DisputeId)
+	assert.Equal(t, "fraud", payload["reason"])
+	assert.Equal(t, "5656565656565656", payload["disputeId"])
 }
 
 func TestPixRequestQuery(t *testing.T) {

@@ -14,6 +14,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Added
+- DisputeId attribute to PixRequest resource
 - PixSubscriptionBacenId utility to generate Pix subscription bacenIds
 - PixKeyHolmes.Log sub-resource
 - PixKeyHolmes Get function

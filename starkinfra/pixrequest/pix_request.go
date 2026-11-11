@@ -42,8 +42,11 @@ import (
 //	- CashierType [string, default nil]: Cashier's type. ex: []string{merchant, other, participant]
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for PixRequests. ex: []string{"employees", "monthly"}
 //	- Method [string, default nil]: Execution  method for the creation of the Pix. ex: "manual", "payerQrcode", "dynamicQrcode".
-//	- Reason [string, default "customerRequest"]: Underlying reason for the payment transaction. ex: "customerRequest", "fraud", "subscriptionFlaw"
+//	- Reason [string, default "customerRequest"]: Underlying reason for the payment transaction. Options: "customerRequest", "subscriptionFlaw", "fraud". When reason is "fraud" (returning funds from a PixDispute), DisputeId is required and SenderTaxId must be your institution's organization tax ID (CNPJ).
 //	- Priority [string, default "high"]: Defines the channel through which the entities will be processed. Options: "low", "high"
+//
+//	Parameters (conditionally-required):
+//	- DisputeId [string, default nil]: Id of the Pix Dispute being refunded. Required when reason is "fraud" and not allowed with any other reason. The dispute must be one you received and must be awaiting the refund, otherwise the request is refused with invalidDisputeId.
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the PixRequest is created. ex: "5656565656565656"
@@ -79,6 +82,7 @@ type PixRequest struct {
 	Tags                  []string   `json:",omitempty"`
 	Method                string     `json:",omitempty"`
 	Reason                string     `json:",omitempty"`
+	DisputeId             string     `json:",omitempty"`
 	Priority              string     `json:",omitempty"`
 	Id                    string     `json:",omitempty"`
 	Fee                   int        `json:",omitempty"`
