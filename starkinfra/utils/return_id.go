@@ -13,5 +13,5 @@ import (
 //	- Random returnId based on your bank code.
 
 func ReturnId(bankCode string) string {
-	return fmt.Sprintf("D%v", BankCode(bankCode))
+	return fmt.Sprintf("D%v", BacenId(bankCode))
 }

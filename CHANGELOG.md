@@ -14,6 +14,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Added
+- PixSubscriptionBacenId utility to generate Pix subscription bacenIds
 - PixPullSubscription.parse method
 - CreditSigner.resendToken method
 - Pdf and Payment methods to CreditNote resource
@@ -45,6 +46,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - IssuingCard and Webhook Get/Query/Page/Update/Delete sharing one package-level struct instance instead of one scoped to each call
 - Event.ParseLog leaving Log as a raw map for credit-holmes, issuing-holder and pix-internal-transaction-report events, instead of the CreditHolmes, IssuingHolder and PixInternalTransactionReport Log structs
 - Webhook documentation, which now lists the issuing-token and business-identity subscriptions
+- BacenId, EndToEndId and ReturnId datetime generated in UTC instead of the machine timezone
 ### Removed
 - IndividualDocument resource and its Log: no API route serves them
 
