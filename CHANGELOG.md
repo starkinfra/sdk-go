@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [1.3.0] - 2026-11-12
 ### Added
 - DisputeId attribute to PixRequest resource
 - PixSubscriptionBacenId utility to generate Pix subscription bacenIds
