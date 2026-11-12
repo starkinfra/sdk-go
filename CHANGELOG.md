@@ -40,6 +40,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - Expiration, Fine and Interest types in CreditNote.Invoice resource, from int and float64 to *int and *float64: an explicit 0 was dropped before reaching the API, which applied its non-zero default instead
 - PullRetryLimit type in PixPullSubscription resource, from int to *int: an explicit 0 was dropped before reaching the API, which requires the field
 - MerchantCategoryNumber type in IssuingPurchase resource, from int to string: the API returns a string
+- NominalAmount and Amount parameters to conditionally required to CreditNotePreview sub-resource
 ### Fixed
 - PixPullSubscription log parsing when the subscription carries an empty date
 - PullRetryLimit type in PixPullSubscription resource, an explicit 0 was dropped before reaching the API, which requires the field
