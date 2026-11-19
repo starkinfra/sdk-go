@@ -13,6 +13,11 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- IssuingCard.UpdateMulti function, to update several cards in one request (PATCH /v2/issuing-card)
+- holderName, holderTaxId and holderExternalId to the IssuingCard.Update patch data, to assign a holder to a pending card
+### Changed
+- HolderName, HolderTaxId and HolderExternalId are documented as optional in IssuingCard, so a physical card can be created without a holder
 
 ## [1.3.0] - 2026-11-12
 ### Added
