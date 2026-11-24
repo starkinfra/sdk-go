@@ -44,6 +44,7 @@ import (
 //	- Tags [slice of strings, default nil]: Slice of strings for reference when searching for CreditNotes. ex: []string{"employees", "monthly"}
 //	- Expiration [*int, default 604800 (7 days)]: Time interval in seconds between due date and expiration date. 0 is a valid value. ex: 123456789
 //	- Rules [slice of CreditNote.Rule structs, default nil]: Slice of CreditNote.Rule structs that modify the CreditNote behavior. ex: []creditnote.Rule{{Key: "invoiceCreationMode", Value: "scheduled"}}
+//	- TemplateReplacements [CreditNote.TemplateReplacements, default nil]: Custom values used to fill the placeholders of the contract template. The keys depend on the template. Every key, at any level, goes through strcase.ToLowerCamel, which reads the key byte by byte and keeps only ASCII letters and digits: any other byte is discarded, including every non-ASCII letter (ex: "endereçoAvalista" is sent as "endereoAvalista") and ASCII punctuation (ex: "cpf/cnpj" is sent as "cpfcnpj", without capitalizing the next letter). Only "_", "-", "." and space capitalize the next letter when removed (ex: "guarantor-tax.id" is sent as "guarantorTaxId"). The letter after a digit is also capitalized ("avalista2nome" is sent as "avalista2Nome") and the first character is lowercased ("CPFAvalista" is sent as "cPFAvalista"). Use the placeholder name in ASCII lowerCamelCase, with letters and digits only. Keys with nil values are not sent. String values in RFC3339 date format are rewritten as a date (ex: "2026-01-02T00:00:00Z" is sent as "2026-01-02") and numbers go through float64 (precision is lost above 2^53), so send placeholders as strings that do not look like an RFC3339 date or a large number. A map[string]interface{} literal is assignable to it. ex: CreditNote.TemplateReplacements{"guarantorName": "Jon Snow", "guarantorTaxId": "012.345.678-90", "guarantorAddress": "Av. Paulista, 200 - Bela Vista - Sao Paulo, SP"}
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when the CreditNote is created. ex: "5656565656565656"
@@ -59,38 +60,39 @@ import (
 //	- Updated [time.Time]: Latest update datetime for the CreditNote. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 
 type CreditNote struct {
-	Id                string                `json:",omitempty"`
-	TemplateId        string                `json:",omitempty"`
-	Name              string                `json:",omitempty"`
-	TaxId             string                `json:",omitempty"`
-	Scheduled         *time.Time            `json:",omitempty"`
-	Payment           Transfer              `json:",omitempty"`
-	Invoices          []Invoice.Invoice     `json:",omitempty"`
-	Signers           []Signer.CreditSigner `json:",omitempty"`
-	ExternalId        string                `json:",omitempty"`
-	StreetLine1       string                `json:",omitempty"`
-	StreetLine2       string                `json:",omitempty"`
-	District          string                `json:",omitempty"`
-	City              string                `json:",omitempty"`
-	StateCode         string                `json:",omitempty"`
-	ZipCode           string                `json:",omitempty"`
-	NominalAmount     int                   `json:",omitempty"`
-	PaymentType       string                `json:",omitempty"`
-	Amount            int                   `json:",omitempty"`
-	RebateAmount      int                   `json:",omitempty"`
-	Tags              []string              `json:",omitempty"`
-	Expiration        *int                  `json:",omitempty"`
-	Rules             []Rule                `json:",omitempty"`
-	DocumentId        string                `json:",omitempty"`
-	Status            string                `json:",omitempty"`
-	TransactionIds    []string              `json:",omitempty"`
-	WorkspaceId       string                `json:",omitempty"`
-	DebtorWorkspaceId string                `json:",omitempty"`
-	TaxAmount         int                   `json:",omitempty"`
-	NominalInterest   float64               `json:",omitempty"`
-	Interest          float64               `json:",omitempty"`
-	Created           *time.Time            `json:",omitempty"`
-	Updated           *time.Time            `json:",omitempty"`
+	Id                   string                `json:",omitempty"`
+	TemplateId           string                `json:",omitempty"`
+	Name                 string                `json:",omitempty"`
+	TaxId                string                `json:",omitempty"`
+	Scheduled            *time.Time            `json:",omitempty"`
+	Payment              Transfer              `json:",omitempty"`
+	Invoices             []Invoice.Invoice     `json:",omitempty"`
+	Signers              []Signer.CreditSigner `json:",omitempty"`
+	ExternalId           string                `json:",omitempty"`
+	StreetLine1          string                `json:",omitempty"`
+	StreetLine2          string                `json:",omitempty"`
+	District             string                `json:",omitempty"`
+	City                 string                `json:",omitempty"`
+	StateCode            string                `json:",omitempty"`
+	ZipCode              string                `json:",omitempty"`
+	NominalAmount        int                   `json:",omitempty"`
+	PaymentType          string                `json:",omitempty"`
+	Amount               int                   `json:",omitempty"`
+	RebateAmount         int                   `json:",omitempty"`
+	Tags                 []string              `json:",omitempty"`
+	Expiration           *int                  `json:",omitempty"`
+	Rules                []Rule                `json:",omitempty"`
+	TemplateReplacements TemplateReplacements  `json:"templateReplacements,omitempty"`
+	DocumentId           string                `json:",omitempty"`
+	Status               string                `json:",omitempty"`
+	TransactionIds       []string              `json:",omitempty"`
+	WorkspaceId          string                `json:",omitempty"`
+	DebtorWorkspaceId    string                `json:",omitempty"`
+	TaxAmount            int                   `json:",omitempty"`
+	NominalInterest      float64               `json:",omitempty"`
+	Interest             float64               `json:",omitempty"`
+	Created              *time.Time            `json:",omitempty"`
+	Updated              *time.Time            `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "CreditNote"}

@@ -7379,6 +7379,11 @@ func main() {
                 StateCode:   "SP",
                 ZipCode:     "01234-567",
                 PaymentType: "transfer",
+                TemplateReplacements: CreditNote.TemplateReplacements{
+                    "guarantorName":    "Jon Snow",
+                    "guarantorTaxId":   "012.345.678-90",
+                    "guarantorAddress": "Av. Paulista, 200 - Bela Vista - Sao Paulo, SP",
+                },
             },
         }, nil)
     if err.Errors != nil {
@@ -7395,6 +7400,8 @@ func main() {
 ```
 
 **Note**: Instead of using CreditNote objects, you can also pass each element in dictionary format
+
+**Note**: TemplateReplacements is optional and its keys depend on your contract template. It is a `CreditNote.TemplateReplacements`, a named `map[string]interface{}`: a plain `map[string]interface{}` is still assignable to it. The SDK passes every key, at any level, through strcase.ToLowerCamel, which reads the key byte by byte and keeps only ASCII letters and digits: any other byte is discarded, including every non-ASCII letter (ex: "endereçoAvalista" is sent as "endereoAvalista") and ASCII punctuation (ex: "cpf/cnpj" is sent as "cpfcnpj", without capitalizing the next letter). Only "_", "-", "." and space capitalize the next letter when removed (ex: "guarantor-tax.id" is sent as "guarantorTaxId"). The letter after a digit is also capitalized ("avalista2nome" is sent as "avalista2Nome") and the first character is lowercased ("CPFAvalista" is sent as "cPFAvalista"). Use the placeholder name in ASCII lowerCamelCase, with letters and digits only. Keys with nil values are not sent. The SDK also rewrites string values in RFC3339 date format (ex.: "2026-01-02T00:00:00Z" is sent as "2026-01-02") and numbers go through float64 (precision is lost above 2^53), so send placeholders as strings that do not look like an RFC3339 date or a large number.
 
 ### Query CreditNotes
 
