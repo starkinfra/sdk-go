@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"github.com/starkinfra/sdk-go/starkinfra"
 	CreditNote "github.com/starkinfra/sdk-go/starkinfra/creditnote"
+	"github.com/starkinfra/sdk-go/starkinfra/creditsigner"
 	"github.com/starkinfra/sdk-go/tests/utils"
 	Example "github.com/starkinfra/sdk-go/tests/utils/generator"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -23,6 +25,38 @@ func TestCreditNotePost(t *testing.T) {
 
 	for _, note := range notes {
 		assert.NotNil(t, note.Id)
+	}
+}
+
+func TestCreditNotePostWithTemplateReplacements(t *testing.T) {
+
+	starkinfra.User = utils.ExampleProject
+
+	replacements := CreditNote.TemplateReplacements{
+		"nomeAvalista":     "Jon Snow",
+		"taxIdAvalista":    "012.345.678-90",
+		"enderecoAvalista": "Av. Paulista, 200 - Bela Vista - Sao Paulo, SP",
+	}
+	notes := Example.CreditNote()
+	notes[0].Tags = []string{"sdk-test"}
+	notes[0].TemplateReplacements = replacements
+	// Templates are enabled per workspace: SANDBOX_TEMPLATE_ID must be one of the Project under test
+	if templateId := os.Getenv("SANDBOX_TEMPLATE_ID"); templateId != "" {
+		notes[0].TemplateId = templateId
+	}
+	notes[0].TaxId = "012.345.678-90"
+	notes[0].Signers = []creditsigner.CreditSigner{{Name: "Jamie Lannister", Contact: "jamie.lannister@invaliddomain.com", Method: "link"}}
+
+	created, err := CreditNote.Create(notes, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	for _, note := range created {
+		assert.NotNil(t, note.Id)
+		assert.Equal(t, replacements, note.TemplateReplacements)
 	}
 }
 
