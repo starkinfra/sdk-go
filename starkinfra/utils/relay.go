@@ -50,6 +50,13 @@ func Multi(resource map[string]string, entities interface{}, query map[string]in
 	return rest.PostMulti(starkinfra.SdkVersion, starkinfra.Host, starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, user, resource, entities, query)
 }
 
+func PatchMulti(resource map[string]string, entities interface{}, user user.User) ([]byte, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PatchMulti(starkinfra.SdkVersion, starkinfra.Host, starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, starkinfra.User, resource, entities, nil)
+	}
+	return rest.PatchMulti(starkinfra.SdkVersion, starkinfra.Host, starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, user, resource, entities, nil)
+}
+
 func Single(resource map[string]string, entity interface{}, user user.User) ([]byte, Errors.StarkErrors) {
 	if user == nil {
 		return rest.PostSingle(starkinfra.SdkVersion, starkinfra.Host, starkinfra.ApiVersion, starkinfra.Language, starkinfra.Timeout, starkinfra.User, resource, entity, nil)
